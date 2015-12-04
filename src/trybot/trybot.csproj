@@ -46,8 +46,8 @@
     <Compile Include="TaskDelayer.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Ronin.Common, Version=1.0.9.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ronin.Common.1.0.9.0\lib\portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\Ronin.Common.dll</HintPath>
+    <Reference Include="Ronin.Common, Version=1.0.15.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ronin.Common.1.0.15.0\lib\portable-net45+dnxcore50+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\Ronin.Common.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
