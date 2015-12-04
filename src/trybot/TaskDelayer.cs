@@ -6,7 +6,7 @@ namespace Trybot
 {
     public static class TaskDelayer
     {
-        public async static Task Sleep(TimeSpan timeSpan, CancellationToken token)
+        public static async Task Sleep(TimeSpan timeSpan, CancellationToken token)
         {
             try
             {
@@ -16,7 +16,7 @@ namespace Trybot
             { }
         }
 
-        public async static Task Sleep(int milliseconds, CancellationToken token)
+        public static async Task Sleep(int milliseconds, CancellationToken token)
         {
             await Sleep(TimeSpan.FromMilliseconds(milliseconds), token);
         }

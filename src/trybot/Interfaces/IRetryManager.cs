@@ -5,7 +5,7 @@ using Trybot.Strategy;
 
 namespace Trybot.Interfaces
 {
-    public interface IRetryManager<out TRetryPolicy> where TRetryPolicy : class, IRetryPolicy
+    public interface IRetryManager
     {
         Task ExecuteAsync(Action action, CancellationToken token, RetryStartegy retryStartegy = null, Func<bool> retryFiler = null);
         Task ExecuteAsync(Action action, RetryStartegy retryStartegy = null, Func<bool> retryFiler = null);

@@ -29,7 +29,7 @@ namespace Trybot.Tests
             }
         }
 
-        private IRetryManager<FakeRetryPolicy> retryManager;
+        private IRetryManager retryManager;
         private FakeRetryStrategy executionPolicy;
 
         [TestInitialize]
