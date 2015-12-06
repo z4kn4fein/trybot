@@ -8,7 +8,7 @@ using Trybot.Strategy;
 
 namespace Trybot
 {
-    public partial class RetryManager<TRetryPolicy> : IRetryManager<TRetryPolicy> where TRetryPolicy : class, IRetryPolicy
+    public class RetryManager<TRetryPolicy> : IRetryManager where TRetryPolicy : class, IRetryPolicy
     {
         private readonly TRetryPolicy retryPolicy;
 
