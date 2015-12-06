@@ -17,7 +17,7 @@ namespace Trybot.Tests
                 {
                     throw new Exception();
                 });
-            }, CancellationToken.None, this.executionPolicy).Wait();
+            }, CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy).Wait();
         }
 
         [TestMethod]
@@ -30,7 +30,7 @@ namespace Trybot.Tests
                 {
                     throw new Exception();
                 });
-            }, this.executionPolicy).Wait();
+            }, (attempt, nextDelay) => { }, this.executionPolicy).Wait();
         }
 
         [TestMethod]
@@ -44,7 +44,7 @@ namespace Trybot.Tests
                 {
                     throw new Exception();
                 });
-            }, cancellationTokenSource.Token, this.executionPolicy);
+            }, cancellationTokenSource.Token, (attempt, nextDelay) => { }, this.executionPolicy);
             cancellationTokenSource.Cancel();
             task.Wait();
         }
@@ -60,7 +60,7 @@ namespace Trybot.Tests
                     {
                         throw new Exception();
                     });
-                }, CancellationToken.None, this.executionPolicy).Wait();
+                }, CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy).Wait();
             }
             catch (Exception)
             {
@@ -79,7 +79,7 @@ namespace Trybot.Tests
                     {
                         throw new Exception();
                     });
-                }, CancellationToken.None, this.executionPolicy, () => false).Wait();
+                }, CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy, () => false).Wait();
             }
             catch (Exception)
             {
@@ -99,7 +99,7 @@ namespace Trybot.Tests
                     {
                         throw new Exception();
                     });
-                }, cancellationTokenSource.Token, this.executionPolicy);
+                }, cancellationTokenSource.Token, (attempt, nextDelay) => { }, this.executionPolicy);
                 cancellationTokenSource.Cancel();
                 task.Wait();
             }
@@ -122,7 +122,7 @@ namespace Trybot.Tests
                     {
                         throw new Exception();
                     });
-                }, cancellationTokenSource.Token, this.executionPolicy, () => true);
+                }, cancellationTokenSource.Token, (attempt, nextDelay) => { }, this.executionPolicy, () => true);
                 cancellationTokenSource.Cancel();
                 task.Wait();
             }
@@ -145,7 +145,7 @@ namespace Trybot.Tests
                     {
                         throw new Exception();
                     });
-                }, cancellationTokenSource.Token, this.executionPolicy, () => false);
+                }, cancellationTokenSource.Token, (attempt, nextDelay) => { }, this.executionPolicy, () => false);
                 cancellationTokenSource.Cancel();
                 task.Wait();
             }
@@ -166,7 +166,7 @@ namespace Trybot.Tests
                 {
                     throw new Exception();
                 });
-            }, CancellationToken.None, this.executionPolicy, () => true).Wait();
+            }, CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy, () => true).Wait();
         }
 
         [TestMethod]
@@ -180,7 +180,7 @@ namespace Trybot.Tests
                     {
                         throw new Exception();
                     });
-                }, CancellationToken.None, this.executionPolicy, () => true).Wait();
+                }, CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy, () => true).Wait();
             }
             catch (Exception)
             {
@@ -191,14 +191,14 @@ namespace Trybot.Tests
         [TestMethod]
         public void ExecuteAsync_FuncTask_WithoutRetry()
         {
-            this.retryManager.ExecuteAsync(() => Task.Run(() => { }), CancellationToken.None, this.executionPolicy).Wait();
+            this.retryManager.ExecuteAsync(() => Task.Run(() => { }), CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy).Wait();
             Assert.AreEqual(0, this.executionPolicy.Counter);
         }
 
         [TestMethod]
         public void ExecuteAsync_FuncTask_WithoutRetry_WithoutCancellationToken()
         {
-            this.retryManager.ExecuteAsync(() => Task.Run(() => { }), this.executionPolicy).Wait();
+            this.retryManager.ExecuteAsync(() => Task.Run(() => { }), (attempt, nextDelay) => { }, this.executionPolicy).Wait();
             Assert.AreEqual(0, this.executionPolicy.Counter);
         }
     }

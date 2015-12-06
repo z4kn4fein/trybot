@@ -16,7 +16,7 @@ namespace Trybot.Tests
                 var taskCompletionSource = new TaskCompletionSource<object>();
                 taskCompletionSource.SetException(new Exception());
                 return taskCompletionSource.Task;
-            }, CancellationToken.None, this.executionPolicy).Wait();
+            }, CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy).Wait();
         }
 
         [TestMethod]
@@ -28,7 +28,7 @@ namespace Trybot.Tests
                 var taskCompletionSource = new TaskCompletionSource<object>();
                 taskCompletionSource.SetException(new Exception());
                 return taskCompletionSource.Task;
-            }, this.executionPolicy).Wait();
+            }, (attempt, nextDelay) => { }, this.executionPolicy).Wait();
         }
 
         [TestMethod]
@@ -41,7 +41,7 @@ namespace Trybot.Tests
                 var taskCompletionSource = new TaskCompletionSource<object>();
                 taskCompletionSource.SetException(new Exception());
                 return taskCompletionSource.Task;
-            }, cancellationTokenSource.Token, this.executionPolicy);
+            }, cancellationTokenSource.Token, (attempt, nextDelay) => { }, this.executionPolicy);
             cancellationTokenSource.Cancel();
             task.Wait();
         }
@@ -56,7 +56,7 @@ namespace Trybot.Tests
                     var taskCompletionSource = new TaskCompletionSource<object>();
                     taskCompletionSource.SetException(new Exception());
                     return taskCompletionSource.Task;
-                }, CancellationToken.None, this.executionPolicy).Wait();
+                }, CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy).Wait();
             }
             catch (Exception)
             {
@@ -74,7 +74,7 @@ namespace Trybot.Tests
                     var taskCompletionSource = new TaskCompletionSource<object>();
                     taskCompletionSource.SetException(new Exception());
                     return taskCompletionSource.Task;
-                }, CancellationToken.None, this.executionPolicy, () => false).Wait();
+                }, CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy, () => false).Wait();
             }
             catch (Exception)
             {
@@ -93,7 +93,7 @@ namespace Trybot.Tests
                     var taskCompletionSource = new TaskCompletionSource<object>();
                     taskCompletionSource.SetException(new Exception());
                     return taskCompletionSource.Task;
-                }, cancellationTokenSource.Token, this.executionPolicy);
+                }, cancellationTokenSource.Token, (attempt, nextDelay) => { }, this.executionPolicy);
                 cancellationTokenSource.Cancel();
                 task.Wait();
             }
@@ -115,7 +115,7 @@ namespace Trybot.Tests
                     var taskCompletionSource = new TaskCompletionSource<object>();
                     taskCompletionSource.SetException(new Exception());
                     return taskCompletionSource.Task;
-                }, cancellationTokenSource.Token, this.executionPolicy, () => true);
+                }, cancellationTokenSource.Token, (attempt, nextDelay) => { }, this.executionPolicy, () => true);
                 cancellationTokenSource.Cancel();
                 task.Wait();
             }
@@ -137,7 +137,7 @@ namespace Trybot.Tests
                     var taskCompletionSource = new TaskCompletionSource<object>();
                     taskCompletionSource.SetException(new Exception());
                     return taskCompletionSource.Task;
-                }, cancellationTokenSource.Token, this.executionPolicy, () => false);
+                }, cancellationTokenSource.Token, (attempt, nextDelay) => { }, this.executionPolicy, () => false);
                 cancellationTokenSource.Cancel();
                 task.Wait();
             }
@@ -157,7 +157,7 @@ namespace Trybot.Tests
                 var taskCompletionSource = new TaskCompletionSource<object>();
                 taskCompletionSource.SetException(new Exception());
                 return taskCompletionSource.Task;
-            }, CancellationToken.None, this.executionPolicy, () => true).Wait();
+            }, CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy, () => true).Wait();
         }
 
         [TestMethod]
@@ -170,7 +170,7 @@ namespace Trybot.Tests
                     var taskCompletionSource = new TaskCompletionSource<object>();
                     taskCompletionSource.SetException(new Exception());
                     return taskCompletionSource.Task;
-                }, CancellationToken.None, this.executionPolicy, () => true).Wait();
+                }, CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy, () => true).Wait();
             }
             catch (Exception)
             {
@@ -186,7 +186,7 @@ namespace Trybot.Tests
                 var taskCompletionSource = new TaskCompletionSource<object>();
                 taskCompletionSource.SetResult(null);
                 return taskCompletionSource.Task;
-            }, CancellationToken.None, this.executionPolicy).Wait();
+            }, CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy).Wait();
             Assert.AreEqual(0, this.executionPolicy.Counter);
         }
 
@@ -198,7 +198,7 @@ namespace Trybot.Tests
                 var taskCompletionSource = new TaskCompletionSource<bool>();
                 taskCompletionSource.SetResult(true);
                 return taskCompletionSource.Task;
-            }, CancellationToken.None, this.executionPolicy, resultFilter: result => result).Result;
+            }, CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy, resultFilter: result => result).Result;
             Assert.AreEqual(5, this.executionPolicy.Counter);
             Assert.IsTrue(functionResult);
         }
@@ -211,7 +211,7 @@ namespace Trybot.Tests
                 var taskCompletionSource = new TaskCompletionSource<bool>();
                 taskCompletionSource.SetResult(true);
                 return taskCompletionSource.Task;
-            }, this.executionPolicy, resultFilter: result => result).Result;
+            }, (attempt, nextDelay) => { }, this.executionPolicy, resultFilter: result => result).Result;
             Assert.AreEqual(5, this.executionPolicy.Counter);
             Assert.IsTrue(functionResult);
         }
@@ -224,7 +224,7 @@ namespace Trybot.Tests
                 var taskCompletionSource = new TaskCompletionSource<bool>();
                 taskCompletionSource.SetResult(true);
                 return taskCompletionSource.Task;
-            }, CancellationToken.None, this.executionPolicy, resultFilter: result => !result).Result;
+            }, CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy, resultFilter: result => !result).Result;
             Assert.AreEqual(0, this.executionPolicy.Counter);
             Assert.IsTrue(functionResult);
         }
@@ -237,7 +237,7 @@ namespace Trybot.Tests
                 var taskCompletionSource = new TaskCompletionSource<bool>();
                 taskCompletionSource.SetResult(true);
                 return taskCompletionSource.Task;
-            }, this.executionPolicy, resultFilter: result => !result).Result;
+            }, (attempt, nextDelay) => { }, this.executionPolicy, resultFilter: result => !result).Result;
             Assert.AreEqual(0, this.executionPolicy.Counter);
             Assert.IsTrue(functionResult);
         }

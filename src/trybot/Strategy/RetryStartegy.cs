@@ -7,9 +7,11 @@ namespace Trybot.Strategy
 {
     public abstract class RetryStartegy
     {
-        public static RetryStartegy GetDefaultPolicy()
+        private static RetryStartegy defaultRetryStrategy = new FixedIntervalRetryStartegy(5, TimeSpan.FromMilliseconds(500));
+        public static RetryStartegy DefaultRetryStrategy
         {
-            return new FixedIntervalRetryStartegy(5, TimeSpan.FromMilliseconds(500));
+            get { return defaultRetryStrategy; }
+            set { if (value != null) defaultRetryStrategy = value; }
         }
 
         public int Counter { get; private set; }

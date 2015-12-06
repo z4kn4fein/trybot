@@ -19,15 +19,16 @@ namespace Trybot
             this.retryPolicy = retryPolicy;
         }
 
-        public async Task ExecuteAsync(Action action, CancellationToken token, RetryStartegy retryStartegy = null, Func<bool> retryFiler = null)
+        public async Task ExecuteAsync(Action action, CancellationToken token, Action<int, TimeSpan> onRetryOccured = null, RetryStartegy retryStartegy = null, Func<bool> retryFiler = null)
         {
             Shield.EnsureNotNull(action);
-            retryStartegy = retryStartegy ?? RetryStartegy.GetDefaultPolicy();
+            retryStartegy = retryStartegy ?? RetryStartegy.DefaultRetryStrategy;
 
             TryResult result;
             while (!(result = await this.TryAction(action, retryFiler)).Succeeded &&
                 !retryStartegy.IsCompleted() && !token.IsCancellationRequested)
             {
+                this.RaiseRetryOccuredEvent(onRetryOccured, retryStartegy.Counter, retryStartegy.NextDelay);
                 await retryStartegy.WaitAsync(token);
             }
 
@@ -36,14 +37,15 @@ namespace Trybot
                     throw result.Exception;
         }
 
-        public async Task ExecuteAsync(Action action, RetryStartegy retryStartegy = null, Func<bool> retryFiler = null)
+        public async Task ExecuteAsync(Action action, Action<int, TimeSpan> onRetryOccured = null, RetryStartegy retryStartegy = null, Func<bool> retryFiler = null)
         {
             Shield.EnsureNotNull(action);
-            retryStartegy = retryStartegy ?? RetryStartegy.GetDefaultPolicy();
+            retryStartegy = retryStartegy ?? RetryStartegy.DefaultRetryStrategy;
 
             TryResult result;
             while (!(result = await this.TryAction(action, retryFiler)).Succeeded && !retryStartegy.IsCompleted())
             {
+                this.RaiseRetryOccuredEvent(onRetryOccured, retryStartegy.Counter, retryStartegy.NextDelay);
                 await retryStartegy.WaitAsync(CancellationToken.None);
             }
 
@@ -52,14 +54,15 @@ namespace Trybot
                     throw result.Exception;
         }
 
-        public async Task ExecuteAsync(Func<Task> func, CancellationToken token, RetryStartegy retryStartegy = null, Func<bool> retryFiler = null)
+        public async Task ExecuteAsync(Func<Task> func, CancellationToken token, Action<int, TimeSpan> onRetryOccured = null, RetryStartegy retryStartegy = null, Func<bool> retryFiler = null)
         {
             Shield.EnsureNotNull(func);
-            retryStartegy = retryStartegy ?? RetryStartegy.GetDefaultPolicy();
+            retryStartegy = retryStartegy ?? RetryStartegy.DefaultRetryStrategy;
 
             TryResult result;
             while (!(result = await this.TryFunction(func, retryFiler)).Succeeded && !retryStartegy.IsCompleted() && !token.IsCancellationRequested)
             {
+                this.RaiseRetryOccuredEvent(onRetryOccured, retryStartegy.Counter, retryStartegy.NextDelay);
                 await retryStartegy.WaitAsync(token);
             }
 
@@ -68,14 +71,15 @@ namespace Trybot
                     throw result.Exception;
         }
 
-        public async Task ExecuteAsync(Func<Task> func, RetryStartegy retryStartegy = null, Func<bool> retryFiler = null)
+        public async Task ExecuteAsync(Func<Task> func, Action<int, TimeSpan> onRetryOccured = null, RetryStartegy retryStartegy = null, Func<bool> retryFiler = null)
         {
             Shield.EnsureNotNull(func);
-            retryStartegy = retryStartegy ?? RetryStartegy.GetDefaultPolicy();
+            retryStartegy = retryStartegy ?? RetryStartegy.DefaultRetryStrategy;
 
             TryResult result;
             while (!(result = await this.TryFunction(func, retryFiler)).Succeeded && !retryStartegy.IsCompleted())
             {
+                this.RaiseRetryOccuredEvent(onRetryOccured, retryStartegy.Counter, retryStartegy.NextDelay);
                 await retryStartegy.WaitAsync(CancellationToken.None);
             }
 
@@ -84,14 +88,15 @@ namespace Trybot
                     throw result.Exception;
         }
 
-        public async Task<T> ExecuteAsync<T>(Func<Task<T>> func, CancellationToken token, RetryStartegy retryStartegy = null, Func<bool> retryFiler = null, Predicate<T> resultFilter = null)
+        public async Task<T> ExecuteAsync<T>(Func<Task<T>> func, CancellationToken token, Action<int, TimeSpan> onRetryOccured = null, RetryStartegy retryStartegy = null, Func<bool> retryFiler = null, Predicate<T> resultFilter = null)
         {
             Shield.EnsureNotNull(func);
-            retryStartegy = retryStartegy ?? RetryStartegy.GetDefaultPolicy();
+            retryStartegy = retryStartegy ?? RetryStartegy.DefaultRetryStrategy;
 
             TryResult result;
             while (!(result = await this.TryFunction(func, retryFiler, resultFilter)).Succeeded && !retryStartegy.IsCompleted() && !token.IsCancellationRequested)
             {
+                this.RaiseRetryOccuredEvent(onRetryOccured, retryStartegy.Counter, retryStartegy.NextDelay);
                 await retryStartegy.WaitAsync(token);
             }
 
@@ -106,14 +111,15 @@ namespace Trybot
                 return (T)result.FunctionResult;
         }
 
-        public async Task<T> ExecuteAsync<T>(Func<Task<T>> func, RetryStartegy retryStartegy = null, Func<bool> retryFiler = null, Predicate<T> resultFilter = null)
+        public async Task<T> ExecuteAsync<T>(Func<Task<T>> func, Action<int, TimeSpan> onRetryOccured = null, RetryStartegy retryStartegy = null, Func<bool> retryFiler = null, Predicate<T> resultFilter = null)
         {
             Shield.EnsureNotNull(func);
-            retryStartegy = retryStartegy ?? RetryStartegy.GetDefaultPolicy();
+            retryStartegy = retryStartegy ?? RetryStartegy.DefaultRetryStrategy;
 
             TryResult result;
             while (!(result = await this.TryFunction(func, retryFiler, resultFilter)).Succeeded && !retryStartegy.IsCompleted())
             {
+                this.RaiseRetryOccuredEvent(onRetryOccured, retryStartegy.Counter, retryStartegy.NextDelay);
                 await retryStartegy.WaitAsync(CancellationToken.None);
             }
 
@@ -199,6 +205,12 @@ namespace Trybot
             }
 
             return await completionSource.Task;
+        }
+
+        private void RaiseRetryOccuredEvent(Action<int, TimeSpan> onRetryOccured, int attempt, TimeSpan nextDelay)
+        {
+            if (onRetryOccured != null)
+                onRetryOccured(attempt, nextDelay);
         }
     }
 }
