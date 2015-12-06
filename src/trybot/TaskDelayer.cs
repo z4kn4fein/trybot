@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Trybot
 {
-    public static class TaskDelayer
+    internal static class TaskDelayer
     {
         public static async Task Sleep(TimeSpan timeSpan, CancellationToken token)
         {

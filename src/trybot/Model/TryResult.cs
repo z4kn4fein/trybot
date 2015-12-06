@@ -2,7 +2,7 @@
 
 namespace Trybot.Model
 {
-    public class TryResult
+    internal class TryResult
     {
         public bool Succeeded { get; set; }
         public bool ForceThrowException { get; set; }
