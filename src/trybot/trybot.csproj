@@ -33,6 +33,12 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\..\sn.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="Interfaces\IRetryManager.cs" />
     <Compile Include="Interfaces\IRetryPolicy.cs" />
@@ -46,13 +52,14 @@
     <Compile Include="TaskDelayer.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Ronin.Common, Version=1.0.9.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ronin.Common.1.0.9.0\lib\portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\Ronin.Common.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
+    <None Include="..\..\sn.snk" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <Reference Include="Ronin.Common, Version=1.0.25.0, Culture=neutral, PublicKeyToken=9778e33426732b68, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ronin.Common.1.0.25.0\lib\portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\Ronin.Common.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
