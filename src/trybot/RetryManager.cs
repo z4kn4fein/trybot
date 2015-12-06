@@ -28,7 +28,8 @@ namespace Trybot
             while (!(result = await this.TryAction(action, retryFiler)).Succeeded &&
                 !retryStartegy.IsCompleted() && !token.IsCancellationRequested)
             {
-                this.RaiseRetryOccuredEvent(onRetryOccured, retryStartegy.Counter, retryStartegy.NextDelay);
+                retryStartegy.CalculateNextDelay();
+                this.RaiseRetryOccuredEvent(onRetryOccured, retryStartegy.CurrentAttempt, retryStartegy.NextDelay);
                 await retryStartegy.WaitAsync(token);
             }
 
@@ -45,7 +46,8 @@ namespace Trybot
             TryResult result;
             while (!(result = await this.TryAction(action, retryFiler)).Succeeded && !retryStartegy.IsCompleted())
             {
-                this.RaiseRetryOccuredEvent(onRetryOccured, retryStartegy.Counter, retryStartegy.NextDelay);
+                retryStartegy.CalculateNextDelay();
+                this.RaiseRetryOccuredEvent(onRetryOccured, retryStartegy.CurrentAttempt, retryStartegy.NextDelay);
                 await retryStartegy.WaitAsync(CancellationToken.None);
             }
 
@@ -62,7 +64,8 @@ namespace Trybot
             TryResult result;
             while (!(result = await this.TryFunction(func, retryFiler)).Succeeded && !retryStartegy.IsCompleted() && !token.IsCancellationRequested)
             {
-                this.RaiseRetryOccuredEvent(onRetryOccured, retryStartegy.Counter, retryStartegy.NextDelay);
+                retryStartegy.CalculateNextDelay();
+                this.RaiseRetryOccuredEvent(onRetryOccured, retryStartegy.CurrentAttempt, retryStartegy.NextDelay);
                 await retryStartegy.WaitAsync(token);
             }
 
@@ -79,7 +82,8 @@ namespace Trybot
             TryResult result;
             while (!(result = await this.TryFunction(func, retryFiler)).Succeeded && !retryStartegy.IsCompleted())
             {
-                this.RaiseRetryOccuredEvent(onRetryOccured, retryStartegy.Counter, retryStartegy.NextDelay);
+                retryStartegy.CalculateNextDelay();
+                this.RaiseRetryOccuredEvent(onRetryOccured, retryStartegy.CurrentAttempt, retryStartegy.NextDelay);
                 await retryStartegy.WaitAsync(CancellationToken.None);
             }
 
@@ -96,7 +100,8 @@ namespace Trybot
             TryResult result;
             while (!(result = await this.TryFunction(func, retryFiler, resultFilter)).Succeeded && !retryStartegy.IsCompleted() && !token.IsCancellationRequested)
             {
-                this.RaiseRetryOccuredEvent(onRetryOccured, retryStartegy.Counter, retryStartegy.NextDelay);
+                retryStartegy.CalculateNextDelay();
+                this.RaiseRetryOccuredEvent(onRetryOccured, retryStartegy.CurrentAttempt, retryStartegy.NextDelay);
                 await retryStartegy.WaitAsync(token);
             }
 
@@ -119,7 +124,8 @@ namespace Trybot
             TryResult result;
             while (!(result = await this.TryFunction(func, retryFiler, resultFilter)).Succeeded && !retryStartegy.IsCompleted())
             {
-                this.RaiseRetryOccuredEvent(onRetryOccured, retryStartegy.Counter, retryStartegy.NextDelay);
+                retryStartegy.CalculateNextDelay();
+                this.RaiseRetryOccuredEvent(onRetryOccured, retryStartegy.CurrentAttempt, retryStartegy.NextDelay);
                 await retryStartegy.WaitAsync(CancellationToken.None);
             }
 
@@ -210,7 +216,7 @@ namespace Trybot
         private void RaiseRetryOccuredEvent(Action<int, TimeSpan> onRetryOccured, int attempt, TimeSpan nextDelay)
         {
             if (onRetryOccured != null)
-                onRetryOccured(attempt, nextDelay);
+                onRetryOccured(attempt + 1, nextDelay);
         }
     }
 }

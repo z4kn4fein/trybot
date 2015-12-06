@@ -16,7 +16,7 @@ namespace Trybot.Strategy
             this.tmpDelay = delay;
         }
 
-        protected override TimeSpan GetNextDelayInMilliseconds(int counter)
+        protected override TimeSpan GetNextDelay(int counter)
         {
             return this.tmpDelay = TimeSpan.FromMilliseconds(this.tmpDelay.TotalMilliseconds * this.tmpDelay.TotalMilliseconds * this.tmpDelay.TotalMilliseconds);
         }

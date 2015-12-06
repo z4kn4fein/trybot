@@ -60,7 +60,7 @@ namespace Trybot.Tests
             }
             catch (Exception)
             {
-                Assert.AreEqual(5, this.executionPolicy.Counter);
+                Assert.AreEqual(5, this.executionPolicy.CurrentAttempt);
             }
         }
 
@@ -78,7 +78,7 @@ namespace Trybot.Tests
             }
             catch (Exception)
             {
-                Assert.AreEqual(5, this.executionPolicy.Counter);
+                Assert.AreEqual(5, this.executionPolicy.CurrentAttempt);
             }
         }
 
@@ -100,7 +100,7 @@ namespace Trybot.Tests
             catch (Exception)
             {
 
-                Assert.IsTrue(this.executionPolicy.Counter < 5);
+                Assert.IsTrue(this.executionPolicy.CurrentAttempt < 5);
             }
         }
 
@@ -122,7 +122,7 @@ namespace Trybot.Tests
             catch (Exception)
             {
 
-                Assert.AreEqual(0, this.executionPolicy.Counter);
+                Assert.AreEqual(0, this.executionPolicy.CurrentAttempt);
             }
         }
 
@@ -144,7 +144,7 @@ namespace Trybot.Tests
             catch (Exception)
             {
 
-                Assert.IsTrue(this.executionPolicy.Counter < 5);
+                Assert.IsTrue(this.executionPolicy.CurrentAttempt < 5);
             }
         }
 
@@ -174,7 +174,7 @@ namespace Trybot.Tests
             }
             catch (Exception)
             {
-                Assert.AreEqual(0, this.executionPolicy.Counter);
+                Assert.AreEqual(0, this.executionPolicy.CurrentAttempt);
             }
         }
 
@@ -187,7 +187,7 @@ namespace Trybot.Tests
                 taskCompletionSource.SetResult(null);
                 return taskCompletionSource.Task;
             }, CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy).Wait();
-            Assert.AreEqual(0, this.executionPolicy.Counter);
+            Assert.AreEqual(0, this.executionPolicy.CurrentAttempt);
         }
 
         [TestMethod]
@@ -199,7 +199,7 @@ namespace Trybot.Tests
                 taskCompletionSource.SetResult(true);
                 return taskCompletionSource.Task;
             }, CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy, resultFilter: result => result).Result;
-            Assert.AreEqual(5, this.executionPolicy.Counter);
+            Assert.AreEqual(5, this.executionPolicy.CurrentAttempt);
             Assert.IsTrue(functionResult);
         }
 
@@ -212,7 +212,7 @@ namespace Trybot.Tests
                 taskCompletionSource.SetResult(true);
                 return taskCompletionSource.Task;
             }, (attempt, nextDelay) => { }, this.executionPolicy, resultFilter: result => result).Result;
-            Assert.AreEqual(5, this.executionPolicy.Counter);
+            Assert.AreEqual(5, this.executionPolicy.CurrentAttempt);
             Assert.IsTrue(functionResult);
         }
 
@@ -225,7 +225,7 @@ namespace Trybot.Tests
                 taskCompletionSource.SetResult(true);
                 return taskCompletionSource.Task;
             }, CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy, resultFilter: result => !result).Result;
-            Assert.AreEqual(0, this.executionPolicy.Counter);
+            Assert.AreEqual(0, this.executionPolicy.CurrentAttempt);
             Assert.IsTrue(functionResult);
         }
 
@@ -238,7 +238,7 @@ namespace Trybot.Tests
                 taskCompletionSource.SetResult(true);
                 return taskCompletionSource.Task;
             }, (attempt, nextDelay) => { }, this.executionPolicy, resultFilter: result => !result).Result;
-            Assert.AreEqual(0, this.executionPolicy.Counter);
+            Assert.AreEqual(0, this.executionPolicy.CurrentAttempt);
             Assert.IsTrue(functionResult);
         }
     }

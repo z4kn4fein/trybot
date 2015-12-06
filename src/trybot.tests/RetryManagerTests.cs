@@ -15,7 +15,7 @@ namespace Trybot.Tests
                 : base(5, TimeSpan.FromMilliseconds(5))
             { }
 
-            protected override TimeSpan GetNextDelayInMilliseconds(int counter)
+            protected override TimeSpan GetNextDelay(int counter)
             {
                 return base.Delay;
             }
@@ -72,7 +72,7 @@ namespace Trybot.Tests
             }
             catch (Exception)
             {
-                Assert.AreEqual(5, this.executionPolicy.Counter);
+                Assert.AreEqual(5, this.executionPolicy.CurrentAttempt);
             }
         }
 
@@ -85,7 +85,7 @@ namespace Trybot.Tests
             }
             catch (Exception)
             {
-                Assert.AreEqual(5, this.executionPolicy.Counter);
+                Assert.AreEqual(5, this.executionPolicy.CurrentAttempt);
             }
         }
 
@@ -102,7 +102,7 @@ namespace Trybot.Tests
             catch (Exception)
             {
 
-                Assert.IsTrue(this.executionPolicy.Counter < 5);
+                Assert.IsTrue(this.executionPolicy.CurrentAttempt < 5);
             }
         }
 
@@ -119,7 +119,7 @@ namespace Trybot.Tests
             catch (Exception)
             {
 
-                Assert.AreEqual(0, this.executionPolicy.Counter);
+                Assert.AreEqual(0, this.executionPolicy.CurrentAttempt);
             }
         }
 
@@ -136,7 +136,7 @@ namespace Trybot.Tests
             catch (Exception)
             {
 
-                Assert.IsTrue(this.executionPolicy.Counter < 5);
+                Assert.IsTrue(this.executionPolicy.CurrentAttempt < 5);
             }
         }
 
@@ -156,7 +156,7 @@ namespace Trybot.Tests
             }
             catch (Exception)
             {
-                Assert.AreEqual(0, this.executionPolicy.Counter);
+                Assert.AreEqual(0, this.executionPolicy.CurrentAttempt);
             }
         }
 
@@ -164,14 +164,31 @@ namespace Trybot.Tests
         public void ExecuteAsync_Action_WithoutRetry()
         {
             this.retryManager.ExecuteAsync(() => { }, CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy).Wait();
-            Assert.AreEqual(0, this.executionPolicy.Counter);
+            Assert.AreEqual(0, this.executionPolicy.CurrentAttempt);
         }
 
         [TestMethod]
         public void ExecuteAsync_Action_WithoutRetry_WithoutCancellationToken()
         {
             this.retryManager.ExecuteAsync(() => { }, (attempt, nextDelay) => { }, this.executionPolicy).Wait();
-            Assert.AreEqual(0, this.executionPolicy.Counter);
+            Assert.AreEqual(0, this.executionPolicy.CurrentAttempt);
+        }
+
+        [TestMethod]
+        public void ExecuteAsync_Action_WithoutFilter_WithRetryOccuredEvent()
+        {
+            try
+            {
+                this.retryManager.ExecuteAsync((Action)(() => { throw new Exception(); }), CancellationToken.None, (attempt, nextDelay) =>
+                {
+                    Assert.IsTrue(attempt > 0);
+                    Assert.AreEqual(TimeSpan.FromMilliseconds(5), nextDelay);
+                }, this.executionPolicy).Wait();
+            }
+            catch (Exception)
+            {
+                Assert.AreEqual(5, this.executionPolicy.CurrentAttempt);
+            }
         }
     }
 }

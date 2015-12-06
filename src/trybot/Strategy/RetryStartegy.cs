@@ -14,7 +14,7 @@ namespace Trybot.Strategy
             set { if (value != null) defaultRetryStrategy = value; }
         }
 
-        public int Counter { get; private set; }
+        public int CurrentAttempt { get; private set; }
         public TimeSpan NextDelay { get; private set; }
 
         protected readonly int RetryCount;
@@ -29,17 +29,21 @@ namespace Trybot.Strategy
             this.Delay = delay;
         }
 
-        public bool IsCompleted()
+        internal bool IsCompleted()
         {
-            return this.Counter >= this.RetryCount;
+            return this.CurrentAttempt >= this.RetryCount;
         }
 
-        public async Task WaitAsync(CancellationToken token)
+        internal async Task WaitAsync(CancellationToken token)
         {
-            this.NextDelay = GetNextDelayInMilliseconds(++this.Counter);
             await TaskDelayer.Sleep(this.NextDelay, token);
         }
 
-        protected abstract TimeSpan GetNextDelayInMilliseconds(int counter);
+        internal void CalculateNextDelay()
+        {
+            this.NextDelay = GetNextDelay(++this.CurrentAttempt);
+        }
+
+        protected abstract TimeSpan GetNextDelay(int counter);
     }
 }

@@ -64,7 +64,7 @@ namespace Trybot.Tests
             }
             catch (Exception)
             {
-                Assert.AreEqual(5, this.executionPolicy.Counter);
+                Assert.AreEqual(5, this.executionPolicy.CurrentAttempt);
             }
         }
 
@@ -83,7 +83,7 @@ namespace Trybot.Tests
             }
             catch (Exception)
             {
-                Assert.AreEqual(5, this.executionPolicy.Counter);
+                Assert.AreEqual(5, this.executionPolicy.CurrentAttempt);
             }
         }
 
@@ -106,7 +106,7 @@ namespace Trybot.Tests
             catch (Exception)
             {
 
-                Assert.IsTrue(this.executionPolicy.Counter < 5);
+                Assert.IsTrue(this.executionPolicy.CurrentAttempt < 5);
             }
         }
 
@@ -129,7 +129,7 @@ namespace Trybot.Tests
             catch (Exception)
             {
 
-                Assert.AreEqual(0, this.executionPolicy.Counter);
+                Assert.AreEqual(0, this.executionPolicy.CurrentAttempt);
             }
         }
 
@@ -152,7 +152,7 @@ namespace Trybot.Tests
             catch (Exception)
             {
 
-                Assert.IsTrue(this.executionPolicy.Counter < 5);
+                Assert.IsTrue(this.executionPolicy.CurrentAttempt < 5);
             }
         }
 
@@ -184,7 +184,7 @@ namespace Trybot.Tests
             }
             catch (Exception)
             {
-                Assert.AreEqual(0, this.executionPolicy.Counter);
+                Assert.AreEqual(0, this.executionPolicy.CurrentAttempt);
             }
         }
 
@@ -192,14 +192,14 @@ namespace Trybot.Tests
         public void ExecuteAsync_FuncTask_WithoutRetry()
         {
             this.retryManager.ExecuteAsync(() => Task.Run(() => { }), CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy).Wait();
-            Assert.AreEqual(0, this.executionPolicy.Counter);
+            Assert.AreEqual(0, this.executionPolicy.CurrentAttempt);
         }
 
         [TestMethod]
         public void ExecuteAsync_FuncTask_WithoutRetry_WithoutCancellationToken()
         {
             this.retryManager.ExecuteAsync(() => Task.Run(() => { }), (attempt, nextDelay) => { }, this.executionPolicy).Wait();
-            Assert.AreEqual(0, this.executionPolicy.Counter);
+            Assert.AreEqual(0, this.executionPolicy.CurrentAttempt);
         }
     }
 }

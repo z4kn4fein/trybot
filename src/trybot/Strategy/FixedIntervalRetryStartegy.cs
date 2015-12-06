@@ -12,7 +12,7 @@ namespace Trybot.Strategy
             Shield.EnsureTrue(delay > TimeSpan.FromMilliseconds(0));
         }
 
-        protected override TimeSpan GetNextDelayInMilliseconds(int counter)
+        protected override TimeSpan GetNextDelay(int counter)
         {
             return base.Delay;
         }
