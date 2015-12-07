@@ -113,10 +113,10 @@ RetryStrategy.DefaultRetryStrategy = new FooRetryStrategy(5, TimeSpan.FromSecond
 ![linear-small](https://cloud.githubusercontent.com/assets/13772020/11633993/776a9f64-9d0e-11e5-9f4f-2ddd8177014d.png)
 
  - **SquareRetryStrategy** (it'll calculate the wait time from the squares of the multiplication of the inital delay by the attempt count)
- ![square-small](https://cloud.githubusercontent.com/assets/13772020/11633971/5da06ee2-9d0e-11e5-9510-d032e58b3818.png)
+![square-small](https://cloud.githubusercontent.com/assets/13772020/11633971/5da06ee2-9d0e-11e5-9510-d032e58b3818.png)
 
  - **CubicRetryStrategy** (it'll calculate the wait time based on the basic cubic function *[y = x3]* where *y* is the initial delay value multiplied by the attempt count)
- ![cubic-small](https://cloud.githubusercontent.com/assets/13772020/11633946/403bbc62-9d0e-11e5-8bf9-2e17ed23cb8a.png)
+![cubic-small](https://cloud.githubusercontent.com/assets/13772020/11633946/403bbc62-9d0e-11e5-8bf9-2e17ed23cb8a.png)
 
 ##Filters
 ###Retry filter
