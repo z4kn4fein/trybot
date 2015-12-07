@@ -37,7 +37,7 @@ Pass your retry policy to the **RetryManager**.
 ```c#
 var retryManager = new RetryManager(new FooRetryPolicy());
 ```
-####Retry an `Action`
+###Retry an `Action`
 ```c#
 await retryManager.ExecuteAsync(() =>
 {
@@ -52,21 +52,21 @@ await retryManager.ExecuteAsync(() =>
 	//some operation    
 }, tokenSource.Token);
 ```
-####Retry a `Func<Task>`
+###Retry a `Func<Task>`
 ```c#
 await retryManager.ExecuteAsync(async() =>
 {
 	//some awaitable operation    
 });
 ```
-####Retry a `Func<Task<T>>`
+###Retry a `Func<Task<T>>`
 ```c#
 var result = await retryManager.ExecuteAsync(async() =>
 {
 	//some awaitable operation    
 });
 ```
-####Hook on retries
+###Hook on retries
 ```c#
 await retryManager.ExecuteAsync(() =>
 {
@@ -104,7 +104,7 @@ If you don't want to pass your custom **RetryStrategy** every time than you can 
 ```c#
 RetryStrategy.DefaultRetryStrategy = new FooRetryStrategy(5, TimeSpan.FromSeconds(5));
 ```
-####Already implemented strategies
+###Already implemented strategies
 
  - **FixedIntervalRetryStrategy** (it'll wait between the attempts with the time what you specified at the instantiation)
 ![fixed-small](https://cloud.githubusercontent.com/assets/13772020/11634019/93a4e4a0-9d0e-11e5-995d-4514e9d8a941.png)
@@ -113,13 +113,13 @@ RetryStrategy.DefaultRetryStrategy = new FooRetryStrategy(5, TimeSpan.FromSecond
 ![linear-small](https://cloud.githubusercontent.com/assets/13772020/11633993/776a9f64-9d0e-11e5-9f4f-2ddd8177014d.png)
 
  - **SquareRetryStrategy** (it'll calculate the wait time from the squares of the multiplication of the inital delay by the attempt count)
-![square-small](https://cloud.githubusercontent.com/assets/13772020/11633971/5da06ee2-9d0e-11e5-9510-d032e58b3818.png)
+ ![square-small](https://cloud.githubusercontent.com/assets/13772020/11633971/5da06ee2-9d0e-11e5-9510-d032e58b3818.png)
 
  - **CubicRetryStrategy** (it'll calculate the wait time based on the basic cubic function *[y = x3]* where *y* is the initial delay value multiplied by the attempt count)
-![cubic-small](https://cloud.githubusercontent.com/assets/13772020/11633946/403bbc62-9d0e-11e5-8bf9-2e17ed23cb8a.png)
+ ![cubic-small](https://cloud.githubusercontent.com/assets/13772020/11633946/403bbc62-9d0e-11e5-8bf9-2e17ed23cb8a.png)
 
 ##Filters
-####Retry filter
+###Retry filter
 You can pass an action lambda method as a filter to the **ExecuteAsync** method which can tell under which conditions you want to retry your operation.
 ```c#
 await retryManager.ExecuteAsync(() =>
@@ -129,7 +129,7 @@ await retryManager.ExecuteAsync(() =>
 ```
 > The filter above will completely prevent the given operation from re-execution, in a real scenario you can pass a check against your caller object's state for example as a filter
 
-####Result filter for `Func<Task<T>>`
+###Result filter for `Func<Task<T>>`
 For the re-execution of `Func<Task<T>>` you can specify a result filter which can check the result of the `Task<T>` and if it doesn't meet your criteria the **RetryManager** will re-execute your operation.
 ```c#
 var result = await retryManager.ExecuteAsync(async() =>
