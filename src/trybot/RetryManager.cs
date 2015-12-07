@@ -8,11 +8,11 @@ using Trybot.Strategy;
 
 namespace Trybot
 {
-    public class RetryManager<TRetryPolicy> : IRetryManager where TRetryPolicy : class, IRetryPolicy
+    public class RetryManager : IRetryManager
     {
-        private readonly TRetryPolicy retryPolicy;
+        private readonly IRetryPolicy retryPolicy;
 
-        public RetryManager(TRetryPolicy retryPolicy)
+        public RetryManager(IRetryPolicy retryPolicy)
         {
             Shield.EnsureNotNull(retryPolicy);
 

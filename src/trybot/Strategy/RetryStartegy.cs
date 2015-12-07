@@ -44,6 +44,6 @@ namespace Trybot.Strategy
             this.NextDelay = GetNextDelay(++this.CurrentAttempt);
         }
 
-        protected abstract TimeSpan GetNextDelay(int counter);
+        protected abstract TimeSpan GetNextDelay(int currentAttempt);
     }
 }

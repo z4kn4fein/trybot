@@ -47,6 +47,7 @@
     <Compile Include="RetryManager.cs" />
     <Compile Include="Strategy\CubicRetryStrategy.cs" />
     <Compile Include="Strategy\FixedIntervalRetryStartegy.cs" />
+    <Compile Include="Strategy\LinearRetryStrategy.cs" />
     <Compile Include="Strategy\RetryStartegy.cs" />
     <Compile Include="Strategy\SquareRetryStartegy.cs" />
     <Compile Include="TaskDelayer.cs" />

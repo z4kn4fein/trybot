@@ -1,24 +1,18 @@
-﻿using Ronin.Common;
-using System;
+﻿using System;
 
 namespace Trybot.Strategy
 {
     public class SquareRetryStartegy : RetryStartegy
     {
-        private TimeSpan tmpDelay;
-
         public SquareRetryStartegy(int retryCount, TimeSpan delay)
             : base(retryCount, delay)
         {
-            Shield.EnsureTrue(retryCount > 0);
-            Shield.EnsureTrue(delay > TimeSpan.FromMilliseconds(0));
-
-            this.tmpDelay = delay;
         }
 
-        protected override TimeSpan GetNextDelay(int counter)
+        protected override TimeSpan GetNextDelay(int currentAttempt)
         {
-            return this.tmpDelay = TimeSpan.FromMilliseconds(this.tmpDelay.TotalMilliseconds * this.tmpDelay.TotalMilliseconds);
+            var tmpDelay = currentAttempt * base.Delay.TotalMilliseconds;
+            return TimeSpan.FromMilliseconds(tmpDelay * tmpDelay);
         }
     }
 }

@@ -36,7 +36,7 @@ namespace Trybot.Tests
         public void Init()
         {
             this.executionPolicy = new FakeRetryStrategy();
-            this.retryManager = new RetryManager<FakeRetryPolicy>(new FakeRetryPolicy());
+            this.retryManager = new RetryManager(new FakeRetryPolicy());
         }
 
         [TestMethod]
@@ -44,6 +44,10 @@ namespace Trybot.Tests
         public void ExecuteAsync_Action_WithoutFilter_Exception()
         {
             this.retryManager.ExecuteAsync((Action)(() => { throw new Exception(); }), CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy).Wait();
+            this.retryManager.ExecuteAsync(() =>
+            {
+
+            });
         }
 
         [TestMethod]
@@ -181,6 +185,7 @@ namespace Trybot.Tests
             {
                 this.retryManager.ExecuteAsync((Action)(() => { throw new Exception(); }), CancellationToken.None, (attempt, nextDelay) =>
                 {
+                    Console.WriteLine($"{attempt} {nextDelay.TotalSeconds}");
                     Assert.IsTrue(attempt > 0);
                     Assert.AreEqual(TimeSpan.FromMilliseconds(5), nextDelay);
                 }, this.executionPolicy).Wait();
