@@ -73,7 +73,7 @@ await retryManager.ExecuteAsync(() =>
 	//some operation    
 }, onRetryOccured: (attempt, nextDelay) =>
 {
-	Console.WriteLine($"{attempt}. attempt, waiting for {nextDelay.TotalSeconds} seconds");
+	Console.WriteLine($"{attempt}. attempt, waiting {nextDelay.TotalSeconds} seconds before the next retry!");
 });
 ```
 ##Retry strategies
