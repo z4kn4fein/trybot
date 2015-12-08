@@ -8,17 +8,33 @@ using Trybot.Strategy;
 
 namespace Trybot
 {
-    public class RetryManager<TRetryPolicy> : IRetryManager where TRetryPolicy : class, IRetryPolicy
+    /// <summary>
+    /// Represents a <see cref="IRetryManager"/> implementation.
+    /// </summary>
+    public class RetryManager : IRetryManager
     {
-        private readonly TRetryPolicy retryPolicy;
+        private readonly IRetryPolicy retryPolicy;
 
-        public RetryManager(TRetryPolicy retryPolicy)
+        /// <summary>
+        /// Constructs a <see cref="RetryStartegy"/>
+        /// </summary>
+        /// <param name="retryPolicy">A <see cref="IRetryPolicy"/> implementation.</param>
+        public RetryManager(IRetryPolicy retryPolicy)
         {
             Shield.EnsureNotNull(retryPolicy);
 
             this.retryPolicy = retryPolicy;
         }
 
+        /// <summary>
+        /// Executes and retries an operation if it's failed.
+        /// </summary>
+        /// <param name="action">The operation to be retried.</param>
+        /// <param name="token">The cancellation token.</param>
+        /// <param name="onRetryOccured">The callback which will be called when a retry occures.</param>
+        /// <param name="retryStartegy">A <see cref="RetryStartegy"/> implementation.</param>
+        /// <param name="retryFiler">The predicate which will be called before every retry operation. With this parameter you can set conditional retries.</param>
+        /// <returns>The Task of the operation.</returns>
         public async Task ExecuteAsync(Action action, CancellationToken token, Action<int, TimeSpan> onRetryOccured = null, RetryStartegy retryStartegy = null, Func<bool> retryFiler = null)
         {
             Shield.EnsureNotNull(action);
@@ -38,6 +54,14 @@ namespace Trybot
                     throw result.Exception;
         }
 
+        /// <summary>
+        /// Executes and retries an operation if it's failed.
+        /// </summary>
+        /// <param name="action">The operation to be retried.</param>
+        /// <param name="onRetryOccured">The callback which will be called when a retry occures.</param>
+        /// <param name="retryStartegy">A <see cref="RetryStartegy"/> implementation.</param>
+        /// <param name="retryFiler">The predicate which will be called before every retry operation. With this parameter you can set conditional retries.</param>
+        /// <returns>The Task of the operation.</returns>
         public async Task ExecuteAsync(Action action, Action<int, TimeSpan> onRetryOccured = null, RetryStartegy retryStartegy = null, Func<bool> retryFiler = null)
         {
             Shield.EnsureNotNull(action);
@@ -56,6 +80,15 @@ namespace Trybot
                     throw result.Exception;
         }
 
+        /// <summary>
+        /// Executes and retries an operation if it's failed.
+        /// </summary>
+        /// <param name="func">The operation to be retried.</param>
+        /// <param name="token">The cancellation token.</param>
+        /// <param name="onRetryOccured">The callback which will be called when a retry occures.</param>
+        /// <param name="retryStartegy">A <see cref="RetryStartegy"/> implementation.</param>
+        /// <param name="retryFiler">The predicate which will be called before every retry operation. With this parameter you can set conditional retries.</param>
+        /// <returns>The Task of the operation.</returns>
         public async Task ExecuteAsync(Func<Task> func, CancellationToken token, Action<int, TimeSpan> onRetryOccured = null, RetryStartegy retryStartegy = null, Func<bool> retryFiler = null)
         {
             Shield.EnsureNotNull(func);
@@ -74,6 +107,14 @@ namespace Trybot
                     throw result.Exception;
         }
 
+        /// <summary>
+        /// Executes and retries an operation if it's failed.
+        /// </summary>
+        /// <param name="func">The operation to be retried.</param>
+        /// <param name="onRetryOccured">The callback which will be called when a retry occures.</param>
+        /// <param name="retryStartegy">A <see cref="RetryStartegy"/> implementation.</param>
+        /// <param name="retryFiler">The predicate which will be called before every retry operation. With this parameter you can set conditional retries.</param>
+        /// <returns>The Task of the operation.</returns>
         public async Task ExecuteAsync(Func<Task> func, Action<int, TimeSpan> onRetryOccured = null, RetryStartegy retryStartegy = null, Func<bool> retryFiler = null)
         {
             Shield.EnsureNotNull(func);
@@ -92,6 +133,16 @@ namespace Trybot
                     throw result.Exception;
         }
 
+        /// <summary>
+        /// Executes and retries an operation if it's failed.
+        /// </summary>
+        /// <param name="func">The operation to be retried.</param>
+        /// <param name="token">The cancellation token.</param>
+        /// <param name="onRetryOccured">The callback which will be called when a retry occures.</param>
+        /// <param name="retryStartegy">A <see cref="RetryStartegy"/> implementation.</param>
+        /// <param name="retryFiler">The predicate which will be called before every retry operation. With this parameter you can set conditional retries.</param>
+        /// <param name="resultFilter">The predicate with you can check your operations result and if it's false, the operation will be retried.</param>
+        /// <returns>The Task of the operation.</returns>
         public async Task<T> ExecuteAsync<T>(Func<Task<T>> func, CancellationToken token, Action<int, TimeSpan> onRetryOccured = null, RetryStartegy retryStartegy = null, Func<bool> retryFiler = null, Predicate<T> resultFilter = null)
         {
             Shield.EnsureNotNull(func);
@@ -116,6 +167,15 @@ namespace Trybot
                 return (T)result.FunctionResult;
         }
 
+        /// <summary>
+        /// Executes and retries an operation if it's failed.
+        /// </summary>
+        /// <param name="func">The operation to be retried.</param>
+        /// <param name="onRetryOccured">The callback which will be called when a retry occures.</param>
+        /// <param name="retryStartegy">A <see cref="RetryStartegy"/> implementation.</param>
+        /// <param name="retryFiler">The predicate which will be called before every retry operation. With this parameter you can set conditional retries.</param>
+        /// <param name="resultFilter">The predicate with you can check your operations result and if it's false, the operation will be retried.</param>
+        /// <returns>The Task of the operation.</returns>
         public async Task<T> ExecuteAsync<T>(Func<Task<T>> func, Action<int, TimeSpan> onRetryOccured = null, RetryStartegy retryStartegy = null, Func<bool> retryFiler = null, Predicate<T> resultFilter = null)
         {
             Shield.EnsureNotNull(func);
