@@ -134,7 +134,7 @@ await retryManager.ExecuteAsync(() =>
 > The filter above will completely prevent the given operation from re-execution, in a real scenario you can pass a check against your caller object's state as a filter for example.
 
 ###Result filter for `Func<Task<T>>`
-For the re-execution of `Func<Task<T>>` you can specify a result filter which can check the result of the `Task<T>` and if it doesn't meet your criteria the **RetryManager** will re-execute your operation.
+For the execution of a `Func<Task<T>>` you can specify a result filter which can check the result of the `Task<T>` and if it doesn't meet your criteria the **RetryManager** will re-execute your operation.
 ```c#
 var result = await retryManager.ExecuteAsync(async() =>
 {
