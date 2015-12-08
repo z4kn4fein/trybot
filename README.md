@@ -37,7 +37,7 @@ Pass your retry policy to the **RetryManager**.
 ```c#
 var retryManager = new RetryManager(new FooRetryPolicy());
 ```
-###Retry an `Action`
+####Retry an `Action`
 ```c#
 await retryManager.ExecuteAsync(() =>
 {
@@ -52,21 +52,21 @@ await retryManager.ExecuteAsync(() =>
 	//some operation    
 }, tokenSource.Token);
 ```
-###Retry a `Func<Task>`
+####Retry a `Func<Task>`
 ```c#
 await retryManager.ExecuteAsync(async() =>
 {
 	//some awaitable operation    
 });
 ```
-###Retry a `Func<Task<T>>`
+####Retry a `Func<Task<T>>`
 ```c#
 var result = await retryManager.ExecuteAsync(async() =>
 {
 	//some awaitable operation    
 });
 ```
-###Hook on retries
+####Hook on retries
 ```c#
 await retryManager.ExecuteAsync(() =>
 {
@@ -123,7 +123,7 @@ RetryStrategy.DefaultRetryStrategy = new FooRetryStrategy(5, TimeSpan.FromSecond
 	![cubic-small](https://cloud.githubusercontent.com/assets/13772020/11633946/403bbc62-9d0e-11e5-8bf9-2e17ed23cb8a.png)
 
 ##Filters
-###Retry filter
+####Retry filter
 You can pass an action lambda method as a filter to the **ExecuteAsync** method which can tell under which conditions you want to retry your operation.
 ```c#
 await retryManager.ExecuteAsync(() =>
@@ -133,7 +133,7 @@ await retryManager.ExecuteAsync(() =>
 ```
 > The filter above will completely prevent the given operation from re-execution, in a real scenario you can pass a check against your caller object's state as a filter for example.
 
-###Result filter for `Func<Task<T>>`
+####Result filter for `Func<Task<T>>`
 For the execution of a `Func<Task<T>>` you can specify a result filter which can check the result of the `Task<T>` and if it doesn't meet your criteria the **RetryManager** will re-execute your operation.
 ```c#
 var result = await retryManager.ExecuteAsync(async() =>
