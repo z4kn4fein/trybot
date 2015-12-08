@@ -100,7 +100,7 @@ await retryManager.ExecuteAsync(() =>
 	//some operation    
 }, retryStartegy: new FooRetryStrategy(5, TimeSpan.FromSeconds(5)));
 ```
-If you don't want to pass your custom **RetryStrategy** every time than you can set the **RetryStrategy.DefaultRetryStrategy** static property which will be used by the **RetryManager** when the strategy parameter is null.
+If you don't want to pass your custom **RetryStrategy** every time, then you can set the **RetryStrategy.DefaultRetryStrategy** static property which is used by the **RetryManager** when the strategy parameter is null.
 ```c#
 RetryStrategy.DefaultRetryStrategy = new FooRetryStrategy(5, TimeSpan.FromSeconds(5));
 ```
