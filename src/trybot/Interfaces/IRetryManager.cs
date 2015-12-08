@@ -60,7 +60,7 @@ namespace Trybot.Interfaces
         /// <param name="onRetryOccured">The callback which will be called when a retry occures.</param>
         /// <param name="retryStartegy">A <see cref="RetryStartegy"/> implementation.</param>
         /// <param name="retryFiler">The predicate which will be called before every retry operation. With this parameter you can set conditional retries.</param>
-        /// <param name="resultFilter">The predicate with you can check your operations result and if it's false, the operation will be retried.</param>
+        /// <param name="resultFilter">The predicate which can check the result of the operation and if it's true, the operation will be retried.</param>
         /// <returns>The Task of the operation.</returns>
         Task<T> ExecuteAsync<T>(Func<Task<T>> func, CancellationToken token, Action<int, TimeSpan> onRetryOccured = null, RetryStartegy retryStartegy = null, Func<bool> retryFiler = null, Predicate<T> resultFilter = null);
 
@@ -71,7 +71,7 @@ namespace Trybot.Interfaces
         /// <param name="onRetryOccured">The callback which will be called when a retry occures.</param>
         /// <param name="retryStartegy">A <see cref="RetryStartegy"/> implementation.</param>
         /// <param name="retryFiler">The predicate which will be called before every retry operation. With this parameter you can set conditional retries.</param>
-        /// <param name="resultFilter">The predicate with you can check your operations result and if it's false, the operation will be retried.</param>
+        /// <param name="resultFilter">The predicate which can check the result of the operation and if it's true, the operation will be retried.</param>
         /// <returns>The Task of the operation.</returns>
         Task<T> ExecuteAsync<T>(Func<Task<T>> func, Action<int, TimeSpan> onRetryOccured = null, RetryStartegy retryStartegy = null, Func<bool> retryFiler = null, Predicate<T> resultFilter = null);
     }
