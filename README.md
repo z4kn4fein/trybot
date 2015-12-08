@@ -106,7 +106,7 @@ RetryStrategy.DefaultRetryStrategy = new FooRetryStrategy(5, TimeSpan.FromSecond
 ```
 ###Already implemented strategies
 
- - **FixedIntervalRetryStrategy** (it'll wait between the attempts with the time what you specified at the instantiation)
+ - **FixedIntervalRetryStrategy** (it'll wait between the attempts always the same amount of time you specified at the instantiation)
 
 	![fixed-small](https://cloud.githubusercontent.com/assets/13772020/11634019/93a4e4a0-9d0e-11e5-995d-4514e9d8a941.png)
 
