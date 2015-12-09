@@ -47,6 +47,7 @@ namespace Trybot.Tests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(AggregateException))]
         public void ExecuteAsync_FuncTaskWithResult_WithoutFilter()
         {
             try
@@ -61,10 +62,12 @@ namespace Trybot.Tests
             catch (Exception)
             {
                 Assert.AreEqual(5, this.executionPolicy.CurrentAttempt);
+                throw;
             }
         }
 
         [TestMethod]
+        [ExpectedException(typeof(AggregateException))]
         public void ExecuteAsync_FuncTaskWithResult_WithFilter_False()
         {
             try
@@ -79,10 +82,12 @@ namespace Trybot.Tests
             catch (Exception)
             {
                 Assert.AreEqual(5, this.executionPolicy.CurrentAttempt);
+                throw;
             }
         }
 
         [TestMethod]
+        [ExpectedException(typeof(AggregateException))]
         public void ExecuteAsync_FuncTaskWithResult_WithoutFilter_CancellationToken()
         {
             try
@@ -99,12 +104,13 @@ namespace Trybot.Tests
             }
             catch (Exception)
             {
-
                 Assert.IsTrue(this.executionPolicy.CurrentAttempt < 5);
+                throw;
             }
         }
 
         [TestMethod]
+        [ExpectedException(typeof(AggregateException))]
         public void ExecuteAsync_FuncTaskWithResult_WithFilter_True_CancellationToken()
         {
             try
@@ -121,12 +127,13 @@ namespace Trybot.Tests
             }
             catch (Exception)
             {
-
                 Assert.AreEqual(0, this.executionPolicy.CurrentAttempt);
+                throw;
             }
         }
 
         [TestMethod]
+        [ExpectedException(typeof(AggregateException))]
         public void ExecuteAsync_FuncTaskWithResult_WithFilter_False_CancellationToken()
         {
             try
@@ -143,8 +150,8 @@ namespace Trybot.Tests
             }
             catch (Exception)
             {
-
                 Assert.IsTrue(this.executionPolicy.CurrentAttempt < 5);
+                throw;
             }
         }
 
@@ -161,6 +168,7 @@ namespace Trybot.Tests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(AggregateException))]
         public void ExecuteAsync_FuncTaskWithResult_WithFilter_True()
         {
             try
@@ -175,6 +183,7 @@ namespace Trybot.Tests
             catch (Exception)
             {
                 Assert.AreEqual(0, this.executionPolicy.CurrentAttempt);
+                throw;
             }
         }
 

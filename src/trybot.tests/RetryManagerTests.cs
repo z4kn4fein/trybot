@@ -27,10 +27,6 @@ namespace Trybot.Tests
         public void ExecuteAsync_Action_WithoutFilter_Exception()
         {
             this.retryManager.ExecuteAsync((Action)(() => { throw new Exception(); }), CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy).Wait();
-            this.retryManager.ExecuteAsync(() =>
-            {
-
-            });
         }
 
         [TestMethod]
@@ -51,6 +47,7 @@ namespace Trybot.Tests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(AggregateException))]
         public void ExecuteAsync_Action_WithoutFilter()
         {
             try
@@ -60,10 +57,12 @@ namespace Trybot.Tests
             catch (Exception)
             {
                 Assert.AreEqual(5, this.executionPolicy.CurrentAttempt);
+                throw;
             }
         }
 
         [TestMethod]
+        [ExpectedException(typeof(AggregateException))]
         public void ExecuteAsync_Action_WithFilter_False()
         {
             try
@@ -73,10 +72,12 @@ namespace Trybot.Tests
             catch (Exception)
             {
                 Assert.AreEqual(5, this.executionPolicy.CurrentAttempt);
+                throw;
             }
         }
 
         [TestMethod]
+        [ExpectedException(typeof(AggregateException))]
         public void ExecuteAsync_Action_WithoutFilter_CancellationToken()
         {
             try
@@ -88,12 +89,13 @@ namespace Trybot.Tests
             }
             catch (Exception)
             {
-
                 Assert.IsTrue(this.executionPolicy.CurrentAttempt < 5);
+                throw;
             }
         }
 
         [TestMethod]
+        [ExpectedException(typeof(AggregateException))]
         public void ExecuteAsync_Action_WithFilter_True_CancellationToken()
         {
             try
@@ -105,12 +107,13 @@ namespace Trybot.Tests
             }
             catch (Exception)
             {
-
                 Assert.AreEqual(0, this.executionPolicy.CurrentAttempt);
+                throw;
             }
         }
 
         [TestMethod]
+        [ExpectedException(typeof(AggregateException))]
         public void ExecuteAsync_Action_WithFilter_False_CancellationToken()
         {
             try
@@ -124,6 +127,7 @@ namespace Trybot.Tests
             {
 
                 Assert.IsTrue(this.executionPolicy.CurrentAttempt < 5);
+                throw;
             }
         }
 
@@ -135,6 +139,7 @@ namespace Trybot.Tests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(AggregateException))]
         public void ExecuteAsync_Action_WithFilter_True()
         {
             try
@@ -144,6 +149,7 @@ namespace Trybot.Tests
             catch (Exception)
             {
                 Assert.AreEqual(0, this.executionPolicy.CurrentAttempt);
+                throw;
             }
         }
 
@@ -162,6 +168,7 @@ namespace Trybot.Tests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(AggregateException))]
         public void ExecuteAsync_Action_WithoutFilter_WithRetryOccuredEvent()
         {
             try
@@ -175,6 +182,25 @@ namespace Trybot.Tests
             catch (Exception)
             {
                 Assert.AreEqual(5, this.executionPolicy.CurrentAttempt);
+                throw;
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AggregateException))]
+        public void ExecuteAsync_Action_ForceThrowException()
+        {
+            try
+            {
+                var retryPolicy = new Mock<IRetryPolicy>();
+                retryPolicy.Setup(policy => policy.ShouldRetryAfter(It.IsAny<Exception>())).Returns(false);
+                var localRetryManager = new RetryManager(retryPolicy.Object);
+                localRetryManager.ExecuteAsync((Action)(() => { throw new Exception(); }), CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy).Wait();
+            }
+            catch (Exception)
+            {
+                Assert.AreEqual(0, this.executionPolicy.CurrentAttempt);
+                throw;
             }
         }
     }
