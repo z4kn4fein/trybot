@@ -15,10 +15,5 @@ namespace Trybot
             catch (OperationCanceledException)
             { }
         }
-
-        public static async Task Sleep(int milliseconds, CancellationToken token)
-        {
-            await Sleep(TimeSpan.FromMilliseconds(milliseconds), token);
-        }
     }
 }

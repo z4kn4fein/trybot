@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using System;
 using System.Threading;
 using Trybot.Interfaces;
@@ -9,34 +10,16 @@ namespace Trybot.Tests
     [TestClass]
     public partial class RetryManagerTests
     {
-        public class FakeRetryStrategy : RetryStartegy
-        {
-            public FakeRetryStrategy()
-                : base(5, TimeSpan.FromMilliseconds(5))
-            { }
-
-            protected override TimeSpan GetNextDelay(int counter)
-            {
-                return base.Delay;
-            }
-        }
-
-        public class FakeRetryPolicy : IRetryPolicy
-        {
-            public bool ShouldRetryAfter(Exception exception)
-            {
-                return true;
-            }
-        }
-
         private IRetryManager retryManager;
-        private FakeRetryStrategy executionPolicy;
+        private RetryStartegy executionPolicy;
 
         [TestInitialize]
         public void Init()
         {
-            this.executionPolicy = new FakeRetryStrategy();
-            this.retryManager = new RetryManager(new FakeRetryPolicy());
+            this.executionPolicy = new FixedIntervalRetryStartegy(5, TimeSpan.FromMilliseconds(5));
+            var mockRetryPolicy = new Mock<IRetryPolicy>();
+            mockRetryPolicy.Setup(policy => policy.ShouldRetryAfter(It.IsAny<Exception>())).Returns(true);
+            this.retryManager = new RetryManager(mockRetryPolicy.Object);
         }
 
         [TestMethod]
@@ -185,7 +168,6 @@ namespace Trybot.Tests
             {
                 this.retryManager.ExecuteAsync((Action)(() => { throw new Exception(); }), CancellationToken.None, (attempt, nextDelay) =>
                 {
-                    Console.WriteLine($"{attempt} {nextDelay.TotalSeconds}");
                     Assert.IsTrue(attempt > 0);
                     Assert.AreEqual(TimeSpan.FromMilliseconds(5), nextDelay);
                 }, this.executionPolicy).Wait();
