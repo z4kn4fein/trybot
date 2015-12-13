@@ -21,7 +21,7 @@ namespace Trybot
         /// <param name="retryPolicy">A <see cref="IRetryPolicy"/> implementation.</param>
         public RetryManager(IRetryPolicy retryPolicy)
         {
-            Shield.EnsureNotNull(() => retryPolicy);
+            Shield.EnsureNotNull(retryPolicy, nameof(retryPolicy));
 
             this.retryPolicy = retryPolicy;
         }
@@ -37,7 +37,7 @@ namespace Trybot
         /// <returns>The Task of the operation.</returns>
         public async Task ExecuteAsync(Action action, CancellationToken token, Action<int, TimeSpan> onRetryOccured = null, RetryStartegy retryStartegy = null, Func<bool> retryFiler = null)
         {
-            Shield.EnsureNotNull(() => action);
+            Shield.EnsureNotNull(action, nameof(action));
             retryStartegy = retryStartegy ?? RetryStartegy.DefaultRetryStrategy;
 
             TryResult result;
@@ -64,7 +64,7 @@ namespace Trybot
         /// <returns>The Task of the operation.</returns>
         public async Task ExecuteAsync(Action action, Action<int, TimeSpan> onRetryOccured = null, RetryStartegy retryStartegy = null, Func<bool> retryFiler = null)
         {
-            Shield.EnsureNotNull(() => action);
+            Shield.EnsureNotNull(action, nameof(action));
             retryStartegy = retryStartegy ?? RetryStartegy.DefaultRetryStrategy;
 
             TryResult result;
@@ -91,7 +91,7 @@ namespace Trybot
         /// <returns>The Task of the operation.</returns>
         public async Task ExecuteAsync(Func<Task> func, CancellationToken token, Action<int, TimeSpan> onRetryOccured = null, RetryStartegy retryStartegy = null, Func<bool> retryFiler = null)
         {
-            Shield.EnsureNotNull(() => func);
+            Shield.EnsureNotNull(func, nameof(func));
             retryStartegy = retryStartegy ?? RetryStartegy.DefaultRetryStrategy;
 
             TryResult result;
@@ -117,7 +117,7 @@ namespace Trybot
         /// <returns>The Task of the operation.</returns>
         public async Task ExecuteAsync(Func<Task> func, Action<int, TimeSpan> onRetryOccured = null, RetryStartegy retryStartegy = null, Func<bool> retryFiler = null)
         {
-            Shield.EnsureNotNull(() => func);
+            Shield.EnsureNotNull(func, nameof(func));
             retryStartegy = retryStartegy ?? RetryStartegy.DefaultRetryStrategy;
 
             TryResult result;
@@ -145,7 +145,7 @@ namespace Trybot
         /// <returns>The Task of the operation.</returns>
         public async Task<T> ExecuteAsync<T>(Func<Task<T>> func, CancellationToken token, Action<int, TimeSpan> onRetryOccured = null, RetryStartegy retryStartegy = null, Func<bool> retryFiler = null, Predicate<T> resultFilter = null)
         {
-            Shield.EnsureNotNull(() => func);
+            Shield.EnsureNotNull(func, nameof(func));
             retryStartegy = retryStartegy ?? RetryStartegy.DefaultRetryStrategy;
 
             TryResult result;
@@ -178,7 +178,7 @@ namespace Trybot
         /// <returns>The Task of the operation.</returns>
         public async Task<T> ExecuteAsync<T>(Func<Task<T>> func, Action<int, TimeSpan> onRetryOccured = null, RetryStartegy retryStartegy = null, Func<bool> retryFiler = null, Predicate<T> resultFilter = null)
         {
-            Shield.EnsureNotNull(() => func);
+            Shield.EnsureNotNull(func, nameof(func));
             retryStartegy = retryStartegy ?? RetryStartegy.DefaultRetryStrategy;
 
             TryResult result;
