@@ -5,8 +5,8 @@ This library contains a portable retry manager solution which can make your proj
 
  - It supports  `Action`, `Func<Task>`, and `Func<Task<T>>`
  - Re-executions are performed asynchronously, they won't block the caller thread
- - Custom retry policy can be specified for managing when you want to retry your actions
- - Custom retry strategies can be specified for managing how you want to retry your actions
+ - Custom retry policies for handling when you want to retry your actions
+ - Custom retry strategies for handling how you want to retry your actions
  - Besides the exceptions you can specify filters if you want to retry an action by a custom value
  - For `Func<Task<T>>` you can specify result filter
  - You can inject custom logic (e.g. logging) which will be invoked when a retry occures
@@ -21,7 +21,7 @@ This library contains a portable retry manager solution which can make your proj
  - Xamarin (Android/iOS/iOS Classic)
 
 ##Retry policy
-For using the **RetryManager** you have to have a proper **IRetryPolicy** implementation, which will tell on which exception you want to retry your action.
+Using the `RetryManager` requires a properly configured `IRetryPolicy` implementation, which can decide, when you want to retry your operation.
 ```c#
 public class FooRetryPolicy : IRetryPolicy
 {
@@ -31,9 +31,9 @@ public class FooRetryPolicy : IRetryPolicy
 	}
 }
 ```
-> The implementation above will retry your action when any kind of exception occurs.
+> The example above will retry your operation when any kind of exception occurs.
 
-Pass your retry policy to the **RetryManager**.
+Pass your retry policy to the `RetryManager`.
 ```c#
 var retryManager = new RetryManager(new FooRetryPolicy());
 ```
@@ -77,7 +77,7 @@ await retryManager.ExecuteAsync(() =>
 });
 ```
 ##Retry strategies
-You can specify custom retry strategies by passing a custom **RetryStrategy** implementation to the **ExecuteAsync** function.
+You can specify custom retry strategies by passing a custom `RetryStrategy` implementation to the `ExecuteAsync()` function.
 ```c#
 class FooRetryStrategy : RetryStartegy
 {
@@ -93,14 +93,14 @@ class FooRetryStrategy : RetryStartegy
     }
 }
 ```
-Pass your custom strategy to the **ExecuteAsync** function.
+Pass your custom strategy to the `ExecuteAsync()` function.
 ```c#
 await retryManager.ExecuteAsync(() =>
 {
 	//some operation    
 }, retryStartegy: new FooRetryStrategy(5, TimeSpan.FromSeconds(5)));
 ```
-If you don't want to pass your custom **RetryStrategy** every time, then you can set the **RetryStrategy.DefaultRetryStrategy** static property which is used by the **RetryManager** when the strategy parameter is null.
+If you don't want to pass your custom `RetryStrategy` every time, then you can set the `RetryStrategy.DefaultRetryStrategy` static property which is being used by the `RetryManager` when the strategy parameter is null.
 ```c#
 RetryStrategy.DefaultRetryStrategy = new FooRetryStrategy(5, TimeSpan.FromSeconds(5));
 ```
@@ -110,31 +110,31 @@ RetryStrategy.DefaultRetryStrategy = new FooRetryStrategy(5, TimeSpan.FromSecond
 
 	![fixed-small](https://cloud.githubusercontent.com/assets/13772020/11634019/93a4e4a0-9d0e-11e5-995d-4514e9d8a941.png)
 
- - **LinearRetryStartegy** (it'll calculate the wait time from the inital delay multiplied by the attempt count)
+ - **LinearRetryStartegy** (it'll calculate the wait time from the inital delay, multiplied by the attempt count)
 
 	![linear-small](https://cloud.githubusercontent.com/assets/13772020/11633993/776a9f64-9d0e-11e5-9f4f-2ddd8177014d.png)
 
- - **SquareRetryStrategy** (it'll calculate the wait time from the squares of the multiplication of the inital delay by the attempt count)
+ - **SquareRetryStrategy** (it'll calculate the wait time from the squares of the inital delay's multiplication by the attempt count)
 
 	![square-small](https://cloud.githubusercontent.com/assets/13772020/11633971/5da06ee2-9d0e-11e5-9510-d032e58b3818.png)
 
- - **CubicRetryStrategy** (it'll calculate the wait time based on the basic cubic function *[y = x3]* where *y* is the initial delay value multiplied by the attempt count)
+ - **CubicRetryStrategy** (it'll calculate the wait time based on the basic cubic function *[y = x3]* where *x* is the initial delay value multiplied by the attempt count)
 
 	![cubic-small](https://cloud.githubusercontent.com/assets/13772020/11633946/403bbc62-9d0e-11e5-8bf9-2e17ed23cb8a.png)
 
 ##Filters
 ####Retry filter
-You can pass an action lambda method as a filter to the **ExecuteAsync** method which can tell under which conditions you want to retry your operation.
+You can pass a `Func<bool>` as a filter to the `ExecuteAsync` method which can decide, under which conditions you want to retry your operation.
 ```c#
 await retryManager.ExecuteAsync(() =>
 {
 	//some operation    
-}, retryFiler: () => false);
+}, retryFilter: () => false);
 ```
-> The filter above will completely prevent the given operation from re-execution, in a real scenario you can pass a check against your caller object's state as a filter for example.
+> The filter above will completely prevent the given operation from re-execution, in a real scenario you can pass a check against your caller object's state for example.
 
 ####Result filter for `Func<Task<T>>`
-For the execution of a `Func<Task<T>>` you can specify a result filter which can check the result of the `Task<T>` and if it doesn't meet your criteria the **RetryManager** will re-execute your operation.
+For the execution of a `Func<Task<T>>` you can specify a result filter which can check the result of the `Task<T>` and if it doesn't meet your criteria the `RetryManager` will re-execute your operation.
 ```c#
 var result = await retryManager.ExecuteAsync(async() =>
 {
