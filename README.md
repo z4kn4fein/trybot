@@ -1,7 +1,7 @@
 # trybot [![Build status](https://ci.appveyor.com/api/projects/status/gx8xupnbmx12ysj6/branch/master?svg=true)](https://ci.appveyor.com/project/pcsajtai/trybot/branch/master) [![Coverage Status](https://coveralls.io/repos/z4kn4fein/trybot/badge.svg?branch=master&service=github)](https://coveralls.io/github/z4kn4fein/trybot?branch=master) [![Join the chat at https://gitter.im/z4kn4fein/trybot](https://img.shields.io/badge/gitter-join%20chat-green.svg)](https://gitter.im/z4kn4fein/trybot?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![NuGet Version](http://img.shields.io/nuget/v/Trybot.svg?style=flat)](https://www.nuget.org/packages/Trybot/) [![NuGet Downloads](http://img.shields.io/nuget/dt/Trybot.svg?style=flat)](https://www.nuget.org/packages/Trybot/)
-This library contains a portable retry manager solution which can make your project more fault tolerant against other resources (persistent storage, network, etc.). 
+Trybot is a retry manager solution for .NET based projects. It can make your project more fault tolerant against external resources (persistent storage, network, etc.). 
 
-**Features**:
+##Features
 
  - It supports  `Action`, `Func<Task>`, and `Func<Task<T>>`
  - Re-executions are performed asynchronously, they won't block the caller thread
@@ -12,7 +12,7 @@ This library contains a portable retry manager solution which can make your proj
  - You can inject custom logic (e.g. logging) which will be invoked when a retry occures
  - Cancellation support
 
-**Supported platforms**:
+##Supported platforms
 
  - .NET 4.5 and above
  - Windows 8/8.1/10
