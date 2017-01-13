@@ -1,27 +1,25 @@
 version: 1.0.{build}
 environment:
-  COVERALLS_REPO_TOKEN:
-    secure: 2AoH+i2vxP7MOlpQFF5yynVopcagUDDFPQf4qy34hQge4omSlBZUmxeiJ03YyZyr
 pull_requests:
   do_not_increment_build_number: true
 configuration: Release
 assembly_info:
   patch: true
-  file: 'src\trybot\**\AssemblyInfo.*'
+  file: 'src\netcore\**\AssemblyInfo.*'
   assembly_version: '{version}'
   assembly_file_version: '{version}'
   assembly_informational_version: '{version}'
 before_build:
-- nuget restore src\trybot.sln
+- nuget restore src\netcore\trybot.core.sln
 build:
-  project: src\trybot.sln
+  project: src\netcore\trybot.core.sln
   publish_nuget: true
   publish_nuget_symbols: false
   include_nuget_references: true
   parallel: true
   verbosity: normal
 test_script:
-- ps: . .\coverage.ps1
+- ps: . .\test-core.ps1
 notifications:
 - provider: Email
   to:

@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "trybot.core", "src\trybot.core.csproj", "{46226A98-0387-4FBE-9D9A-D259BAB3B242}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "trybot.core.tests", "tests\trybot.core.tests.csproj", "{9CA63128-EC66-4966-A949-7A3C518B2E12}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{46226A98-0387-4FBE-9D9A-D259BAB3B242}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46226A98-0387-4FBE-9D9A-D259BAB3B242}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46226A98-0387-4FBE-9D9A-D259BAB3B242}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46226A98-0387-4FBE-9D9A-D259BAB3B242}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9CA63128-EC66-4966-A949-7A3C518B2E12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9CA63128-EC66-4966-A949-7A3C518B2E12}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9CA63128-EC66-4966-A949-7A3C518B2E12}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9CA63128-EC66-4966-A949-7A3C518B2E12}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
