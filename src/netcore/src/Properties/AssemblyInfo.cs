@@ -4,12 +4,12 @@ using System.Resources;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Trybot")]
-[assembly: AssemblyDescription("Portable retry manager c# library")]
+[assembly: AssemblyTitle("Trybot.Core")]
+[assembly: AssemblyDescription(".NET core version of the Trybot library.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Peter Csajtai")]
-[assembly: AssemblyProduct("Trybot")]
-[assembly: AssemblyCopyright("Copyright © Peter Csajtai 2015")]
+[assembly: AssemblyProduct("Trybot.Core")]
+[assembly: AssemblyCopyright("Copyright © Peter Csajtai 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: NeutralResourcesLanguage("en")]

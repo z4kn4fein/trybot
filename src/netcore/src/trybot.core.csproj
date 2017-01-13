@@ -45,7 +45,7 @@
     <Compile Include="..\..\trybot\Interfaces\IRetryManager.cs" />
     <Compile Include="..\..\trybot\Interfaces\IRetryPolicy.cs" />
     <Compile Include="..\..\trybot\Model\TryResult.cs" />
-    <Compile Include="..\..\trybot\Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\..\trybot\RetryManager.cs" />
     <Compile Include="..\..\trybot\Strategy\CubicRetryStrategy.cs" />
     <Compile Include="..\..\trybot\Strategy\FixedIntervalRetryStartegy.cs" />
