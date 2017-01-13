@@ -17,8 +17,11 @@ build:
   include_nuget_references: true
   parallel: true
   verbosity: normal
-test_script:
-- ps: . .\test-core.ps1
+after_build:
+- nuget pack src\netcore\src\trybot.core.csproj
+test:
+assemblies:
+- 'src\netcore\**\*.Tests.dll'
 notifications:
 - provider: Email
   to:
