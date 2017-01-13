@@ -18,7 +18,7 @@ build:
   parallel: true
   verbosity: normal
 after_build:
-- nuget pack src\netcore\src\trybot.core.csproj
+- nuget pack src\netcore\src\trybot.core.csproj -Properties "Configuration=Release;Platform=AnyCPU" -IncludeReferencedProjects
 test:
 assemblies:
 - 'src\netcore\**\*.Tests.dll'
