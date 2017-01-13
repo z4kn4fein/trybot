@@ -31,7 +31,7 @@ test:
   - 'src\netcore\**\*.Tests.dll'
   
 artifacts:
-- path: src\netcore\**\*.nupkg
+- path: Trybot.*.nupkg
   name: Nuget Package
   
 notifications:
