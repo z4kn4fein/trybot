@@ -20,8 +20,8 @@ build:
 after_build:
 - nuget pack src\netcore\src\trybot.core.csproj -Properties "Configuration=Release;Platform=AnyCPU" -IncludeReferencedProjects
 test:
-assemblies:
-- 'src\netcore\**\*.Tests.dll'
+  assemblies:
+  - 'src\netcore\**\*.Tests.dll'
 notifications:
 - provider: Email
   to:
