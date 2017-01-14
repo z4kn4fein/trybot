@@ -19,6 +19,7 @@ Trybot is a retry manager solution for .NET based projects. It can make your pro
  - Windows Phone Silverlight 8/8.1
  - Windows Phone 8.1
  - Xamarin (Android/iOS/iOS Classic)
+ - .NET core [![Build status](https://ci.appveyor.com/api/projects/status/s0riq8ckapvljm8f/branch/master?svg=true)](https://ci.appveyor.com/project/pcsajtai/trybot-core/branch/master) [![NuGet Version](https://buildstats.info/nuget/Trybot.Core)](https://www.nuget.org/packages/Trybot.Core/)
 
 ##Retry policy
 Using the `RetryManager` requires a properly configured `IRetryPolicy` implementation, which can decide, when you want to retry your operation.
