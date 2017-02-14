@@ -15,7 +15,7 @@
     <RepositoryUrl>https://github.com/z4kn4fein/trybot</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Trybot retry</PackageTags>
-    <Description>Retry manager library.</Description>
+    <Description>Trybot retry manager library.</Description>
     <WarningsAsErrors>true</WarningsAsErrors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
