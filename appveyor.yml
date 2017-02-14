@@ -7,6 +7,8 @@ environment:
 pull_requests:
   do_not_increment_build_number: true
 
+image: Visual Studio 2017 RC
+  
 configuration: Release
 
 before_build:
