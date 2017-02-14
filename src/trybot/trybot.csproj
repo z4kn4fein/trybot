@@ -1,68 +1,38 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{46226A98-0387-4FBE-9D9A-D259BAB3B242}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Trybot</RootNamespace>
+    <TargetFrameworks>net45;netstandard1.0;portable-net45+win8+wpa81+wp8</TargetFrameworks>
     <AssemblyName>Trybot</AssemblyName>
-    <DefaultLanguage>en-US</DefaultLanguage>
-    <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <TargetFrameworkProfile>Profile259</TargetFrameworkProfile>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\Trybot.XML</DocumentationFile>
-  </PropertyGroup>
-  <PropertyGroup>
+    <AssemblyTitle>Trybot</AssemblyTitle>
+    <RootNamespace>Trybot</RootNamespace>
+    <PackageId>Trybot</PackageId>
+    <Authors>Peter Csajtai</Authors>
+    <Company>Peter Csajtai</Company>
+    <Product>Trybot</Product>
+    <Copyright>Copyright © Peter Csajtai 2017</Copyright>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/z4kn4fein/trybot/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/z4kn4fein/trybot</PackageProjectUrl>
+    <PackageIconUrl>https://goo.gl/I3hRfL</PackageIconUrl>
+    <RepositoryUrl>https://github.com/z4kn4fein/trybot</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>Trybot retry</PackageTags>
+    <Description>Retry manager library.</Description>
+    <WarningsAsErrors>true</WarningsAsErrors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <SignAssembly>true</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
     <AssemblyOriginatorKeyFile>..\..\sn.snk</AssemblyOriginatorKeyFile>
+    <Version>1.0.0</Version>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <DebugType>portable</DebugType>
   </PropertyGroup>
-  <ItemGroup>
-    <Compile Include="Interfaces\IRetryManager.cs" />
-    <Compile Include="Interfaces\IRetryPolicy.cs" />
-    <Compile Include="Model\TryResult.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RetryManager.cs" />
-    <Compile Include="Strategy\CubicRetryStrategy.cs" />
-    <Compile Include="Strategy\FixedIntervalRetryStartegy.cs" />
-    <Compile Include="Strategy\LinearRetryStrategy.cs" />
-    <Compile Include="Strategy\RetryStartegy.cs" />
-    <Compile Include="Strategy\SquareRetryStartegy.cs" />
-    <Compile Include="TaskDelayer.cs" />
-    <Compile Include="Utils\Shield.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\sn.snk" />
-  </ItemGroup>
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.0'">
+    <AssemblyTitle>Trybot .NET Standard 1.0</AssemblyTitle>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'portable-net45+win8+wpa81+wp8'">
+    <TargetFrameworkIdentifier>.NETPortable</TargetFrameworkIdentifier>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Profile259</TargetFrameworkProfile>
+    <NugetTargetMoniker>.NETPortable,Version=v0.0,Profile=Profile259</NugetTargetMoniker>
+    <LanguageTargets>$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets</LanguageTargets>
+  </PropertyGroup>
 </Project>
