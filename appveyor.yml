@@ -21,9 +21,9 @@
     COVERALLS_REPO_TOKEN:
       secure: 2AoH+i2vxP7MOlpQFF5yynVopcagUDDFPQf4qy34hQge4omSlBZUmxeiJ03YyZyr
   
-    version: $(build_version)-{build}
+  version: $(build_version)-{build}
     
-    skip_tags: true
+  skip_tags: true
   
   pull_requests:
     do_not_increment_build_number: true
@@ -78,9 +78,7 @@
     COVERALLS_REPO_TOKEN:
       secure: 2AoH+i2vxP7MOlpQFF5yynVopcagUDDFPQf4qy34hQge4omSlBZUmxeiJ03YyZyr
   
-    version: $(build_version)-{build}
-    
-    skip_tags: true
+  version: $(build_version)-{build}
   
   pull_requests:
     do_not_increment_build_number: true
