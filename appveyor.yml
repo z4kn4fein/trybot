@@ -1,40 +1,118 @@
-version: 2.0.{build}
+# master branch
+-
+  branches:
+    only:
+      - master
 
-environment:
-  COVERALLS_REPO_TOKEN:
-    secure: 2AoH+i2vxP7MOlpQFF5yynVopcagUDDFPQf4qy34hQge4omSlBZUmxeiJ03YyZyr
+  deploy:
+  - provider: NuGet
+    api_key:
+      secure: doqtwSE1NadH7pf4jqYifDu4tcXzsNiJtPWOccnbUrhSnIJX+5js7m8z+kV9LNJ2
 
-pull_requests:
-  do_not_increment_build_number: true
+  - provider: GitHub
+    tag: $(build_version)
+    release: Trybot v$(build_version)
+    auth_token:
+      secure: TaIug8cHioxT2qDznFpGtDinZiDi+20pEMQZUVAATWCvGLG9Y5LrjaxDUQtGyt38
+    artifact: /.*\.nupkg/
 
-image: Visual Studio 2017 RC
+  environment:
+    build_version: 2.1.0
+    COVERALLS_REPO_TOKEN:
+      secure: 2AoH+i2vxP7MOlpQFF5yynVopcagUDDFPQf4qy34hQge4omSlBZUmxeiJ03YyZyr
   
-configuration: Release
+    version: $(build_version)-{build}
+    
+    skip_tags: true
+  
+  pull_requests:
+    do_not_increment_build_number: true
+  
+  image: Visual Studio 2017 RC
+    
+  configuration: Release
+  
+  before_build:
+  - ps: . .\patch-version.ps1 "src\trybot\trybot.csproj" $($env:build_version)
+  
+  build_script:
+  - msbuild /t:Restore /p:Configuration=%CONFIGURATION% src\trybot.sln
+  - msbuild /t:Build /p:Configuration=%CONFIGURATION% src\trybot.sln
+  
+  after_build:
+  - msbuild /t:Pack /p:IncludeSymbols=true /p:Configuration=%CONFIGURATION% /p:PackageOutputPath=..\..\artifacts src\trybot\trybot.csproj
+  
+  test_script:
+  - ps: . .\set-debug-type.ps1 "src\trybot\trybot.csproj"
+  - dotnet test src\trybot.tests\trybot.tests.csproj  -f net45 -c %CONFIGURATION% --no-build
+  - dotnet test src\trybot.tests\trybot.tests.csproj  -f netcoreapp1.0 -c %CONFIGURATION% --no-build
+  - ps: . .\coverage.ps1
+  
+  artifacts:
+  - path: artifacts\Trybot.*.nupkg
+    name: NuGet
+  
+  notifications:
+  - provider: Email
+    to:
+    - peter.csajtai@outlook.com
+    on_build_success: false
+    on_build_failure: true
+    on_build_status_changed: true
 
-before_build:
-- ps: . .\patch-version.ps1 "src\trybot\trybot.csproj"
+# every branch except master
+-
+  branches:
+    except:
+      - master
 
-build_script:
-- msbuild /t:Restore /p:Configuration=%CONFIGURATION% src\trybot.sln
-- msbuild /t:Build /p:Configuration=%CONFIGURATION% src\trybot.sln
+  deploy:
+  - provider: NuGet
+    server: https://ci.appveyor.com/nuget/dfulop-47k22fwevogt/api/v2/package
+    skip_symbols: true
+    api_key:
+      secure: TkNCeoNPtr9F/Lsrbz81MYdIPj/mTptApAp+P6WfqlY=
 
-after_build:
-- msbuild /t:Pack /p:IncludeSymbols=true /p:Configuration=%CONFIGURATION% /p:PackageOutputPath=..\..\artifacts src\trybot\trybot.csproj
-
-test_script:
-- ps: . .\set-debug-type.ps1 "src\trybot\trybot.csproj"
-- dotnet test src\trybot.tests\trybot.tests.csproj  -f net45 -c %CONFIGURATION% --no-build
-- dotnet test src\trybot.tests\trybot.tests.csproj  -f netcoreapp1.0 -c %CONFIGURATION% --no-build
-- ps: . .\coverage.ps1
-
-artifacts:
-- path: artifacts\Trybot.*.nupkg
-  name: NuGet
-
-notifications:
-- provider: Email
-  to:
-  - peter.csajtai@outlook.com
-  on_build_success: false
-  on_build_failure: true
-  on_build_status_changed: true
+  environment:
+    build_version: 2.1.0
+    COVERALLS_REPO_TOKEN:
+      secure: 2AoH+i2vxP7MOlpQFF5yynVopcagUDDFPQf4qy34hQge4omSlBZUmxeiJ03YyZyr
+  
+    version: $(build_version)-{build}
+    
+    skip_tags: true
+  
+  pull_requests:
+    do_not_increment_build_number: true
+  
+  image: Visual Studio 2017 RC
+    
+  configuration: Release
+  
+  before_build:
+  - ps: . .\patch-version.ps1 "src\trybot\trybot.csproj" $($env:APPVEYOR_BUILD_VERSION)
+  
+  build_script:
+  - msbuild /t:Restore /p:Configuration=%CONFIGURATION% src\trybot.sln
+  - msbuild /t:Build /p:Configuration=%CONFIGURATION% src\trybot.sln
+  
+  after_build:
+  - msbuild /t:Pack /p:IncludeSymbols=true /p:Configuration=%CONFIGURATION% /p:PackageOutputPath=..\..\artifacts src\trybot\trybot.csproj
+  
+  test_script:
+  - ps: . .\set-debug-type.ps1 "src\trybot\trybot.csproj"
+  - dotnet test src\trybot.tests\trybot.tests.csproj  -f net45 -c %CONFIGURATION% --no-build
+  - dotnet test src\trybot.tests\trybot.tests.csproj  -f netcoreapp1.0 -c %CONFIGURATION% --no-build
+  - ps: . .\coverage.ps1
+  
+  artifacts:
+  - path: artifacts\Trybot.*.nupkg
+    name: NuGet
+  
+  notifications:
+  - provider: Email
+    to:
+    - peter.csajtai@outlook.com
+    on_build_success: false
+    on_build_failure: true
+    on_build_status_changed: true
