@@ -22,7 +22,7 @@ Trybot is a retry manager solution for .NET based projects. It can make your pro
  - .NET Standard 1.0
 
 ##Retry policy
-Using the `RetryManager` requires a properly configured `IRetryPolicy` implementation, which can decide, when you want to retry your operation.
+A `IRetryPolicy` implementation can be used to determine, which exceptions should trigger a re-execution.
 ```c#
 public class FooRetryPolicy : IRetryPolicy
 {
@@ -32,20 +32,18 @@ public class FooRetryPolicy : IRetryPolicy
 	}
 }
 ```
-> The example above will retry your operation when any kind of exception occurs.
-
-Instantiation of `RetryManager`.
+Use the retry policy at the instantiation of `RetryManager`.
 ```c#
 var retryManager = new RetryManager(new FooRetryPolicy());
 ```
-####Retrying an `Action`
+###Retrying an `Action`
 ```c#
 await retryManager.ExecuteAsync(() =>
 {
 	//some operation    
 });
 ```
-You can pass a cancellation token also.
+Or with a cancellation token.
 ```c#
 var tokenSource = new CancellationTokenSource();
 await retryManager.ExecuteAsync(() =>
@@ -53,21 +51,21 @@ await retryManager.ExecuteAsync(() =>
 	//some operation    
 }, tokenSource.Token);
 ```
-####Retrying a `Func<Task>`
+###Retrying a `Func<Task>`
 ```c#
 await retryManager.ExecuteAsync(async() =>
 {
 	//some awaitable operation    
 });
 ```
-####Retrying a `Func<Task<T>>`
+###Retrying a `Func<Task<T>>`
 ```c#
 var result = await retryManager.ExecuteAsync(async() =>
 {
 	//some awaitable operation    
 });
 ```
-####Retry events
+###Retry events
 ```c#
 await retryManager.ExecuteAsync(() =>
 {
@@ -101,7 +99,7 @@ await retryManager.ExecuteAsync(() =>
 	//some operation    
 }, retryStartegy: new FooRetryStrategy(5, TimeSpan.FromSeconds(5)));
 ```
-If you don't want to set your custom `RetryStrategy` on every `ExecuteAsync()` call, you can set the `RetryStrategy.DefaultRetryStrategy` static property as well, which's being used when the strategy parameter is null.
+If you don't want to set your custom `RetryStrategy` on every `ExecuteAsync()` call, you can set the `RetryStrategy.DefaultRetryStrategy` static property as well, which is being used when the strategy parameter is null.
 ```c#
 RetryStrategy.DefaultRetryStrategy = new FooRetryStrategy(5, TimeSpan.FromSeconds(5));
 ```
@@ -124,21 +122,21 @@ RetryStrategy.DefaultRetryStrategy = new FooRetryStrategy(5, TimeSpan.FromSecond
 	![cubic-small](https://cloud.githubusercontent.com/assets/13772020/11633946/403bbc62-9d0e-11e5-8bf9-2e17ed23cb8a.png)
 
 ##Filters
-####Retry filter
-A `Func<bool>` delegate can be set as a filter to determine what conditions must be met to retry an operation.
+###Retry filter
+A `Func<bool>` delegate can be set as a filter to determine what conditions must be met to mark an operation successfull.
 ```c#
 await retryManager.ExecuteAsync(() =>
 {
 	//some operation    
 }, retryFilter: () => !state.IsValid());
 ```
-> The filter above will continue the re-executions until the passed predicate is evaluated as `false`.
+> The filter above will let the re-executions run until the passed predicate is evaluated as `false`.
 
-####Result filter for `Func<Task<T>>`
-For the execution of a `Func<Task<T>>` you can specify a result filter which can check the result of the `Task<T>` and if it doesn't meet your criteria the `RetryManager` will re-execute your operation.
+###Result filter for `Func<Task<T>>`
+Similar to the retry filter except that it allows the inspection of the given Task's result.
 ```c#
 var result = await retryManager.ExecuteAsync(async() =>
 {
 	//some operation    
-}, resultFilter: operationResult => !operationResult.IsValid);
+}, resultFilter: operationResult => !operationResult.IsValid());
 ```
