@@ -3,13 +3,13 @@ Trybot is a retry manager solution for .NET based projects. It can make your pro
 
 ##Features
 
- - It supports  `Action`, `Func<Task>`, and `Func<Task<T>>`
+ - Supports the re-execution of `Action`, `Func<Task>`, and `Func<Task<T>>`
  - Re-executions are performed asynchronously, they won't block the caller thread
- - Custom retry policies for handling when you want to retry your actions
- - Custom retry strategies for handling how you want to retry your actions
- - Besides the exceptions you can specify filters if you want to retry an action by a custom value
- - For `Func<Task<T>>` you can specify result filter
- - You can inject custom logic (e.g. logging) which will be invoked when a retry occures
+ - Custom retry policies can be specified for handling on what circumstances you want to retry your actions
+ - Custom retry strategies can be specified for handling, how your actions should be re-executed
+ - Besides the exceptions you can set custom filters to control the re-executions
+ - For `Func<Task<T>>` you can set a result filter
+ - Subscribe to re-execution events
  - Cancellation support
 
 ##Supported platforms
@@ -34,18 +34,18 @@ public class FooRetryPolicy : IRetryPolicy
 ```
 > The example above will retry your operation when any kind of exception occurs.
 
-Pass your retry policy to the `RetryManager`.
+Instantiation of `RetryManager`.
 ```c#
 var retryManager = new RetryManager(new FooRetryPolicy());
 ```
-####Retry an `Action`
+####Retrying an `Action`
 ```c#
 await retryManager.ExecuteAsync(() =>
 {
 	//some operation    
 });
 ```
-You can also pass a cancellation token.
+You can pass a cancellation token also.
 ```c#
 var tokenSource = new CancellationTokenSource();
 await retryManager.ExecuteAsync(() =>
@@ -53,21 +53,21 @@ await retryManager.ExecuteAsync(() =>
 	//some operation    
 }, tokenSource.Token);
 ```
-####Retry a `Func<Task>`
+####Retrying a `Func<Task>`
 ```c#
 await retryManager.ExecuteAsync(async() =>
 {
 	//some awaitable operation    
 });
 ```
-####Retry a `Func<Task<T>>`
+####Retrying a `Func<Task<T>>`
 ```c#
 var result = await retryManager.ExecuteAsync(async() =>
 {
 	//some awaitable operation    
 });
 ```
-####Hook on retries
+####Retry events
 ```c#
 await retryManager.ExecuteAsync(() =>
 {
@@ -78,7 +78,7 @@ await retryManager.ExecuteAsync(() =>
 });
 ```
 ##Retry strategies
-You can specify custom retry strategies by passing a custom `RetryStrategy` implementation to the `ExecuteAsync()` function.
+Custom retry strategies can be specified by passing a `RetryStrategy` implementation to the `ExecuteAsync()` function.
 ```c#
 class FooRetryStrategy : RetryStartegy
 {
@@ -94,14 +94,14 @@ class FooRetryStrategy : RetryStartegy
     }
 }
 ```
-Pass your custom strategy to the `ExecuteAsync()` function.
+Passing the custom strategy to the `ExecuteAsync()` function.
 ```c#
 await retryManager.ExecuteAsync(() =>
 {
 	//some operation    
 }, retryStartegy: new FooRetryStrategy(5, TimeSpan.FromSeconds(5)));
 ```
-If you don't want to pass your custom `RetryStrategy` every time, then you can set the `RetryStrategy.DefaultRetryStrategy` static property which is being used by the `RetryManager` when the strategy parameter is null.
+If you don't want to set your custom `RetryStrategy` on every `ExecuteAsync()` call, you can set the `RetryStrategy.DefaultRetryStrategy` static property as well, which's being used when the strategy parameter is null.
 ```c#
 RetryStrategy.DefaultRetryStrategy = new FooRetryStrategy(5, TimeSpan.FromSeconds(5));
 ```
@@ -125,14 +125,14 @@ RetryStrategy.DefaultRetryStrategy = new FooRetryStrategy(5, TimeSpan.FromSecond
 
 ##Filters
 ####Retry filter
-You can pass a `Func<bool>` as a filter to the `ExecuteAsync` method which can decide, under which conditions you want to retry your operation.
+A `Func<bool>` delegate can be set as a filter to determine what conditions must be met to retry an operation.
 ```c#
 await retryManager.ExecuteAsync(() =>
 {
 	//some operation    
-}, retryFilter: () => false);
+}, retryFilter: () => !state.IsValid());
 ```
-> The filter above will completely prevent the given operation from re-execution, in a real scenario you can pass a check against your caller object's state for example.
+> The filter above will continue the re-executions until the passed predicate is evaluated as `false`.
 
 ####Result filter for `Func<Task<T>>`
 For the execution of a `Func<Task<T>>` you can specify a result filter which can check the result of the `Task<T>` and if it doesn't meet your criteria the `RetryManager` will re-execute your operation.
