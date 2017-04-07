@@ -1,7 +1,7 @@
 # trybot [![Appveyor build status](https://img.shields.io/appveyor/ci/pcsajtai/trybot/master.svg?label=appveyor)](https://ci.appveyor.com/project/pcsajtai/trybot/branch/master) [![Travis CI build status](https://img.shields.io/travis/z4kn4fein/trybot/master.svg?label=travis-ci)](https://travis-ci.org/z4kn4fein/trybot) [![Coverage Status](https://coveralls.io/repos/github/z4kn4fein/trybot/badge.svg?branch=master)](https://coveralls.io/github/z4kn4fein/trybot?branch=master) [![Join the chat at https://gitter.im/z4kn4fein/trybot](https://img.shields.io/badge/gitter-join%20chat-1dce73.svg)](https://gitter.im/z4kn4fein/trybot?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![NuGet Version](https://buildstats.info/nuget/Trybot)](https://www.nuget.org/packages/Trybot/)
 Trybot is a retry manager solution for .NET based projects. It can make your project more fault tolerant against external resources (persistent storage, network, etc.). 
 
-##Features
+## Features
 
  - Supports the re-execution of `Action`, `Func<Task>`, and `Func<Task<T>>`
  - Re-executions are performed asynchronously, they won't block the caller thread
@@ -12,7 +12,7 @@ Trybot is a retry manager solution for .NET based projects. It can make your pro
  - Subscribe to re-execution events
  - Cancellation support
 
-##Supported platforms
+## Supported platforms
 
  - .NET 4.5 and above
  - Windows 8/8.1/10
@@ -21,7 +21,7 @@ Trybot is a retry manager solution for .NET based projects. It can make your pro
  - Xamarin (Android/iOS/iOS Classic)
  - .NET Standard 1.0
 
-##Retry policy
+## Retry policy
 A `IRetryPolicy` implementation can be used to determine, which exceptions should trigger a re-execution.
 ```c#
 public class FooRetryPolicy : IRetryPolicy
@@ -36,7 +36,7 @@ Use the retry policy at the instantiation of `RetryManager`.
 ```c#
 var retryManager = new RetryManager(new FooRetryPolicy());
 ```
-###Retrying an `Action`
+### Retrying an `Action`
 ```c#
 await retryManager.ExecuteAsync(() =>
 {
@@ -51,21 +51,21 @@ await retryManager.ExecuteAsync(() =>
 	//some operation    
 }, tokenSource.Token);
 ```
-###Retrying a `Func<Task>`
+### Retrying a `Func<Task>`
 ```c#
 await retryManager.ExecuteAsync(async() =>
 {
 	//some awaitable operation    
 });
 ```
-###Retrying a `Func<Task<T>>`
+### Retrying a `Func<Task<T>>`
 ```c#
 var result = await retryManager.ExecuteAsync(async() =>
 {
 	//some awaitable operation    
 });
 ```
-###Retry events
+### Retry events
 ```c#
 await retryManager.ExecuteAsync(() =>
 {
@@ -75,7 +75,7 @@ await retryManager.ExecuteAsync(() =>
 	Console.WriteLine($"{attempt}. attempt, waiting {nextDelay.TotalSeconds} seconds before the next retry!");
 });
 ```
-##Retry strategies
+## Retry strategies
 Custom retry strategies can be specified by passing a `RetryStrategy` implementation to the `ExecuteAsync()` function.
 ```c#
 class FooRetryStrategy : RetryStartegy
@@ -103,7 +103,7 @@ If you don't want to set your custom `RetryStrategy` on every `ExecuteAsync()` c
 ```c#
 RetryStrategy.DefaultRetryStrategy = new FooRetryStrategy(5, TimeSpan.FromSeconds(5));
 ```
-###Already implemented strategies
+### Already implemented strategies
 
  - **FixedIntervalRetryStrategy** (it'll wait between the attempts always the same amount of time you specified at the instantiation)
 
@@ -121,8 +121,8 @@ RetryStrategy.DefaultRetryStrategy = new FooRetryStrategy(5, TimeSpan.FromSecond
 
 	![cubic-small](https://cloud.githubusercontent.com/assets/13772020/11633946/403bbc62-9d0e-11e5-8bf9-2e17ed23cb8a.png)
 
-##Filters
-###Retry filter
+## Filters
+### Retry filter
 A `Func<bool>` delegate can be set as a filter to determine what conditions must be met to mark an operation successfull.
 ```c#
 await retryManager.ExecuteAsync(() =>
@@ -132,7 +132,7 @@ await retryManager.ExecuteAsync(() =>
 ```
 > The filter above will let the re-executions run until the passed predicate is evaluated as `false`.
 
-###Result filter for `Func<Task<T>>`
+### Result filter for `Func<Task<T>>`
 Similar to the retry filter except that it allows the inspection of the given Task's result.
 ```c#
 var result = await retryManager.ExecuteAsync(async() =>
