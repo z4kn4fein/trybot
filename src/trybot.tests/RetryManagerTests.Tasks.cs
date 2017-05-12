@@ -135,7 +135,7 @@ namespace Trybot.Tests
             }
             catch (Exception)
             {
-                Assert.AreEqual(0, this.executionPolicy.CurrentAttempt);
+                Assert.IsTrue(this.executionPolicy.CurrentAttempt < 5);
                 throw;
             }
         }
