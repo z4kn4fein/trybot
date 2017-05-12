@@ -2,6 +2,7 @@
 using Moq;
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using Trybot.Interfaces;
 using Trybot.Strategy;
 
@@ -23,36 +24,36 @@ namespace Trybot.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AggregateException))]
-        public void ExecuteAsync_Action_WithoutFilter_Exception()
+        [ExpectedException(typeof(Exception))]
+        public async Task ExecuteAsync_Action_WithoutFilter_Exception()
         {
-            this.retryManager.ExecuteAsync((Action)(() => { throw new Exception(); }), CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy).Wait();
+            await this.retryManager.ExecuteAsync((Action)(() => { throw new Exception(); }), CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AggregateException))]
-        public void ExecuteAsync_Action_WithoutFilter_WithoutCancellationToken_Exception()
+        [ExpectedException(typeof(Exception))]
+        public async Task ExecuteAsync_Action_WithoutFilter_WithoutCancellationToken_Exception()
         {
-            this.retryManager.ExecuteAsync((Action)(() => { throw new Exception(); }), (attempt, nextDelay) => { }, this.executionPolicy).Wait();
+            await this.retryManager.ExecuteAsync((Action)(() => { throw new Exception(); }), (attempt, nextDelay) => { }, this.executionPolicy);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AggregateException))]
-        public void ExecuteAsync_Action_WithoutFilter_CancellationToken_Exception()
+        [ExpectedException(typeof(Exception))]
+        public async Task ExecuteAsync_Action_WithoutFilter_CancellationToken_Exception()
         {
             var cancellationTokenSource = new CancellationTokenSource();
             var task = this.retryManager.ExecuteAsync((Action)(() => { throw new Exception(); }), cancellationTokenSource.Token, (attempt, nextDelay) => { }, this.executionPolicy);
             cancellationTokenSource.Cancel();
-            task.Wait();
+            await task;
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AggregateException))]
-        public void ExecuteAsync_Action_WithoutFilter()
+        [ExpectedException(typeof(Exception))]
+        public async Task ExecuteAsync_Action_WithoutFilter()
         {
             try
             {
-                this.retryManager.ExecuteAsync((Action)(() => { throw new Exception(); }), CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy).Wait();
+                await this.retryManager.ExecuteAsync((Action)(() => { throw new Exception(); }), CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy);
             }
             catch (Exception)
             {
@@ -62,12 +63,12 @@ namespace Trybot.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AggregateException))]
-        public void ExecuteAsync_Action_WithFilter_False()
+        [ExpectedException(typeof(Exception))]
+        public async Task ExecuteAsync_Action_WithFilter_False()
         {
             try
             {
-                this.retryManager.ExecuteAsync((Action)(() => { throw new Exception(); }), CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy, () => false).Wait();
+                await this.retryManager.ExecuteAsync((Action)(() => { throw new Exception(); }), CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy, () => false);
             }
             catch (Exception)
             {
@@ -77,15 +78,15 @@ namespace Trybot.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AggregateException))]
-        public void ExecuteAsync_Action_WithoutFilter_CancellationToken()
+        [ExpectedException(typeof(Exception))]
+        public async Task ExecuteAsync_Action_WithoutFilter_CancellationToken()
         {
             try
             {
                 var cancellationTokenSource = new CancellationTokenSource();
                 var task = this.retryManager.ExecuteAsync((Action)(() => { throw new Exception(); }), cancellationTokenSource.Token);
                 cancellationTokenSource.Cancel();
-                task.Wait();
+                await task;
             }
             catch (Exception)
             {
@@ -95,33 +96,33 @@ namespace Trybot.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AggregateException))]
-        public void ExecuteAsync_Action_WithFilter_True_CancellationToken()
+        [ExpectedException(typeof(Exception))]
+        public async Task ExecuteAsync_Action_WithFilter_True_CancellationToken()
         {
             try
             {
                 var cancellationTokenSource = new CancellationTokenSource();
                 var task = this.retryManager.ExecuteAsync((Action)(() => { throw new Exception(); }), cancellationTokenSource.Token, (attempt, nextDelay) => { }, this.executionPolicy, () => true);
                 cancellationTokenSource.Cancel();
-                task.Wait();
+                await task;
             }
             catch (Exception)
             {
-                Assert.AreEqual(0, this.executionPolicy.CurrentAttempt);
+                Assert.IsTrue(this.executionPolicy.CurrentAttempt < 5);
                 throw;
             }
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AggregateException))]
-        public void ExecuteAsync_Action_WithFilter_False_CancellationToken()
+        [ExpectedException(typeof(Exception))]
+        public async Task ExecuteAsync_Action_WithFilter_False_CancellationToken()
         {
             try
             {
                 var cancellationTokenSource = new CancellationTokenSource();
                 var task = this.retryManager.ExecuteAsync((Action)(() => { throw new Exception(); }), cancellationTokenSource.Token, (attempt, nextDelay) => { }, this.executionPolicy, () => false);
                 cancellationTokenSource.Cancel();
-                task.Wait();
+                await task;
             }
             catch (Exception)
             {
@@ -132,52 +133,19 @@ namespace Trybot.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AggregateException))]
-        public void ExecuteAsync_Action_WithFilter_True_Exception()
+        [ExpectedException(typeof(Exception))]
+        public async Task ExecuteAsync_Action_WithFilter_True_Exception()
         {
-            this.retryManager.ExecuteAsync((Action)(() => { throw new Exception(); }), CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy, () => true).Wait();
+            await this.retryManager.ExecuteAsync((Action)(() => { throw new Exception(); }), CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy, () => true);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AggregateException))]
-        public void ExecuteAsync_Action_WithFilter_True()
+        [ExpectedException(typeof(Exception))]
+        public async Task ExecuteAsync_Action_WithFilter_True()
         {
             try
             {
-                this.retryManager.ExecuteAsync((Action)(() => { throw new Exception(); }), CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy, () => true).Wait();
-            }
-            catch (Exception)
-            {
-                Assert.AreEqual(0, this.executionPolicy.CurrentAttempt);
-                throw;
-            }
-        }
-
-        [TestMethod]
-        public void ExecuteAsync_Action_WithoutRetry()
-        {
-            this.retryManager.ExecuteAsync(() => { }, CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy).Wait();
-            Assert.AreEqual(0, this.executionPolicy.CurrentAttempt);
-        }
-
-        [TestMethod]
-        public void ExecuteAsync_Action_WithoutRetry_WithoutCancellationToken()
-        {
-            this.retryManager.ExecuteAsync(() => { }, (attempt, nextDelay) => { }, this.executionPolicy).Wait();
-            Assert.AreEqual(0, this.executionPolicy.CurrentAttempt);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(AggregateException))]
-        public void ExecuteAsync_Action_WithoutFilter_WithRetryOccuredEvent()
-        {
-            try
-            {
-                this.retryManager.ExecuteAsync((Action)(() => { throw new Exception(); }), CancellationToken.None, (attempt, nextDelay) =>
-                {
-                    Assert.IsTrue(attempt > 0);
-                    Assert.AreEqual(TimeSpan.FromMilliseconds(5), nextDelay);
-                }, this.executionPolicy).Wait();
+                await this.retryManager.ExecuteAsync((Action)(() => { throw new Exception(); }), CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy, () => true);
             }
             catch (Exception)
             {
@@ -187,15 +155,56 @@ namespace Trybot.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AggregateException))]
-        public void ExecuteAsync_Action_ForceThrowException()
+        public async Task ExecuteAsync_Action_WithoutRetry()
+        {
+            await this.retryManager.ExecuteAsync(() => { }, CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy);
+            Assert.AreEqual(0, this.executionPolicy.CurrentAttempt);
+        }
+
+        [TestMethod]
+        public async Task ExecuteAsync_Action_WithFilter_NoException()
+        {
+            await this.retryManager.ExecuteAsync(() => { }, CancellationToken.None, (attempt, nextDelay) => { },
+                this.executionPolicy, () => true);
+            Assert.AreEqual(5, this.executionPolicy.CurrentAttempt);
+        }
+
+        [TestMethod]
+        public async Task ExecuteAsync_Action_WithoutRetry_WithoutCancellationToken()
+        {
+            await this.retryManager.ExecuteAsync(() => { }, (attempt, nextDelay) => { }, this.executionPolicy);
+            Assert.AreEqual(0, this.executionPolicy.CurrentAttempt);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public async Task ExecuteAsync_Action_WithoutFilter_WithRetryOccuredEvent()
+        {
+            try
+            {
+                await this.retryManager.ExecuteAsync((Action)(() => { throw new Exception(); }), CancellationToken.None, (attempt, nextDelay) =>
+                {
+                    Assert.IsTrue(attempt > 0);
+                    Assert.AreEqual(TimeSpan.FromMilliseconds(5), nextDelay);
+                }, this.executionPolicy);
+            }
+            catch (Exception)
+            {
+                Assert.AreEqual(5, this.executionPolicy.CurrentAttempt);
+                throw;
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public async Task ExecuteAsync_Action_ForceThrowException()
         {
             try
             {
                 var retryPolicy = new Mock<IRetryPolicy>();
                 retryPolicy.Setup(policy => policy.ShouldRetryAfter(It.IsAny<Exception>())).Returns(false);
                 var localRetryManager = new RetryManager(retryPolicy.Object);
-                localRetryManager.ExecuteAsync((Action)(() => { throw new Exception(); }), CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy).Wait();
+                await localRetryManager.ExecuteAsync((Action)(() => { throw new Exception(); }), CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy);
             }
             catch (Exception)
             {

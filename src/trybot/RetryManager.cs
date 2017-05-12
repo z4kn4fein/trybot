@@ -157,7 +157,7 @@ namespace Trybot
             }
 
             if (result.Succeeded && (!result.Succeeded || !result.ForceThrowException))
-                return (T) result.FunctionResult;
+                return (T)result.FunctionResult;
 
             if (result.Exception != null)
                 throw result.Exception;
@@ -188,7 +188,7 @@ namespace Trybot
             }
 
             if (result.Succeeded && (!result.Succeeded || !result.ForceThrowException))
-                return (T) result.FunctionResult;
+                return (T)result.FunctionResult;
 
             if (result.Exception != null)
                 throw result.Exception;
@@ -200,13 +200,10 @@ namespace Trybot
         {
             var completionSource = new TaskCompletionSource<TryResult>();
 
-            if (retryFilter != null && retryFilter())
-                completionSource.SetResult(new TryResult { Succeeded = true });
-
             try
             {
                 action();
-                completionSource.SetResult(new TryResult { Succeeded = true });
+                this.HandleRetryFilter(completionSource, retryFilter);
             }
             catch (Exception ex)
             {
@@ -222,13 +219,10 @@ namespace Trybot
         {
             var completionSource = new TaskCompletionSource<TryResult>();
 
-            if (retryFilter != null && retryFilter())
-                completionSource.SetResult(new TryResult { Succeeded = true });
-
             try
             {
                 await func();
-                completionSource.SetResult(new TryResult { Succeeded = true });
+                this.HandleRetryFilter(completionSource, retryFilter);
             }
             catch (Exception ex)
             {
@@ -244,20 +238,18 @@ namespace Trybot
         {
             var completionSource = new TaskCompletionSource<TryResult>();
 
-            if (retryFilter != null && retryFilter())
-                completionSource.SetResult(new TryResult { Succeeded = true });
-
             try
             {
                 var result = await func();
                 if (resultFilter != null)
                 {
-                    completionSource.SetResult(resultFilter(result)
-                        ? new TryResult { Succeeded = false, FunctionResult = result }
-                        : new TryResult { Succeeded = true, FunctionResult = result });
+                    if (resultFilter(result))
+                        completionSource.SetResult(new TryResult { Succeeded = false, FunctionResult = result });
+                    else
+                        this.HandleRetryFilterWithResult(completionSource, result, retryFilter);
                 }
                 else
-                    completionSource.SetResult(new TryResult { Succeeded = true, FunctionResult = result });
+                    this.HandleRetryFilterWithResult(completionSource, result, retryFilter);
             }
             catch (Exception ex)
             {
@@ -267,6 +259,30 @@ namespace Trybot
             }
 
             return await completionSource.Task;
+        }
+
+        private void HandleRetryFilter(TaskCompletionSource<TryResult> completionSource, Func<bool> retryFilter = null)
+        {
+            if (retryFilter != null)
+            {
+                completionSource.SetResult(retryFilter()
+                    ? new TryResult { Succeeded = false }
+                    : new TryResult { Succeeded = true });
+            }
+            else
+                completionSource.SetResult(new TryResult { Succeeded = true });
+        }
+
+        private void HandleRetryFilterWithResult(TaskCompletionSource<TryResult> completionSource, object result, Func<bool> retryFilter = null)
+        {
+            if (retryFilter != null)
+            {
+                completionSource.SetResult(retryFilter()
+                    ? new TryResult { Succeeded = false, FunctionResult = result }
+                    : new TryResult { Succeeded = true, FunctionResult = result });
+            }
+            else
+                completionSource.SetResult(new TryResult { Succeeded = true, FunctionResult = result });
         }
 
         private static void RaiseRetryOccuredEvent(Action<int, TimeSpan> onRetryOccured, int attempt, TimeSpan nextDelay)
