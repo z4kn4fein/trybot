@@ -1,38 +1,40 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFrameworks>net45;netstandard1.0;portable-net45+win8+wpa81+wp8</TargetFrameworks>
-    <AssemblyName>Trybot</AssemblyName>
-    <AssemblyTitle>Trybot</AssemblyTitle>
-    <RootNamespace>Trybot</RootNamespace>
-    <PackageId>Trybot</PackageId>
-    <Authors>Peter Csajtai</Authors>
-    <Company>Peter Csajtai</Company>
-    <Product>Trybot</Product>
-    <Copyright>Copyright © Peter Csajtai 2017</Copyright>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/z4kn4fein/trybot/master/LICENSE</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/z4kn4fein/trybot</PackageProjectUrl>
-    <PackageIconUrl>https://goo.gl/I3hRfL</PackageIconUrl>
-    <RepositoryUrl>https://github.com/z4kn4fein/trybot</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageTags>Trybot retry</PackageTags>
-    <Description>Trybot retry manager library.</Description>
-    <WarningsAsErrors>true</WarningsAsErrors>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\..\sn.snk</AssemblyOriginatorKeyFile>
-	<PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
-    <Version>1.0.0</Version>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <DebugType>portable</DebugType>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.0'">
-    <AssemblyTitle>Trybot .NET Standard 1.0</AssemblyTitle>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'portable-net45+win8+wpa81+wp8'">
-    <TargetFrameworkIdentifier>.NETPortable</TargetFrameworkIdentifier>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Profile259</TargetFrameworkProfile>
-    <NugetTargetMoniker>.NETPortable,Version=v0.0,Profile=Profile259</NugetTargetMoniker>
-    <LanguageTargets>$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets</LanguageTargets>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFrameworks>net45;netstandard1.0;portable-net45+win8+wpa81+wp8</TargetFrameworks>
+        <AssemblyName>Trybot</AssemblyName>
+        <AssemblyTitle>Trybot</AssemblyTitle>
+        <RootNamespace>Trybot</RootNamespace>
+        <PackageId>Trybot</PackageId>
+        <Authors>Peter Csajtai</Authors>
+        <Company>Peter Csajtai</Company>
+        <Product>Trybot</Product>
+        <Copyright>Copyright © Peter Csajtai 2017</Copyright>
+        <PackageLicenseUrl>https://raw.githubusercontent.com/z4kn4fein/trybot/master/LICENSE</PackageLicenseUrl>
+        <PackageProjectUrl>https://github.com/z4kn4fein/trybot</PackageProjectUrl>
+        <PackageIconUrl>https://goo.gl/I3hRfL</PackageIconUrl>
+        <RepositoryUrl>https://github.com/z4kn4fein/trybot</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>Trybot retry</PackageTags>
+        <Description>Trybot retry manager library.</Description>
+        <WarningsAsErrors>true</WarningsAsErrors>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <SignAssembly>true</SignAssembly>
+        <AssemblyOriginatorKeyFile>..\..\sn.snk</AssemblyOriginatorKeyFile>
+        <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
+        <Version>1.0.0</Version>
+        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+        <DebugType>portable</DebugType>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.0'">
+        <AssemblyTitle>Trybot .NET Standard 1.0</AssemblyTitle>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(TargetFramework)' == 'portable-net45+win8+wpa81+wp8'">
+        <AssemblyTitle>Trybot Portable</AssemblyTitle>
+        <IncludeProjectPriFile>false</IncludeProjectPriFile>
+        <TargetFrameworkIdentifier>.NETPortable</TargetFrameworkIdentifier>
+        <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+        <TargetFrameworkProfile>Profile259</TargetFrameworkProfile>
+        <NugetTargetMoniker>.NETPortable,Version=v0.0,Profile=Profile259</NugetTargetMoniker>
+        <LanguageTargets>$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets</LanguageTargets>
+    </PropertyGroup>
 </Project>
