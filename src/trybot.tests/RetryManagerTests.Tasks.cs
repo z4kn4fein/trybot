@@ -2,6 +2,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Trybot.Strategy;
 
 namespace Trybot.Tests
 {
@@ -30,7 +31,7 @@ namespace Trybot.Tests
                 {
                     throw new Exception();
                 });
-            }, (attempt, nextDelay) => { }, this.executionPolicy);
+            }, onRetryOccured: (attempt, nextDelay) => { }, retryStartegy: this.executionPolicy);
         }
 
         [TestMethod]
@@ -43,7 +44,7 @@ namespace Trybot.Tests
                 await Task.Run(() =>
                 {
                     throw new Exception();
-                }, cancellationTokenSource.Token);
+                });
             }, cancellationTokenSource.Token, (attempt, nextDelay) => { }, this.executionPolicy);
             cancellationTokenSource.Cancel();
             await task;
@@ -103,7 +104,7 @@ namespace Trybot.Tests
                     await Task.Run(() =>
                     {
                         throw new Exception();
-                    }, cancellationTokenSource.Token);
+                    });
                 }, cancellationTokenSource.Token, (attempt, nextDelay) => { }, this.executionPolicy);
                 cancellationTokenSource.Cancel();
                 await task;
@@ -127,7 +128,7 @@ namespace Trybot.Tests
                     await Task.Run(() =>
                     {
                         throw new Exception();
-                    }, cancellationTokenSource.Token);
+                    });
                 }, cancellationTokenSource.Token, (attempt, nextDelay) => { }, this.executionPolicy, () => true);
                 cancellationTokenSource.Cancel();
                 await task;
@@ -151,7 +152,7 @@ namespace Trybot.Tests
                     await Task.Run(() =>
                     {
                         throw new Exception();
-                    }, cancellationTokenSource.Token);
+                    });
                 }, cancellationTokenSource.Token, (attempt, nextDelay) => { }, this.executionPolicy, () => false);
                 cancellationTokenSource.Cancel();
                 await task;
@@ -216,16 +217,26 @@ namespace Trybot.Tests
         [TestMethod]
         public async Task ExecuteAsync_FuncTask_WithoutRetry_WithoutCancellationToken()
         {
-            await this.retryManager.ExecuteAsync(() => Task.Run(() => { }), (attempt, nextDelay) => { }, this.executionPolicy);
+            await this.retryManager.ExecuteAsync(() => Task.Run(() => { }), onRetryOccured: (attempt, nextDelay) => { }, retryStartegy: this.executionPolicy);
             Assert.AreEqual(0, this.executionPolicy.CurrentAttempt);
         }
 
         [TestMethod]
         public async Task ExecuteAsync_FuncTask_WithFilter_NoException_WithoutCancellationToken()
         {
-            await this.retryManager.ExecuteAsync(() => Task.Run(() => { }), (attempt, nextDelay) => { },
-                this.executionPolicy, () => true);
+            await this.retryManager.ExecuteAsync(() => Task.Run(() => { }), onRetryOccured: (attempt, nextDelay) => { },
+                retryStartegy: this.executionPolicy, retryFiler: () => true);
             Assert.AreEqual(5, this.executionPolicy.CurrentAttempt);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public async Task ExecuteAsync_FuncTask_Load()
+        {
+            var strategy = new FixedIntervalRetryStartegy(500, TimeSpan.FromMilliseconds(0.5));
+            await this.retryManager.ExecuteAsync(async () => await Task.Run(() => { throw new Exception(); }), retryStartegy: strategy);
+
+            Assert.AreEqual(500, strategy.CurrentAttempt);
         }
     }
 }

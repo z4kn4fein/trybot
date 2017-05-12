@@ -34,7 +34,7 @@ namespace Trybot.Tests
         [ExpectedException(typeof(Exception))]
         public async Task ExecuteAsync_Action_WithoutFilter_WithoutCancellationToken_Exception()
         {
-            await this.retryManager.ExecuteAsync((Action)(() => { throw new Exception(); }), (attempt, nextDelay) => { }, this.executionPolicy);
+            await this.retryManager.ExecuteAsync((Action)(() => { throw new Exception(); }), onRetryOccured: (attempt, nextDelay) => { }, retryStartegy: this.executionPolicy);
         }
 
         [TestMethod]
@@ -172,7 +172,7 @@ namespace Trybot.Tests
         [TestMethod]
         public async Task ExecuteAsync_Action_WithoutRetry_WithoutCancellationToken()
         {
-            await this.retryManager.ExecuteAsync(() => { }, (attempt, nextDelay) => { }, this.executionPolicy);
+            await this.retryManager.ExecuteAsync(() => { }, onRetryOccured: (attempt, nextDelay) => { }, retryStartegy: this.executionPolicy);
             Assert.AreEqual(0, this.executionPolicy.CurrentAttempt);
         }
 

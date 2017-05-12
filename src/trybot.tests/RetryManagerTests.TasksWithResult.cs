@@ -28,7 +28,7 @@ namespace Trybot.Tests
                 var taskCompletionSource = new TaskCompletionSource<object>();
                 taskCompletionSource.SetException(new Exception());
                 return taskCompletionSource.Task;
-            }, (attempt, nextDelay) => { }, this.executionPolicy);
+            }, onRetryOccured: (attempt, nextDelay) => { }, retryStartegy: this.executionPolicy);
         }
 
         [TestMethod]
@@ -233,7 +233,7 @@ namespace Trybot.Tests
                 var taskCompletionSource = new TaskCompletionSource<bool>();
                 taskCompletionSource.SetResult(true);
                 return taskCompletionSource.Task;
-            }, (attempt, nextDelay) => { }, this.executionPolicy, resultFilter: result => result);
+            }, onRetryOccured: (attempt, nextDelay) => { }, retryStartegy: this.executionPolicy, resultFilter: result => result);
             Assert.AreEqual(5, this.executionPolicy.CurrentAttempt);
             Assert.IsTrue(functionResult);
         }
@@ -259,7 +259,7 @@ namespace Trybot.Tests
                 var taskCompletionSource = new TaskCompletionSource<bool>();
                 taskCompletionSource.SetResult(true);
                 return taskCompletionSource.Task;
-            }, (attempt, nextDelay) => { }, this.executionPolicy, resultFilter: result => !result);
+            }, onRetryOccured: (attempt, nextDelay) => { }, retryStartegy: this.executionPolicy, resultFilter: result => !result);
             Assert.AreEqual(0, this.executionPolicy.CurrentAttempt);
             Assert.IsTrue(functionResult);
         }
