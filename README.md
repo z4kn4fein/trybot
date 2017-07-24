@@ -26,10 +26,7 @@ A `IRetryPolicy` implementation can be used to determine, which exceptions shoul
 ```c#
 public class FooRetryPolicy : IRetryPolicy
 {
-	public bool ShouldRetryAfter(Exception exception)
-	{
-		return true;
-	}
+    public bool ShouldRetryAfter(Exception exception) => true;
 }
 ```
 Use the retry policy at the instantiation of `RetryManager`.
@@ -40,7 +37,7 @@ var retryManager = new RetryManager(new FooRetryPolicy());
 ```c#
 await retryManager.ExecuteAsync(() =>
 {
-	//some operation    
+    //some operation    
 });
 ```
 Or with a cancellation token.
@@ -48,31 +45,31 @@ Or with a cancellation token.
 var tokenSource = new CancellationTokenSource();
 await retryManager.ExecuteAsync(() =>
 {
-	//some operation    
+    //some operation    
 }, tokenSource.Token);
 ```
 ### Retrying a `Func<Task>`
 ```c#
 await retryManager.ExecuteAsync(async() =>
 {
-	//some awaitable operation    
+    //some awaitable operation    
 });
 ```
 ### Retrying a `Func<Task<T>>`
 ```c#
 var result = await retryManager.ExecuteAsync(async() =>
 {
-	//some awaitable operation    
+    //some awaitable operation    
 });
 ```
 ### Retry events
 ```c#
 await retryManager.ExecuteAsync(() =>
 {
-	//some operation    
+    //some operation    
 }, onRetryOccured: (attempt, nextDelay) =>
 {
-	Console.WriteLine($"{attempt}. attempt, waiting {nextDelay.TotalSeconds} seconds before the next retry!");
+    Console.WriteLine($"{attempt}. attempt, waiting {nextDelay.TotalSeconds} seconds before the next retry!");
 });
 ```
 ## Retry strategies
@@ -80,15 +77,14 @@ Custom retry strategies can be specified by passing a `RetryStrategy` implementa
 ```c#
 class FooRetryStrategy : RetryStartegy
 {
-	public FooRetryStrategy(int retryCount, TimeSpan delay)
-           : base(retryCount, delay)
-    {
-    }
+    public FooRetryStrategy(int retryCount, TimeSpan delay)
+        :base(retryCount, delay)
+    { }
     
     protected override TimeSpan GetNextDelay(int currentAttempt)
     {
-		//here you can calculate the next delay based on the current attempt 
-		//or on the retry count and the initial delay
+        //here you can calculate the next delay based on the current attempt 
+        //or on the retry count and the initial delay
     }
 }
 ```
@@ -96,7 +92,7 @@ Passing the custom strategy to the `ExecuteAsync()` function.
 ```c#
 await retryManager.ExecuteAsync(() =>
 {
-	//some operation    
+    //some operation    
 }, retryStartegy: new FooRetryStrategy(5, TimeSpan.FromSeconds(5)));
 ```
 If you don't want to set your custom `RetryStrategy` on every `ExecuteAsync()` call, you can set the `RetryStrategy.DefaultRetryStrategy` static property as well, which is being used when the strategy parameter is null.
@@ -127,7 +123,7 @@ A `Func<bool>` delegate can be set as a filter to determine what conditions must
 ```c#
 await retryManager.ExecuteAsync(() =>
 {
-	//some operation    
+    //some operation    
 }, retryFilter: () => !state.IsValid());
 ```
 > The filter above will let the re-executions run until the passed predicate is evaluated as `false`.
@@ -137,6 +133,6 @@ Similar to the retry filter except that it allows the inspection of the given Ta
 ```c#
 var result = await retryManager.ExecuteAsync(async() =>
 {
-	//some operation    
+    //some operation    
 }, resultFilter: operationResult => !operationResult.IsValid());
 ```
