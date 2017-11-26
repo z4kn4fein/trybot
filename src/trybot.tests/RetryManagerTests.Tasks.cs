@@ -18,7 +18,20 @@ namespace Trybot.Tests
                 {
                     throw new Exception();
                 });
-            }, CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy);
+            }, token: CancellationToken.None, onRetryOccured: (attempt, nextDelay) => { }, retryStartegy: this.executionPolicy);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public async Task ExecuteAsync_FuncTask_WithoutFilter_ExplicitPolicy()
+        {
+            await new RetryManager().ExecuteAsync(async () =>
+            {
+                await Task.Run(() =>
+                {
+                    throw new Exception();
+                });
+            }, exp => true, token: CancellationToken.None, onRetryOccured: (attempt, nextDelay) => { }, retryStartegy: this.executionPolicy);
         }
 
         [TestMethod]
@@ -45,7 +58,7 @@ namespace Trybot.Tests
                 {
                     throw new Exception();
                 });
-            }, cancellationTokenSource.Token, (attempt, nextDelay) => { }, this.executionPolicy);
+            }, null, cancellationTokenSource.Token, (attempt, nextDelay) => { }, this.executionPolicy);
             cancellationTokenSource.Cancel();
             await task;
         }
@@ -62,7 +75,7 @@ namespace Trybot.Tests
                     {
                         throw new Exception();
                     });
-                }, CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy);
+                }, null, CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy);
             }
             catch (Exception)
             {
@@ -83,7 +96,7 @@ namespace Trybot.Tests
                     {
                         throw new Exception();
                     });
-                }, CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy, () => false);
+                }, null, CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy, () => false);
             }
             catch (Exception)
             {
@@ -105,7 +118,7 @@ namespace Trybot.Tests
                     {
                         throw new Exception();
                     });
-                }, cancellationTokenSource.Token, (attempt, nextDelay) => { }, this.executionPolicy);
+                }, null, cancellationTokenSource.Token, (attempt, nextDelay) => { }, this.executionPolicy);
                 cancellationTokenSource.Cancel();
                 await task;
             }
@@ -129,7 +142,7 @@ namespace Trybot.Tests
                     {
                         throw new Exception();
                     });
-                }, cancellationTokenSource.Token, (attempt, nextDelay) => { }, this.executionPolicy, () => true);
+                }, null, cancellationTokenSource.Token, (attempt, nextDelay) => { }, this.executionPolicy, () => true);
                 cancellationTokenSource.Cancel();
                 await task;
             }
@@ -153,7 +166,7 @@ namespace Trybot.Tests
                     {
                         throw new Exception();
                     });
-                }, cancellationTokenSource.Token, (attempt, nextDelay) => { }, this.executionPolicy, () => false);
+                }, null, cancellationTokenSource.Token, (attempt, nextDelay) => { }, this.executionPolicy, () => false);
                 cancellationTokenSource.Cancel();
                 await task;
             }
@@ -175,7 +188,7 @@ namespace Trybot.Tests
                 {
                     throw new Exception();
                 });
-            }, CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy, () => true);
+            }, null, CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy, () => true);
         }
 
         [TestMethod]
@@ -190,7 +203,7 @@ namespace Trybot.Tests
                      {
                          throw new Exception();
                      });
-                 }, CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy, () => true);
+                 }, null, CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy, () => true);
             }
             catch (Exception)
             {
@@ -202,14 +215,14 @@ namespace Trybot.Tests
         [TestMethod]
         public async Task ExecuteAsync_FuncTask_WithoutRetry()
         {
-            await this.retryManager.ExecuteAsync(() => Task.Run(() => { }), CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy);
+            await this.retryManager.ExecuteAsync(() => Task.Run(() => { }), null, CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy);
             Assert.AreEqual(0, this.executionPolicy.CurrentAttempt);
         }
 
         [TestMethod]
         public async Task ExecuteAsync_FuncTask_WithFilter_NoException()
         {
-            await this.retryManager.ExecuteAsync(() => Task.Run(() => { }), CancellationToken.None, (attempt, nextDelay) => { },
+            await this.retryManager.ExecuteAsync(() => Task.Run(() => { }), null, CancellationToken.None, (attempt, nextDelay) => { },
                 this.executionPolicy, () => true);
             Assert.AreEqual(5, this.executionPolicy.CurrentAttempt);
         }

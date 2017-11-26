@@ -19,30 +19,20 @@ namespace Trybot
         /// Constructs a <see cref="RetryStartegy"/>
         /// </summary>
         /// <param name="retryPolicy">A <see cref="IRetryPolicy"/> implementation.</param>
-        public RetryManager(IRetryPolicy retryPolicy)
+        public RetryManager(IRetryPolicy retryPolicy = null)
         {
-            Shield.EnsureNotNull(retryPolicy, nameof(retryPolicy));
-
             this.retryPolicy = retryPolicy;
         }
 
-        /// <summary>
-        /// Executes and retries an operation if it's failed.
-        /// </summary>
-        /// <param name="action">The operation to be retried.</param>
-        /// <param name="token">The cancellation token.</param>
-        /// <param name="onRetryOccured">The callback which will be called when a retry occures.</param>
-        /// <param name="retryStartegy">A <see cref="RetryStartegy"/> implementation.</param>
-        /// <param name="retryFilter">The predicate which will be called before every retry operation. With this parameter you can set conditional retries.</param>
-        /// <returns>The Task of the operation.</returns>
-        public async Task ExecuteAsync(Action action, CancellationToken token = default(CancellationToken), Action<int, TimeSpan> onRetryOccured = null, RetryStartegy retryStartegy = null, Func<bool> retryFilter = null)
+        /// <inheritdoc />
+        public async Task ExecuteAsync(Action action, Func<Exception, bool> retryPolicy, CancellationToken token = default(CancellationToken), Action<int, TimeSpan> onRetryOccured = null, RetryStartegy retryStartegy = null, Func<bool> retryFilter = null)
         {
             Shield.EnsureNotNull(action, nameof(action));
             retryStartegy = retryStartegy ?? RetryStartegy.DefaultRetryStrategy;
             token = token == default(CancellationToken) ? CancellationToken.None : token;
 
             TryResult result;
-            while (!(result = await this.TryAction(action, retryFilter)).Succeeded &&
+            while (!(result = await this.TryAction(action, retryPolicy, retryFilter)).Succeeded &&
                 !retryStartegy.IsCompleted() && !token.IsCancellationRequested)
             {
                 retryStartegy.CalculateNextDelay();
@@ -55,23 +45,15 @@ namespace Trybot
                     throw result.Exception;
         }
 
-        /// <summary>
-        /// Executes and retries an operation if it's failed.
-        /// </summary>
-        /// <param name="func">The operation to be retried.</param>
-        /// <param name="token">The cancellation token.</param>
-        /// <param name="onRetryOccured">The callback which will be called when a retry occures.</param>
-        /// <param name="retryStartegy">A <see cref="RetryStartegy"/> implementation.</param>
-        /// <param name="retryFilter">The predicate which will be called before every retry operation. With this parameter you can set conditional retries.</param>
-        /// <returns>The Task of the operation.</returns>
-        public async Task ExecuteAsync(Func<Task> func, CancellationToken token = default(CancellationToken), Action<int, TimeSpan> onRetryOccured = null, RetryStartegy retryStartegy = null, Func<bool> retryFilter = null)
+        /// <inheritdoc />
+        public async Task ExecuteAsync(Func<Task> func, Func<Exception, bool> retryPolicy = null, CancellationToken token = default(CancellationToken), Action<int, TimeSpan> onRetryOccured = null, RetryStartegy retryStartegy = null, Func<bool> retryFilter = null)
         {
             Shield.EnsureNotNull(func, nameof(func));
             retryStartegy = retryStartegy ?? RetryStartegy.DefaultRetryStrategy;
             token = token == default(CancellationToken) ? CancellationToken.None : token;
 
             TryResult result;
-            while (!(result = await this.TryFunction(func, retryFilter)).Succeeded && !retryStartegy.IsCompleted() && !token.IsCancellationRequested)
+            while (!(result = await this.TryFunction(func, retryPolicy, retryFilter)).Succeeded && !retryStartegy.IsCompleted() && !token.IsCancellationRequested)
             {
                 retryStartegy.CalculateNextDelay();
                 RaiseRetryOccuredEvent(onRetryOccured, retryStartegy.CurrentAttempt, retryStartegy.NextDelay);
@@ -83,24 +65,15 @@ namespace Trybot
                     throw result.Exception;
         }
 
-        /// <summary>
-        /// Executes and retries an operation if it's failed.
-        /// </summary>
-        /// <param name="func">The operation to be retried.</param>
-        /// <param name="token">The cancellation token.</param>
-        /// <param name="onRetryOccured">The callback which will be called when a retry occures.</param>
-        /// <param name="retryStartegy">A <see cref="RetryStartegy"/> implementation.</param>
-        /// <param name="retryFilter">The predicate which will be called before every retry operation. With this parameter you can set conditional retries.</param>
-        /// <param name="resultFilter">The predicate which can check the result of the operation and if it's true, the operation will be retried.</param>
-        /// <returns>The Task of the operation.</returns>
-        public async Task<T> ExecuteAsync<T>(Func<Task<T>> func, CancellationToken token = default(CancellationToken), Action<int, TimeSpan> onRetryOccured = null, RetryStartegy retryStartegy = null, Func<bool> retryFilter = null, Predicate<T> resultFilter = null)
+        /// <inheritdoc />
+        public async Task<T> ExecuteAsync<T>(Func<Task<T>> func, Func<Exception, bool> retryPolicy = null, CancellationToken token = default(CancellationToken), Action<int, TimeSpan> onRetryOccured = null, RetryStartegy retryStartegy = null, Func<bool> retryFilter = null, Predicate<T> resultFilter = null)
         {
             Shield.EnsureNotNull(func, nameof(func));
             retryStartegy = retryStartegy ?? RetryStartegy.DefaultRetryStrategy;
             token = token == default(CancellationToken) ? CancellationToken.None : token;
 
             TryResult result;
-            while (!(result = await this.TryFunction(func, retryFilter, resultFilter)).Succeeded && !retryStartegy.IsCompleted() && !token.IsCancellationRequested)
+            while (!(result = await this.TryFunction(func, retryPolicy, retryFilter, resultFilter)).Succeeded && !retryStartegy.IsCompleted() && !token.IsCancellationRequested)
             {
                 retryStartegy.CalculateNextDelay();
                 RaiseRetryOccuredEvent(onRetryOccured, retryStartegy.CurrentAttempt, retryStartegy.NextDelay);
@@ -116,7 +89,7 @@ namespace Trybot
             return (T)result.FunctionResult;
         }
 
-        private async Task<TryResult> TryAction(Action action, Func<bool> retryFilter = null)
+        private async Task<TryResult> TryAction(Action action, Func<Exception, bool> retryPolicy = null, Func<bool> retryFilter = null)
         {
             var completionSource = new TaskCompletionSource<TryResult>();
 
@@ -127,7 +100,8 @@ namespace Trybot
             }
             catch (Exception ex)
             {
-                completionSource.SetResult(this.retryPolicy.ShouldRetryAfter(ex)
+                var shouldRetry = retryPolicy != null ? retryPolicy(ex) : this.retryPolicy.ShouldRetryAfter(ex);
+                completionSource.SetResult(shouldRetry
                     ? new TryResult { Succeeded = false, Exception = ex }
                     : new TryResult { Succeeded = true, Exception = ex, ForceThrowException = true });
             }
@@ -135,7 +109,7 @@ namespace Trybot
             return await completionSource.Task;
         }
 
-        private async Task<TryResult> TryFunction(Func<Task> func, Func<bool> retryFilter = null)
+        private async Task<TryResult> TryFunction(Func<Task> func, Func<Exception, bool> retryPolicy = null, Func<bool> retryFilter = null)
         {
             var completionSource = new TaskCompletionSource<TryResult>();
 
@@ -146,7 +120,8 @@ namespace Trybot
             }
             catch (Exception ex)
             {
-                completionSource.SetResult(this.retryPolicy.ShouldRetryAfter(ex)
+                var shouldRetry = retryPolicy != null ? retryPolicy(ex) : this.retryPolicy.ShouldRetryAfter(ex);
+                completionSource.SetResult(shouldRetry
                     ? new TryResult { Succeeded = false, Exception = ex }
                     : new TryResult { Succeeded = true, Exception = ex, ForceThrowException = true });
             }
@@ -154,7 +129,7 @@ namespace Trybot
             return await completionSource.Task;
         }
 
-        private async Task<TryResult> TryFunction<T>(Func<Task<T>> func, Func<bool> retryFilter = null, Predicate<T> resultFilter = null)
+        private async Task<TryResult> TryFunction<T>(Func<Task<T>> func, Func<Exception, bool> retryPolicy = null, Func<bool> retryFilter = null, Predicate<T> resultFilter = null)
         {
             var completionSource = new TaskCompletionSource<TryResult>();
 
@@ -173,7 +148,8 @@ namespace Trybot
             }
             catch (Exception ex)
             {
-                completionSource.SetResult(this.retryPolicy.ShouldRetryAfter(ex)
+                var shouldRetry = retryPolicy != null ? retryPolicy(ex) : this.retryPolicy.ShouldRetryAfter(ex);
+                completionSource.SetResult(shouldRetry
                     ? new TryResult { Succeeded = false, Exception = ex }
                     : new TryResult { Succeeded = true, Exception = ex, ForceThrowException = true });
             }
