@@ -28,7 +28,7 @@
     <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.0'">
         <AssemblyTitle>Trybot .NET Standard 1.0</AssemblyTitle>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(TargetFramework)' == 'portable-net45+win8+wpa81+wp8'">
+    <PropertyGroup Condition="'$(TargetFramework)' == 'portable-net45+win8+wpa81+wp8' And '$(MSBuildRuntimeType)' == 'Full'">
         <AssemblyTitle>Trybot Portable</AssemblyTitle>
         <IncludeProjectPriFile>false</IncludeProjectPriFile>
         <TargetFrameworkIdentifier>.NETPortable</TargetFrameworkIdentifier>
