@@ -31,9 +31,8 @@ namespace Trybot
             retryStartegy = retryStartegy ?? RetryStartegy.DefaultRetryStrategy;
             token = token == default(CancellationToken) ? CancellationToken.None : token;
 
-            TryResult result;
-            while (!(result = await this.TryAction(action, retryPolicy, retryFilter)).Succeeded &&
-                !retryStartegy.IsCompleted() && !token.IsCancellationRequested)
+            TryResult result = TryResult.Default;
+            while (!token.IsCancellationRequested && !retryStartegy.IsCompleted() && !(result = await this.TryAction(action, retryPolicy, retryFilter)).Succeeded)
             {
                 retryStartegy.CalculateNextDelay();
                 RaiseRetryOccuredEvent(onRetryOccured, retryStartegy.CurrentAttempt, retryStartegy.NextDelay);
@@ -52,8 +51,8 @@ namespace Trybot
             retryStartegy = retryStartegy ?? RetryStartegy.DefaultRetryStrategy;
             token = token == default(CancellationToken) ? CancellationToken.None : token;
 
-            TryResult result;
-            while (!(result = await this.TryFunction(func, retryPolicy, retryFilter)).Succeeded && !retryStartegy.IsCompleted() && !token.IsCancellationRequested)
+            TryResult result = TryResult.Default;
+            while (!token.IsCancellationRequested && !retryStartegy.IsCompleted() && !(result = await this.TryFunction(func, retryPolicy, retryFilter)).Succeeded)
             {
                 retryStartegy.CalculateNextDelay();
                 RaiseRetryOccuredEvent(onRetryOccured, retryStartegy.CurrentAttempt, retryStartegy.NextDelay);
@@ -72,8 +71,8 @@ namespace Trybot
             retryStartegy = retryStartegy ?? RetryStartegy.DefaultRetryStrategy;
             token = token == default(CancellationToken) ? CancellationToken.None : token;
 
-            TryResult result;
-            while (!(result = await this.TryFunction(func, retryPolicy, retryFilter, resultFilter)).Succeeded && !retryStartegy.IsCompleted() && !token.IsCancellationRequested)
+            TryResult result = TryResult.Default;
+            while (!token.IsCancellationRequested && !retryStartegy.IsCompleted() && !(result = await this.TryFunction(func, retryPolicy, retryFilter, resultFilter)).Succeeded)
             {
                 retryStartegy.CalculateNextDelay();
                 RaiseRetryOccuredEvent(onRetryOccured, retryStartegy.CurrentAttempt, retryStartegy.NextDelay);
