@@ -17,8 +17,8 @@ namespace Trybot.Strategy
         /// </summary>
         public static RetryStartegy DefaultRetryStrategy
         {
-            get { return defaultRetryStrategy; }
-            set { if (value != null) defaultRetryStrategy = value; }
+            get => defaultRetryStrategy;
+            set { Shield.EnsureNotNull(value, nameof(value)); defaultRetryStrategy = value; }
         }
 
         /// <summary>
@@ -55,20 +55,14 @@ namespace Trybot.Strategy
             this.Delay = delay;
         }
 
-        internal bool IsCompleted()
-        {
-            return this.CurrentAttempt >= this.RetryCount;
-        }
+        internal bool IsCompleted() =>
+            this.CurrentAttempt >= this.RetryCount;
 
-        internal async Task WaitAsync(CancellationToken token)
-        {
+        internal async Task WaitAsync(CancellationToken token) =>
             await TaskDelayer.Sleep(this.NextDelay, token);
-        }
 
-        internal void CalculateNextDelay()
-        {
+        internal void CalculateNextDelay() =>
             this.NextDelay = GetNextDelay(++this.CurrentAttempt);
-        }
 
         /// <summary>
         /// Calculates the next delay value.

@@ -111,10 +111,11 @@ namespace Trybot.Utils
         /// Checks a bool condition and throws an ArgumentException if it is false.
         /// </summary>
         /// <param name="condition">The condition.</param>
-        public static void EnsureTrue(bool condition)
+        /// <param name="message">The exception message.</param>
+        public static void EnsureTrue(bool condition, string message = null)
         {
             if (!condition)
-                throw new ArgumentException();
+                throw new ArgumentException(message);
         }
 
         /// <summary>

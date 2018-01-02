@@ -13,7 +13,14 @@ namespace Trybot
     /// </summary>
     public class RetryManager : IRetryManager
     {
-        private readonly IRetryPolicy retryPolicy;
+        private static readonly IRetryPolicy DefaultPolicy = new DefaultRetryPolicy();
+
+        private class DefaultRetryPolicy : IRetryPolicy
+        {
+            public bool ShouldRetryAfter(Exception exception) => true;
+        }
+
+        private readonly IRetryPolicy retryPolicyField;
 
         /// <summary>
         /// Constructs a <see cref="RetryStartegy"/>
@@ -21,17 +28,16 @@ namespace Trybot
         /// <param name="retryPolicy">A <see cref="IRetryPolicy"/> implementation.</param>
         public RetryManager(IRetryPolicy retryPolicy = null)
         {
-            this.retryPolicy = retryPolicy;
+            this.retryPolicyField = retryPolicy ?? DefaultPolicy;
         }
 
         /// <inheritdoc />
-        public async Task ExecuteAsync(Action action, Func<Exception, bool> retryPolicy, CancellationToken token = default(CancellationToken), Action<int, TimeSpan> onRetryOccured = null, RetryStartegy retryStartegy = null, Func<bool> retryFilter = null)
+        public async Task ExecuteAsync(Action action, Func<Exception, bool> retryPolicy = null, CancellationToken token = default(CancellationToken), Action<int, TimeSpan> onRetryOccured = null, RetryStartegy retryStartegy = null, Func<bool> retryFilter = null)
         {
             Shield.EnsureNotNull(action, nameof(action));
             retryStartegy = retryStartegy ?? RetryStartegy.DefaultRetryStrategy;
-            token = token == default(CancellationToken) ? CancellationToken.None : token;
 
-            TryResult result = TryResult.Default;
+            var result = TryResult.Default;
             while (!token.IsCancellationRequested && !retryStartegy.IsCompleted() && !(result = await this.TryAction(action, retryPolicy, retryFilter)).Succeeded)
             {
                 retryStartegy.CalculateNextDelay();
@@ -39,7 +45,7 @@ namespace Trybot
                 await retryStartegy.WaitAsync(token);
             }
 
-            if (!result.Succeeded || (result.Succeeded && result.ForceThrowException))
+            if (!result.Succeeded || result.Succeeded && result.ForceThrowException)
                 if (result.Exception != null)
                     throw result.Exception;
         }
@@ -49,9 +55,8 @@ namespace Trybot
         {
             Shield.EnsureNotNull(func, nameof(func));
             retryStartegy = retryStartegy ?? RetryStartegy.DefaultRetryStrategy;
-            token = token == default(CancellationToken) ? CancellationToken.None : token;
 
-            TryResult result = TryResult.Default;
+            var result = TryResult.Default;
             while (!token.IsCancellationRequested && !retryStartegy.IsCompleted() && !(result = await this.TryFunction(func, retryPolicy, retryFilter)).Succeeded)
             {
                 retryStartegy.CalculateNextDelay();
@@ -59,7 +64,7 @@ namespace Trybot
                 await retryStartegy.WaitAsync(token);
             }
 
-            if (!result.Succeeded || (result.Succeeded && result.ForceThrowException))
+            if (!result.Succeeded || result.Succeeded && result.ForceThrowException)
                 if (result.Exception != null)
                     throw result.Exception;
         }
@@ -69,9 +74,8 @@ namespace Trybot
         {
             Shield.EnsureNotNull(func, nameof(func));
             retryStartegy = retryStartegy ?? RetryStartegy.DefaultRetryStrategy;
-            token = token == default(CancellationToken) ? CancellationToken.None : token;
 
-            TryResult result = TryResult.Default;
+            var result = TryResult.Default;
             while (!token.IsCancellationRequested && !retryStartegy.IsCompleted() && !(result = await this.TryFunction(func, retryPolicy, retryFilter, resultFilter)).Succeeded)
             {
                 retryStartegy.CalculateNextDelay();
@@ -99,7 +103,7 @@ namespace Trybot
             }
             catch (Exception ex)
             {
-                var shouldRetry = retryPolicy != null ? retryPolicy(ex) : this.retryPolicy.ShouldRetryAfter(ex);
+                var shouldRetry = retryPolicy?.Invoke(ex) ?? this.retryPolicyField.ShouldRetryAfter(ex);
                 completionSource.SetResult(shouldRetry
                     ? new TryResult { Succeeded = false, Exception = ex }
                     : new TryResult { Succeeded = true, Exception = ex, ForceThrowException = true });
@@ -119,7 +123,7 @@ namespace Trybot
             }
             catch (Exception ex)
             {
-                var shouldRetry = retryPolicy != null ? retryPolicy(ex) : this.retryPolicy.ShouldRetryAfter(ex);
+                var shouldRetry = retryPolicy?.Invoke(ex) ?? this.retryPolicyField.ShouldRetryAfter(ex);
                 completionSource.SetResult(shouldRetry
                     ? new TryResult { Succeeded = false, Exception = ex }
                     : new TryResult { Succeeded = true, Exception = ex, ForceThrowException = true });
@@ -147,7 +151,7 @@ namespace Trybot
             }
             catch (Exception ex)
             {
-                var shouldRetry = retryPolicy != null ? retryPolicy(ex) : this.retryPolicy.ShouldRetryAfter(ex);
+                var shouldRetry = retryPolicy?.Invoke(ex) ?? this.retryPolicyField.ShouldRetryAfter(ex);
                 completionSource.SetResult(shouldRetry
                     ? new TryResult { Succeeded = false, Exception = ex }
                     : new TryResult { Succeeded = true, Exception = ex, ForceThrowException = true });

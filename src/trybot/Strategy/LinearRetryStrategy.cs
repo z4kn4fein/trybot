@@ -22,9 +22,6 @@ namespace Trybot.Strategy
         /// </summary>
         /// <param name="currentAttempt">The current attempt.</param>
         /// <returns>The inital delay multiplied by the current attempt.</returns>
-        protected override TimeSpan GetNextDelay(int currentAttempt)
-        {
-            return TimeSpan.FromMilliseconds(currentAttempt * base.Delay.TotalMilliseconds);
-        }
+        protected override TimeSpan GetNextDelay(int currentAttempt) => TimeSpan.FromMilliseconds(currentAttempt * base.Delay.TotalMilliseconds);
     }
 }

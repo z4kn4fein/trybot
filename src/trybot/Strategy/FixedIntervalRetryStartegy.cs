@@ -22,9 +22,6 @@ namespace Trybot.Strategy
         /// </summary>
         /// <param name="currentAttempt">The current attempt.</param>
         /// <returns>Always the initial delay value.</returns>
-        protected override TimeSpan GetNextDelay(int currentAttempt)
-        {
-            return base.Delay;
-        }
+        protected override TimeSpan GetNextDelay(int currentAttempt) => base.Delay;
     }
 }
