@@ -21,6 +21,19 @@ namespace Trybot.Tests
 
         [TestMethod]
         [ExpectedException(typeof(Exception))]
+        public async Task ExecuteAsync_FuncTaskWithResult_Exception()
+        {
+            var rm = new RetryManager();
+            await rm.ExecuteAsync(() =>
+            {
+                var taskCompletionSource = new TaskCompletionSource<object>();
+                taskCompletionSource.SetException(new Exception());
+                return taskCompletionSource.Task;
+            }, null, CancellationToken.None, (attempt, nextDelay) => { }, this.executionPolicy);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
         public async Task ExecuteAsync_FuncTaskWithResult_WithoutFilter_ExplicitPolicy()
         {
             await new RetryManager().ExecuteAsync(() =>
