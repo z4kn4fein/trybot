@@ -10,8 +10,7 @@ namespace Trybot.Utils
     {
         private static string GetMemberName<T>(Expression<Func<T>> memberExpression)
         {
-            var expressionBody = memberExpression.Body as MemberExpression;
-            if (expressionBody == null)
+            if (!(memberExpression.Body is MemberExpression expressionBody))
                 throw new ArgumentException("The given expression is not a MemberExpression.");
 
             return expressionBody.Member.Name;
@@ -111,7 +110,7 @@ namespace Trybot.Utils
         /// Checks a bool condition and throws an ArgumentException if it is false.
         /// </summary>
         /// <param name="condition">The condition.</param>
-        /// <param name="message">The exception message.</param>
+        /// <param name="message">Exception message.</param>
         public static void EnsureTrue(bool condition, string message = null)
         {
             if (!condition)

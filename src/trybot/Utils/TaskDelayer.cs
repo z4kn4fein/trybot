@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Trybot
+namespace Trybot.Utils
 {
     internal static class TaskDelayer
     {
