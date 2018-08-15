@@ -6,29 +6,32 @@ namespace Trybot
 {
     public abstract class Bot
     {
-        protected Bot InnerPolicy { get; }
+        protected Bot InnerBot { get; }
 
-        protected Bot(Bot innerPolicy)
+        protected Bot(Bot innerBot)
         {
-            this.InnerPolicy = innerPolicy;
+            this.InnerBot = innerBot;
         }
 
-        public abstract void Execute(Action<CancellationToken> action, CancellationToken token);
+        internal Bot()
+        { }
 
-        public abstract TResult Execute<TResult>(Func<CancellationToken, TResult> operation, CancellationToken token);
+        public abstract void Execute(Action<ExecutionContext, CancellationToken> action, ExecutionContext context, CancellationToken token);
 
-        public abstract Task ExecuteAsync(Action<CancellationToken> action, CancellationToken token);
+        public abstract TResult Execute<TResult>(Func<ExecutionContext, CancellationToken, TResult> operation, ExecutionContext context, CancellationToken token);
 
-        public abstract Task<TResult> ExecuteAsync<TResult>(Func<CancellationToken, TResult> operation, CancellationToken token);
+        public abstract Task ExecuteAsync(Action<ExecutionContext, CancellationToken> action, ExecutionContext context, CancellationToken token);
 
-        public abstract Task<TResult> ExecuteAsync<TResult>(Func<CancellationToken, Task<TResult>> operation, CancellationToken token);
+        public abstract Task<TResult> ExecuteAsync<TResult>(Func<ExecutionContext, CancellationToken, TResult> operation, ExecutionContext context, CancellationToken token);
+
+        public abstract Task<TResult> ExecuteAsync<TResult>(Func<ExecutionContext, CancellationToken, Task<TResult>> operation, ExecutionContext context, CancellationToken token);
     }
 
     public abstract class Bot<TConfiguration> : Bot
     {
         protected TConfiguration Configuration { get; }
 
-        protected Bot(Bot innerPolicy, TConfiguration configuration) : base(innerPolicy)
+        protected Bot(Bot innerBot, TConfiguration configuration) : base(innerBot)
         {
             this.Configuration = configuration;
         }

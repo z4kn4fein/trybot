@@ -2,7 +2,7 @@
 
 namespace Trybot.Retry
 {
-    class MaxRetryAttemptsReachedException<TResult> : Exception
+    public class MaxRetryAttemptsReachedException<TResult> : Exception
     {
         public TResult OperationResult { get; set; }
 

@@ -4,25 +4,62 @@ using Trybot.Utils;
 
 namespace Trybot.Retry
 {
-    internal class RetryConfiguration
+    public class RetryConfiguration
     {
-        public int RetryCount { get; }
+        internal int RetryCount { get; private set; }
 
-        public Func<int, TimeSpan> RetryStrategy { get; }
+        internal Func<int, TimeSpan> RetryStrategy { get; private set; }
 
-        public Func<int, object, TimeSpan> ResultRetryStrategy { get; }
+        internal Func<int, object, TimeSpan> ResultRetryStrategy { get; private set; }
 
-        public ArrayStore<Func<Exception, bool>> RetryPolicies { get; }
+        private ArrayStore<Func<Exception, bool>> retryPolicies = ArrayStore<Func<Exception, bool>>.Empty;
+        internal ArrayStore<Func<Exception, bool>> RetryPolicies => this.retryPolicies;
 
-        public ArrayStore<Func<object, bool>> ResultPolicies { get; }
+        private ArrayStore<Func<object, bool>> resultPolicies = ArrayStore<Func<object, bool>>.Empty;
+        internal ArrayStore<Func<object, bool>> ResultPolicies => this.resultPolicies;
 
-        public bool HandlesException(Exception exception) =>
+        internal bool HandlesException(Exception exception) =>
             this.RetryPolicies.Any(policy => policy(exception));
 
-        public bool AcceptsResult(object result) =>
+        internal bool AcceptsResult(object result) =>
             this.ResultPolicies.All(policy => policy(result));
 
-        public bool IsMaxAttemptsReached(int currentAttempt) =>
+        internal bool IsMaxAttemptsReached(int currentAttempt) =>
             currentAttempt >= this.RetryCount;
+
+        internal TimeSpan CalculateNextDelay(int currentAttempt, bool checkResult, object result) =>
+            checkResult && this.ResultRetryStrategy != null
+                ? this.ResultRetryStrategy(currentAttempt, result)
+                : this.RetryStrategy(currentAttempt);
+
+        public RetryConfiguration UntilAttemptCountReaches(int numOfAttempts = 1)
+        {
+            this.RetryCount = numOfAttempts;
+            return this;
+        }
+
+        public RetryConfiguration WaitBetweenAttempts(Func<int, TimeSpan> retryStrategy)
+        {
+            this.RetryStrategy = retryStrategy;
+            return this;
+        }
+
+        public RetryConfiguration WaitBetweenAttempts<TResult>(Func<int, TResult, TimeSpan> resultRetryStrategy)
+        {
+            this.ResultRetryStrategy = (attempt, result) => resultRetryStrategy(attempt, (TResult)result);
+            return this;
+        }
+
+        public RetryConfiguration RetryWhen(Func<Exception, bool> retryPolicy)
+        {
+            Swap.SwapValue(ref this.retryPolicies, policies => policies.Add(retryPolicy));
+            return this;
+        }
+
+        public RetryConfiguration RetryWhenResult<TResult>(Func<TResult, bool> resultPolicy)
+        {
+            Swap.SwapValue(ref this.resultPolicies, policies => policies.Add(result => resultPolicy((TResult)result)));
+            return this;
+        }
     }
 }
