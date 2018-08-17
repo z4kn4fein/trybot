@@ -5,24 +5,8 @@ using Trybot.Utils;
 
 namespace Trybot.Retry
 {
-    public class RetryBot : Bot<RetryConfiguration>
+    public partial class RetryBot
     {
-        public RetryBot(Bot innerPolicy, RetryConfiguration configuration) : base(innerPolicy, configuration)
-        { }
-
-        public override void Execute(Action<ExecutionContext, CancellationToken> action, ExecutionContext context, CancellationToken token)
-        {
-            this.ExecuteRetryAsync((ctx, t) =>
-                {
-                    this.InnerBot.Execute(action, ctx, t);
-                    return Task.FromResult<object>(null);
-                }, context, token, false).Wait(token);
-        }
-
-        public override TResult Execute<TResult>(Func<ExecutionContext, CancellationToken, TResult> operation,
-            ExecutionContext context, CancellationToken token) =>
-            this.ExecuteRetryAsync((ctx, t) => Task.FromResult(this.InnerBot.Execute(operation, ctx, t)), context, token, true).Result;
-
         public override async Task ExecuteAsync(Action<ExecutionContext, CancellationToken> action,
             ExecutionContext context, CancellationToken token)
         {
@@ -65,8 +49,7 @@ namespace Trybot.Retry
                 currentAttempt++;
             }
 
-            if (token.IsCancellationRequested)
-                throw new OperationCanceledException("The retry operation was cancelled.", tryResult.Exception);
+            token.ThrowIfCancellationRequested();
 
             throw new MaxRetryAttemptsReachedException<TResult>("Maximum number of retry attempts reached.", tryResult.Exception, (TResult)tryResult.OperationResult);
         }
