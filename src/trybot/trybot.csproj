@@ -24,6 +24,7 @@
         <Version>1.0.0</Version>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <DebugType>portable</DebugType>
+        <LangVersion>latest</LangVersion>
     </PropertyGroup>
     <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.0'">
         <AssemblyTitle>Trybot .NET Standard 1.0</AssemblyTitle>
@@ -38,7 +39,7 @@
         <LanguageTargets>$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets</LanguageTargets>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net45|AnyCPU'">
-      <LangVersion>default</LangVersion>
+      <LangVersion>latest</LangVersion>
     </PropertyGroup>
     <ItemGroup>
       <Compile Remove="RetryManagerExtensions.cs" />

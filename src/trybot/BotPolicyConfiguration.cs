@@ -1,6 +1,6 @@
 ﻿namespace Trybot
 {
-    public class ExecutorConfiguration
+    public class BotPolicyConfiguration
     {
         public bool ContinueOnCapturedContext { get; internal set; }
     }

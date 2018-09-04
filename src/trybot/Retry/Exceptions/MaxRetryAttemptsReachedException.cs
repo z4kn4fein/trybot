@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Trybot.Retry
+namespace Trybot.Retry.Exceptions
 {
     public class MaxRetryAttemptsReachedException<TResult> : Exception
     {
@@ -9,6 +9,13 @@ namespace Trybot.Retry
         public MaxRetryAttemptsReachedException(string message, Exception innerException, TResult result) : base(message, innerException)
         {
             this.OperationResult = result;
+        }
+    }
+
+    public class MaxRetryAttemptsReachedException : Exception
+    {
+        public MaxRetryAttemptsReachedException(string message, Exception innerException) : base(message, innerException)
+        {
         }
     }
 }
