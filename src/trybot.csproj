@@ -19,7 +19,7 @@
         <WarningsAsErrors>true</WarningsAsErrors>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <SignAssembly>true</SignAssembly>
-        <AssemblyOriginatorKeyFile>..\..\sn.snk</AssemblyOriginatorKeyFile>
+        <AssemblyOriginatorKeyFile>..\sn.snk</AssemblyOriginatorKeyFile>
         <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
         <Version>1.0.0</Version>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
@@ -38,10 +38,4 @@
         <NugetTargetMoniker>.NETPortable,Version=v0.0,Profile=Profile259</NugetTargetMoniker>
         <LanguageTargets>$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets</LanguageTargets>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net45|AnyCPU'">
-      <LangVersion>latest</LangVersion>
-    </PropertyGroup>
-    <ItemGroup>
-      <Compile Remove="RetryManagerExtensions.cs" />
-    </ItemGroup>
 </Project>

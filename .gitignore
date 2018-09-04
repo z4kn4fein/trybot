@@ -199,3 +199,5 @@ coverageresults
 coverage.xml
 
 project.lock.json
+
+.DS_Store

@@ -34,7 +34,7 @@ install:
   - export PATH="$DOTNET_INSTALL_DIR:$PATH"
   
 before_script:
-  - dotnet restore src/
+  - dotnet restore
 
 script:
-  - dotnet test src/trybot.tests/trybot.tests.csproj -c Release -f netcoreapp1.0
+  - dotnet test test/trybot.tests.csproj -c Release -f netcoreapp2.0

@@ -9,7 +9,7 @@ nuget install ReportGenerator -Version 2.5.2 -OutputDirectory .\tools
 $openCoverPath = Join-Path $PSScriptRoot "tools\OpenCover.4.6.519\tools\OpenCover.Console.exe"
 $coverallsPath = Join-Path $PSScriptRoot "tools\coveralls.net.0.7.0\tools\csmacnz.Coveralls.exe"
 $reportGeneratorPath = Join-Path $PSScriptRoot "tools\ReportGenerator.2.5.2\tools\ReportGenerator.exe"
-$testPath = Join-Path $PSScriptRoot "src\trybot.tests\trybot.tests.csproj"
+$testPath = Join-Path $PSScriptRoot "test\trybot.tests.csproj"
 $coverageReportDir = Join-Path $PSScriptRoot "coverageresults"
 
 $arguments = "-returntargetcode", "-register:user", "`"-filter:+[*]Trybot.* -[Trybot.Tests]* -[Trybot]*.Utils*`"", "-target:dotnet.exe", "`"-targetargs:test $testPath -f net45 -c Release`"", "-output:coverage.xml", "-skipautoprops", "-hideskipped:All"

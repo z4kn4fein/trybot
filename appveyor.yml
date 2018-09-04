@@ -33,19 +33,19 @@
   configuration: Release
   
   before_build:
-  - ps: . .\patch-version.ps1 "src\trybot\trybot.csproj" $($env:build_version)
+  - ps: . .\patch-version.ps1 "src\trybot.csproj" $($env:build_version)
   
   build_script:
-  - msbuild /t:Restore /p:Configuration=%CONFIGURATION% src\trybot.sln
-  - msbuild /t:Build /p:Configuration=%CONFIGURATION% src\trybot.sln
+  - msbuild /t:Restore /p:Configuration=%CONFIGURATION% trybot.sln
+  - msbuild /t:Build /p:Configuration=%CONFIGURATION% trybot.sln
   
   after_build:
-  - msbuild /t:Pack /p:IncludeSymbols=true /p:Configuration=%CONFIGURATION% /p:PackageOutputPath=..\..\artifacts src\trybot\trybot.csproj
+  - msbuild /t:Pack /p:IncludeSymbols=true /p:Configuration=%CONFIGURATION% /p:PackageOutputPath=..\..\artifacts src\trybot.csproj
   
   test_script:
   - ps: . .\set-debug-type.ps1 "src\trybot\trybot.csproj"
-  - dotnet test src\trybot.tests\trybot.tests.csproj  -f net45 -c %CONFIGURATION% --no-build
-  - dotnet test src\trybot.tests\trybot.tests.csproj  -f netcoreapp1.0 -c %CONFIGURATION% --no-build
+  - dotnet test test\trybot.tests.csproj  -f net45 -c %CONFIGURATION% --no-build
+  - dotnet test test\trybot.tests.csproj  -f netcoreapp2.0 -c %CONFIGURATION% --no-build
   - ps: . .\coverage.ps1
   
   artifacts:
@@ -88,19 +88,19 @@
   configuration: Release
   
   before_build:
-  - ps: . .\patch-version.ps1 "src\trybot\trybot.csproj" $($env:APPVEYOR_BUILD_VERSION)
+  - ps: . .\patch-version.ps1 "src\trybot.csproj" $($env:APPVEYOR_BUILD_VERSION)
   
   build_script:
-  - msbuild /t:Restore /p:Configuration=%CONFIGURATION% src\trybot.sln
-  - msbuild /t:Build /p:Configuration=%CONFIGURATION% src\trybot.sln
+  - msbuild /t:Restore /p:Configuration=%CONFIGURATION% trybot.sln
+  - msbuild /t:Build /p:Configuration=%CONFIGURATION% trybot.sln
   
   after_build:
-  - msbuild /t:Pack /p:IncludeSymbols=true /p:Configuration=%CONFIGURATION% /p:PackageOutputPath=..\..\artifacts src\trybot\trybot.csproj
+  - msbuild /t:Pack /p:IncludeSymbols=true /p:Configuration=%CONFIGURATION% /p:PackageOutputPath=..\..\artifacts src\trybot.csproj
   
   test_script:
   - ps: . .\set-debug-type.ps1 "src\trybot\trybot.csproj"
-  - dotnet test src\trybot.tests\trybot.tests.csproj  -f net45 -c %CONFIGURATION% --no-build
-  - dotnet test src\trybot.tests\trybot.tests.csproj  -f netcoreapp1.0 -c %CONFIGURATION% --no-build
+  - dotnet test test\trybot.tests.csproj  -f net45 -c %CONFIGURATION% --no-build
+  - dotnet test test\trybot.tests.csproj  -f netcoreapp2.0 -c %CONFIGURATION% --no-build
   - ps: . .\coverage.ps1
   
   artifacts:
