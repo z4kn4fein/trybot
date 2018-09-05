@@ -144,9 +144,7 @@ namespace Trybot.Retry
             !this.resultPolicy(result);
 
         internal TimeSpan CalculateNextDelay(int currentAttempt, TResult result) =>
-            this.resultRetryStrategy != null
-                ? this.resultRetryStrategy(currentAttempt, result)
-                : this.RetryStrategy(currentAttempt);
+            this.resultRetryStrategy?.Invoke(currentAttempt, result) ?? this.RetryStrategy(currentAttempt);
 
         internal void RaiseRetryEvent(TResult result, Exception exception, AttemptContext context) =>
             this.retryHandlerWithResult?.Invoke(result, exception, context);

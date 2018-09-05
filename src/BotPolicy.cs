@@ -7,9 +7,9 @@ namespace Trybot
     public class BotPolicy<TResult> : BotPolicyBase<Bot<TResult>>, IBotPolicy<TResult>, IBotPolicyConfigurator<TResult>
     {
         public BotPolicy(Action<IBotPolicyConfigurator<TResult>> configuratorAction = null)
+            : base(new DefaultBot<TResult>())
         {
             configuratorAction?.Invoke(this);
-            base.Bot = new DefaultBot<TResult>();
         }
 
         public IBotPolicyConfigurator<TResult> SetCapturedContextContinuation(bool continueOnCapturedContext = false)
@@ -43,9 +43,9 @@ namespace Trybot
     public class BotPolicy : BotPolicyBase<Bot>, IBotPolicy, IBotPolicyConfigurator
     {
         public BotPolicy(Action<IBotPolicyConfigurator> configuratorAction = null)
+            : base(new DefaultBot())
         {
             configuratorAction?.Invoke(this);
-            base.Bot = new DefaultBot();
         }
 
         public IBotPolicyConfigurator SetCapturedContextContinuation(bool continueOnCapturedContext = false)

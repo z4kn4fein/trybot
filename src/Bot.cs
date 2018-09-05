@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Trybot.Utils;
 
 namespace Trybot
 {
@@ -10,6 +11,8 @@ namespace Trybot
 
         protected Bot(Bot innerBot)
         {
+            Shield.EnsureNotNull(innerBot, nameof(innerBot));
+
             this.InnerBot = innerBot;
         }
 
@@ -29,6 +32,8 @@ namespace Trybot
 
         protected Bot(Bot<TResult> innerBot)
         {
+            Shield.EnsureNotNull(innerBot, nameof(innerBot));
+
             this.InnerBot = innerBot;
         }
 
@@ -43,6 +48,7 @@ namespace Trybot
     }
 
     public abstract class ConfigurableBot<TConfiguration> : Bot
+        where TConfiguration : new()
     {
         protected TConfiguration Configuration { get; }
 
