@@ -8,6 +8,9 @@ namespace Trybot
             where TBot : ConfigurableBot<TConfiguration>
             where TConfiguration : new();
 
+        IBotPolicyBuilder AddBot<TBot, TConfiguration>(Func<Bot, TConfiguration, TBot> factory, TConfiguration configuration)
+            where TBot : ConfigurableBot<TConfiguration>;
+
         IBotPolicyBuilder AddBot<TBot>(Func<Bot, TBot> factory)
             where TBot : Bot;
     }
@@ -17,6 +20,9 @@ namespace Trybot
         IBotPolicyBuilder<TResult> AddBot<TBot, TConfiguration>(Func<Bot<TResult>, TConfiguration, TBot> factory, Action<TConfiguration> configuratorAction)
             where TBot : ConfigurableBot<TConfiguration, TResult>
             where TConfiguration : new();
+
+        IBotPolicyBuilder<TResult> AddBot<TBot, TConfiguration>(Func<Bot<TResult>, TConfiguration, TBot> factory, TConfiguration configuration)
+            where TBot : ConfigurableBot<TConfiguration, TResult>;
 
         IBotPolicyBuilder<TResult> AddBot<TBot>(Func<Bot<TResult>, TBot> factory)
             where TBot : Bot<TResult>;

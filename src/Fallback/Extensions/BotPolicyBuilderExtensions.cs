@@ -8,7 +8,13 @@ namespace Trybot
         public static IBotPolicyBuilder Fallback(this IBotPolicyBuilder builder, Action<FallbackConfiguration> configuratorAction) =>
             builder.AddBot((innerBot, config) => new FallbackBot(innerBot, config), configuratorAction);
 
+        public static IBotPolicyBuilder Fallback(this IBotPolicyBuilder builder, FallbackConfiguration configuration) =>
+            builder.AddBot((innerBot, config) => new FallbackBot(innerBot, config), configuration);
+
         public static IBotPolicyBuilder<TResult> Fallback<TResult>(this IBotPolicyBuilder<TResult> builder, Action<FallbackConfiguration<TResult>> configuratorAction) =>
             builder.AddBot((innerBot, config) => new FallbackBot<TResult>(innerBot, config), configuratorAction);
+
+        public static IBotPolicyBuilder<TResult> Fallback<TResult>(this IBotPolicyBuilder<TResult> builder, FallbackConfiguration<TResult> configuration) =>
+            builder.AddBot((innerBot, config) => new FallbackBot<TResult>(innerBot, config), configuration);
     }
 }

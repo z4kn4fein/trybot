@@ -18,7 +18,15 @@ namespace Trybot
             configuratorAction(configuration);
 
             this.Bot = factory(this.Bot, configuration);
+            return this;
+        }
 
+        public IBotPolicyBuilder AddBot<TBot, TConfiguration>(Func<Bot, TConfiguration, TBot> factory, TConfiguration configuration)
+            where TBot : ConfigurableBot<TConfiguration>
+        {
+            Shield.EnsureNotNull(factory, nameof(factory));
+
+            this.Bot = factory(this.Bot, configuration);
             return this;
         }
 
@@ -48,6 +56,15 @@ namespace Trybot
 
             this.Bot = factory(this.Bot, configuration);
 
+            return this;
+        }
+
+        public IBotPolicyBuilder<TResult> AddBot<TBot, TConfiguration>(Func<Bot<TResult>, TConfiguration, TBot> factory, TConfiguration configuration)
+            where TBot : ConfigurableBot<TConfiguration, TResult>
+        {
+            Shield.EnsureNotNull(factory, nameof(factory));
+
+            this.Bot = factory(this.Bot, configuration);
             return this;
         }
 

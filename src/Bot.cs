@@ -48,7 +48,6 @@ namespace Trybot
     }
 
     public abstract class ConfigurableBot<TConfiguration> : Bot
-        where TConfiguration : new()
     {
         protected TConfiguration Configuration { get; }
 

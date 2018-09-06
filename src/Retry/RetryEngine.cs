@@ -37,7 +37,7 @@ namespace Trybot.Retry
 
             token.ThrowIfCancellationRequested();
 
-            throw new MaxRetryAttemptsReachedException<TResult>(Constants.MaxRetryExceptionMessage, tryResult.Exception, tryResult.OperationResult);
+            throw new MaxRetryAttemptsReachedException(Constants.MaxRetryExceptionMessage, tryResult.Exception, tryResult.OperationResult);
         }
 
         public async Task<TResult> ExecuteRetryAsync<TResult>(RetryConfigurationBase configuration,
@@ -71,7 +71,7 @@ namespace Trybot.Retry
 
             token.ThrowIfCancellationRequested();
 
-            throw new MaxRetryAttemptsReachedException<TResult>(Constants.MaxRetryExceptionMessage, tryResult.Exception, tryResult.OperationResult);
+            throw new MaxRetryAttemptsReachedException(Constants.MaxRetryExceptionMessage, tryResult.Exception, tryResult.OperationResult);
         }
 
         private static async Task<TryResult<TResult>> TryAsync<TResult>(RetryConfigurationBase configuration,
