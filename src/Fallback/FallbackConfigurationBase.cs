@@ -15,11 +15,13 @@ namespace Trybot.Fallback
         internal bool HandlesException(Exception exception) =>
             this.FallbackPolicy?.Invoke(exception) ?? false;
 
-        internal void RaiseRetryEvent(Exception exception, ExecutionContext context) =>
+        internal void RaiseFallbackEvent(Exception exception, ExecutionContext context) =>
             this.FallbackHandler?.Invoke(exception, context);
 
-        internal async Task RaiseRetryEventAsync(Exception exception, ExecutionContext context, CancellationToken token)
+        internal async Task RaiseFallbackEventAsync(Exception exception, ExecutionContext context, CancellationToken token)
         {
+            this.RaiseFallbackEvent(exception, context);
+
             if (this.AsyncFallbackHandler == null)
                 return;
 

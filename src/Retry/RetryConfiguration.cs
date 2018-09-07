@@ -112,22 +112,30 @@ namespace Trybot.Retry
         }
 
         internal bool AcceptsResult(TResult result) =>
-            !this.resultPolicy(result);
+            !this.resultPolicy?.Invoke(result) ?? true;
 
         internal TimeSpan CalculateNextDelay(int currentAttempt, TResult result) =>
             this.resultRetryStrategy?.Invoke(currentAttempt, result) ?? this.RetryStrategy(currentAttempt);
 
-        internal void RaiseRetryEvent(TResult result, Exception exception, AttemptContext context) =>
+        internal void RaiseRetryEvent(TResult result, Exception exception, AttemptContext context)
+        {
+            base.RaiseRetryEvent(exception, context);
             this.retryHandlerWithResult?.Invoke(result, exception, context);
+        }
 
         internal async Task RaiseRetryEventAsync(TResult result, Exception exception, AttemptContext context, CancellationToken token)
         {
+            base.RaiseRetryEvent(exception, context);
+            await base.RaiseRetryEventAsync(exception, context, token)
+                .ConfigureAwait(context.ExecutionContext.BotPolicyConfiguration.ContinueOnCapturedContext);
+
             this.retryHandlerWithResult?.Invoke(result, exception, context);
 
             if (this.asyncRetryHandlerWithResult == null)
                 return;
 
-            await this.asyncRetryHandlerWithResult(result, exception, context, token).ConfigureAwait(context.ExecutionContext.BotPolicyConfiguration.ContinueOnCapturedContext);
+            await this.asyncRetryHandlerWithResult(result, exception, context, token)
+                .ConfigureAwait(context.ExecutionContext.BotPolicyConfiguration.ContinueOnCapturedContext);
         }
     }
 }

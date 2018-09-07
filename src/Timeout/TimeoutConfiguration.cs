@@ -26,7 +26,7 @@ namespace Trybot.Timeout
             return this;
         }
 
-        public TimeoutConfiguration OnTimeout(Func<ExecutionContext, Task> asyncTimeoutHandler)
+        public TimeoutConfiguration OnTimeoutAsync(Func<ExecutionContext, Task> asyncTimeoutHandler)
         {
             Shield.EnsureNotNull(asyncTimeoutHandler, nameof(asyncTimeoutHandler));
 

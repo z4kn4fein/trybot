@@ -69,11 +69,18 @@ namespace Trybot.Fallback
             return this;
         }
 
-        internal void RaiseRetryEvent(TResult result, Exception exception, ExecutionContext context) =>
-            this.FallbackHandlerWithResult?.Invoke(result, exception, context);
-
-        internal async Task RaiseRetryEventAsync(TResult result, Exception exception, ExecutionContext context, CancellationToken token)
+        internal void RaiseFallbackEvent(TResult result, Exception exception, ExecutionContext context)
         {
+            base.RaiseFallbackEvent(exception, context);
+            this.FallbackHandlerWithResult?.Invoke(result, exception, context);
+        }
+
+        internal async Task RaiseFallbackEventAsync(TResult result, Exception exception, ExecutionContext context, CancellationToken token)
+        {
+            base.RaiseFallbackEvent(exception, context);
+            await base.RaiseFallbackEventAsync(exception, context, token)
+                .ConfigureAwait(context.BotPolicyConfiguration.ContinueOnCapturedContext);
+
             if (this.AsyncFallbackHandlerWithResult == null)
                 return;
 
