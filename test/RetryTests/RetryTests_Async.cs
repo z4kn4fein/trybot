@@ -21,7 +21,7 @@ namespace Trybot.Tests.RetryTests
                 .WhenExceptionOccurs(ex => true);
 
         [TestMethod]
-        public async Task RetryTests_Action_Ok()
+        public async Task RetryTests_Func_Ok()
         {
             var policy = this.CreatePolicyWithRetry(this.CreateConfiguration<int>(2));
             var counter = 0;
@@ -32,7 +32,71 @@ namespace Trybot.Tests.RetryTests
         }
 
         [TestMethod]
-        public async Task RetryTests_Action_Fail()
+        public async Task RetryTests_Func_Task_Ok()
+        {
+            var policy = this.CreatePolicyWithRetry(this.CreateConfiguration<int>(2));
+            var counter = 0;
+            var result = await policy.ExecuteAsync((ctx, t) => { counter++; return Task.FromResult(5); }, CancellationToken.None);
+
+            Assert.AreEqual(5, result);
+            Assert.AreEqual(1, counter);
+        }
+
+        [TestMethod]
+        public async Task RetryTests_Func_Task_Fail()
+        {
+            var onRetry = 0;
+            var onRetryAsync = 0;
+            var onRetryResult = 0;
+            var onRetryResultAsync = 0;
+            var policy = this.CreatePolicyWithRetry(this.CreateConfiguration<int>(5)
+                .OnRetryAsync((ex, att, t) => { onRetryAsync = att.CurrentAttempt; return Task.FromResult(0); })
+                .OnRetryAsync((r, ex, att, t) => { onRetryResultAsync = att.CurrentAttempt; return Task.FromResult(0); })
+                .OnRetry((ex, att) => onRetry = att.CurrentAttempt)
+                .OnRetry((r, ex, att) => onRetryResult = att.CurrentAttempt));
+            var counter = 0;
+            var result = 0;
+            await Assert.ThrowsExceptionAsync<MaxRetryAttemptsReachedException>(async () => result = await policy.ExecuteAsync((ctx, t) =>
+            {
+                counter++;
+                object a = null;
+                a.GetHashCode();
+                return Task.FromResult(5);
+            }, CancellationToken.None));
+
+            Assert.AreEqual(0, result);
+            Assert.AreEqual(5, counter);
+            Assert.AreEqual(counter, onRetry);
+            Assert.AreEqual(counter, onRetryAsync);
+            Assert.AreEqual(counter, onRetryResult);
+            Assert.AreEqual(counter, onRetryResultAsync);
+        }
+
+        [TestMethod]
+        public async Task RetryTests_Func_Task_Result_Fail()
+        {
+            var onRetryResult = 0;
+            var onRetryResultAsync = 0;
+            var policy = this.CreatePolicyWithRetry(this.CreateConfiguration<int>(2)
+                .OnRetryAsync((r, ex, att, t) => { onRetryResultAsync = r; return Task.FromResult(0); })
+                .OnRetry((r, ex, att) => onRetryResult = r)
+                .WhenResultIs(r => r != 6));
+            var counter = 0;
+            var result = 0;
+            await Assert.ThrowsExceptionAsync<MaxRetryAttemptsReachedException>(async () => result = await policy.ExecuteAsync((ctx, t) =>
+            {
+                counter++;
+                return Task.FromResult(5);
+            }, CancellationToken.None));
+
+            Assert.AreEqual(0, result);
+            Assert.AreEqual(2, counter);
+            Assert.AreEqual(5, onRetryResult);
+            Assert.AreEqual(5, onRetryResultAsync);
+        }
+
+        [TestMethod]
+        public async Task RetryTests_Func_Fail()
         {
             var policy = this.CreatePolicyWithRetry(this.CreateConfiguration<int>(2));
             var counter = 0;
@@ -51,7 +115,7 @@ namespace Trybot.Tests.RetryTests
         }
 
         [TestMethod]
-        public async Task RetryTests_Action_Fail_Cancel()
+        public async Task RetryTests_Func_Fail_Cancel()
         {
             var policy = this.CreatePolicyWithRetry(this.CreateConfiguration<int>(30));
             var counter = 0;
@@ -74,7 +138,7 @@ namespace Trybot.Tests.RetryTests
         }
 
         [TestMethod]
-        public async Task RetryTests_Action_Fail_Wait()
+        public async Task RetryTests_Func_Fail_Wait()
         {
             var policy = this.CreatePolicyWithRetry(this.CreateConfiguration<int>(5).WaitBetweenAttempts(attempt => TimeSpan.FromMilliseconds(200)));
             var counter = 0;
@@ -96,7 +160,7 @@ namespace Trybot.Tests.RetryTests
         }
 
         [TestMethod]
-        public async Task RetryTests_Action_Fail_Wait_WithResult_OnRetry()
+        public async Task RetryTests_Func_Fail_Wait_WithResult_OnRetry()
         {
             var delayResult = 0;
             var nextDelay = TimeSpan.Zero;
@@ -128,7 +192,7 @@ namespace Trybot.Tests.RetryTests
         }
 
         [TestMethod]
-        public async Task RetryTests_Action_Fail_OnRetry()
+        public async Task RetryTests_Func_Fail_OnRetry()
         {
             var onRetryCounter = 0;
             var policy = this.CreatePolicyWithRetry(this.CreateConfiguration<int>(5).OnRetry((ex, ctx) => onRetryCounter = ctx.CurrentAttempt));
@@ -149,7 +213,7 @@ namespace Trybot.Tests.RetryTests
         }
 
         [TestMethod]
-        public async Task RetryTests_Action_Fail_OnRetry_WithResult()
+        public async Task RetryTests_Func_Fail_OnRetry_WithResult()
         {
             var onRetryCounter = 0;
             var policy = this.CreatePolicyWithRetry(this.CreateConfiguration<int>(5).OnRetry((r, ex, ctx) => onRetryCounter = ctx.CurrentAttempt));
@@ -170,7 +234,7 @@ namespace Trybot.Tests.RetryTests
         }
 
         [TestMethod]
-        public async Task RetryTests_Action_Fail_ResultFilter()
+        public async Task RetryTests_Func_Fail_ResultFilter()
         {
             var onRetryCounter = 0;
             var policy = this.CreatePolicyWithRetry(this.CreateConfiguration<int>(5)
@@ -190,7 +254,7 @@ namespace Trybot.Tests.RetryTests
         }
 
         [TestMethod]
-        public async Task RetryTests_Action_Fail_ResultFilter_OnRetryResult()
+        public async Task RetryTests_Func_Fail_ResultFilter_OnRetryResult()
         {
             var onRetryCounter = 0;
             var handlerResult = 0;
