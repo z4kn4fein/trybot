@@ -25,7 +25,7 @@ namespace Trybot.Timeout
                 {
                     if (!timeoutTokenSource.IsCancellationRequested) throw;
 
-                    configuration.TimeoutHandler(context);
+                    configuration.RaiseTimeoutEvent(context);
                     throw new OperationTimeoutException(Constants.TimeoutExceptionMessage, ex);
 
                 }
@@ -50,7 +50,8 @@ namespace Trybot.Timeout
                 {
                     if (!timeoutTokenSource.IsCancellationRequested) throw;
 
-                    await configuration.AsyncTimeoutHandler(context);
+                    await configuration.RaiseAsyncTimeoutEvent(context)
+                        .ConfigureAwait(context.BotPolicyConfiguration.ContinueOnCapturedContext);
                     throw new OperationTimeoutException(Constants.TimeoutExceptionMessage, ex);
 
                 }

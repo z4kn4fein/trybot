@@ -37,13 +37,14 @@ namespace Trybot.Tests.RetryTests
             var policy = this.CreatePolicyWithRetry(this.CreateConfiguration<int>(2));
             var counter = 0;
             var result = 0;
-
-            Assert.ThrowsException<MaxRetryAttemptsReachedException>(() => result = policy.Execute((ctx, t) =>
+            var exception = new Exception();
+            var retryException = Assert.ThrowsException<MaxRetryAttemptsReachedException>(() => result = policy.Execute((ctx, t) =>
             {
                 counter++;
-                throw new Exception();
+                throw exception;
             }, CancellationToken.None));
 
+            Assert.AreEqual(exception, retryException.InnerException);
             Assert.AreEqual(0, result);
             Assert.AreEqual(2, counter);
         }
@@ -167,10 +168,11 @@ namespace Trybot.Tests.RetryTests
             var counter = 0;
             var result = 0;
 
-            Assert.ThrowsException<MaxRetryAttemptsReachedException>(() => result = policy
+            var exception = Assert.ThrowsException<MaxRetryAttemptsReachedException>(() => result = policy
                 .Execute((ctx, t) => { counter++; return 6; }, CancellationToken.None));
 
             Assert.AreEqual(0, result);
+            Assert.AreEqual(6, exception.OperationResult);
             Assert.AreEqual(counter, onRetryCounter);
         }
 

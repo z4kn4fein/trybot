@@ -8,9 +8,8 @@ namespace Trybot.Timeout
     {
         internal TimeSpan Timeout { get; set; }
 
-        internal Action<ExecutionContext> TimeoutHandler { get; set; }
-
-        internal Func<ExecutionContext, Task> AsyncTimeoutHandler { get; set; }
+        private Action<ExecutionContext> timeoutHandler;
+        private Func<ExecutionContext, Task> asyncTimeoutHandler;
 
         public TimeoutConfiguration After(TimeSpan timeout)
         {
@@ -22,7 +21,7 @@ namespace Trybot.Timeout
         {
             Shield.EnsureNotNull(timeoutHandler, nameof(timeoutHandler));
 
-            this.TimeoutHandler = timeoutHandler;
+            this.timeoutHandler = timeoutHandler;
             return this;
         }
 
@@ -30,8 +29,23 @@ namespace Trybot.Timeout
         {
             Shield.EnsureNotNull(asyncTimeoutHandler, nameof(asyncTimeoutHandler));
 
-            this.AsyncTimeoutHandler = asyncTimeoutHandler;
+            this.asyncTimeoutHandler = asyncTimeoutHandler;
             return this;
         }
+
+        internal void RaiseTimeoutEvent(ExecutionContext context) =>
+            this.timeoutHandler?.Invoke(context);
+
+        internal async Task RaiseAsyncTimeoutEvent(ExecutionContext context)
+        {
+            this.timeoutHandler?.Invoke(context);
+
+            if (this.asyncTimeoutHandler == null)
+                return;
+
+            await this.asyncTimeoutHandler(context)
+                .ConfigureAwait(context.BotPolicyConfiguration.ContinueOnCapturedContext);
+        }
+
     }
 }
