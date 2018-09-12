@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Trybot.Timeout;
 using Trybot.Timeout.Exceptions;
 
-namespace Trybot.Tests.Timeout
+namespace Trybot.Tests.TimeoutTests
 {
     [TestClass]
     public class TimeoutTestsAsync

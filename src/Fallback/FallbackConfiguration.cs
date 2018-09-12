@@ -29,9 +29,9 @@ namespace Trybot.Fallback
     {
         internal Func<TResult, bool> ResultPolicy { get; set; }
 
-        internal Action<TResult, Exception, ExecutionContext> FallbackHandlerWithResult { get; set; }
+        internal Func<TResult, Exception, ExecutionContext, TResult> FallbackHandlerWithResult { get; set; }
 
-        internal Func<TResult, Exception, ExecutionContext, CancellationToken, Task> AsyncFallbackHandlerWithResult { get; set; }
+        internal Func<TResult, Exception, ExecutionContext, CancellationToken, Task<TResult>> AsyncFallbackHandlerWithResult { get; set; }
 
         public FallbackConfiguration<TResult> WhenExceptionOccurs(Func<Exception, bool> fallbackPolicy)
         {
@@ -57,38 +57,42 @@ namespace Trybot.Fallback
             return this;
         }
 
-        public FallbackConfiguration<TResult> OnFallback(Action<TResult, Exception, ExecutionContext> onFallbackAction)
+        public FallbackConfiguration<TResult> OnFallback(Func<TResult, Exception, ExecutionContext, TResult> onFallbackAction)
         {
             this.FallbackHandlerWithResult = onFallbackAction;
             return this;
         }
 
-        public FallbackConfiguration<TResult> OnFallbackAsync(Func<TResult, Exception, ExecutionContext, CancellationToken, Task> onFallbackFunc)
+        public FallbackConfiguration<TResult> OnFallbackAsync(Func<TResult, Exception, ExecutionContext, CancellationToken, Task<TResult>> onFallbackFunc)
         {
             this.AsyncFallbackHandlerWithResult = onFallbackFunc;
             return this;
         }
 
-        internal void RaiseFallbackEvent(TResult result, Exception exception, ExecutionContext context)
+        internal TResult RaiseFallbackEvent(TResult result, Exception exception, ExecutionContext context)
         {
             base.RaiseFallbackEvent(exception, context);
-            this.FallbackHandlerWithResult?.Invoke(result, exception, context);
+
+            return this.FallbackHandlerWithResult == null ? result : this.FallbackHandlerWithResult(result, exception, context);
         }
 
-        internal async Task RaiseFallbackEventAsync(TResult result, Exception exception, ExecutionContext context, CancellationToken token)
+        internal async Task<TResult> RaiseFallbackEventAsync(TResult result, Exception exception, ExecutionContext context, CancellationToken token)
         {
             base.RaiseFallbackEvent(exception, context);
             await base.RaiseFallbackEventAsync(exception, context, token)
                 .ConfigureAwait(context.BotPolicyConfiguration.ContinueOnCapturedContext);
 
-            if (this.AsyncFallbackHandlerWithResult == null)
-                return;
+            if (this.FallbackHandlerWithResult != null)
+                return this.FallbackHandlerWithResult(result, exception, context);
 
-            await this.AsyncFallbackHandlerWithResult(result, exception, context, token)
+            if (this.AsyncFallbackHandlerWithResult == null)
+                return result;
+
+            return await this.AsyncFallbackHandlerWithResult(result, exception, context, token)
                 .ConfigureAwait(context.BotPolicyConfiguration.ContinueOnCapturedContext);
         }
 
         internal bool AcceptsResult(TResult result) =>
-            !this.ResultPolicy(result);
+            !this.ResultPolicy?.Invoke(result) ?? true;
     }
 }

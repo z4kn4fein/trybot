@@ -13,12 +13,12 @@ namespace Trybot.Fallback
         TConfiguration OnFallbackAsync(Func<Exception, ExecutionContext, CancellationToken, Task> onFallbackFunc);
     }
 
-    public interface IFallbackConfiguration<out TConfiguration, out TResult> : IFallbackConfiguration<TConfiguration>
+    public interface IFallbackConfiguration<out TConfiguration, TResult> : IFallbackConfiguration<TConfiguration>
     {
         TConfiguration WhenResultIs(Func<TResult, bool> resultPolicy);
 
-        TConfiguration OnFallback(Action<TResult, Exception, ExecutionContext> onFallbackAction);
+        TConfiguration OnFallback(Func<TResult, Exception, ExecutionContext, TResult> onFallbackAction);
 
-        TConfiguration OnFallbackAsync(Func<TResult, Exception, ExecutionContext, CancellationToken, Task> onFallbackFunc);
+        TConfiguration OnFallbackAsync(Func<TResult, Exception, ExecutionContext, CancellationToken, Task<TResult>> onFallbackFunc);
     }
 }

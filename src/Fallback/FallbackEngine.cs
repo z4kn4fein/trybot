@@ -8,7 +8,7 @@ namespace Trybot.Fallback
     {
         public TResult Execute<TResult>(FallbackConfigurationBase configuration,
             Func<ExecutionContext, CancellationToken, TResult> operation,
-            Action<TResult, Exception, ExecutionContext> onFallback,
+            Func<TResult, Exception, ExecutionContext, TResult> onFallback,
             Func<TResult, bool> resultChecker,
             ExecutionContext context,
             CancellationToken token)
@@ -16,15 +16,12 @@ namespace Trybot.Fallback
             try
             {
                 var result = operation(context, token);
-                if (resultChecker(result))
-                    onFallback(result, null, context);
-
-                return result;
+                return resultChecker(result) ? result : onFallback(result, null, context);
             }
             catch (Exception exception)
             {
                 if (configuration.HandlesException(exception))
-                    onFallback(default, exception, context);
+                    return onFallback(default, exception, context);
 
                 throw;
             }
@@ -32,7 +29,7 @@ namespace Trybot.Fallback
 
         public async Task<TResult> ExecuteAsync<TResult>(FallbackConfigurationBase configuration,
             Func<ExecutionContext, CancellationToken, Task<TResult>> operation,
-            Func<TResult, Exception, ExecutionContext, CancellationToken, Task> onFallbackAsync,
+            Func<TResult, Exception, ExecutionContext, CancellationToken, Task<TResult>> onFallbackAsync,
             Func<TResult, bool> resultChecker,
             ExecutionContext context,
             CancellationToken token)
@@ -41,8 +38,8 @@ namespace Trybot.Fallback
             {
                 var result = await operation(context, token)
                     .ConfigureAwait(context.BotPolicyConfiguration.ContinueOnCapturedContext);
-                if (resultChecker(result))
-                    await onFallbackAsync(result, null, context, token)
+                if (!resultChecker(result))
+                    return await onFallbackAsync(result, null, context, token)
                         .ConfigureAwait(context.BotPolicyConfiguration.ContinueOnCapturedContext);
 
                 return result;
@@ -50,8 +47,8 @@ namespace Trybot.Fallback
             catch (Exception exception)
             {
                 if (configuration.HandlesException(exception))
-                    await onFallbackAsync(default, exception, context, token)
-                        .ConfigureAwait(context.BotPolicyConfiguration.ContinueOnCapturedContext);
+                    return await onFallbackAsync(default, exception, context, token)
+                         .ConfigureAwait(context.BotPolicyConfiguration.ContinueOnCapturedContext);
 
                 throw;
             }

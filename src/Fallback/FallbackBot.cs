@@ -19,7 +19,11 @@ namespace Trybot.Fallback
                     base.InnerBot.Execute(action, ctx, t);
                     return Constants.DummyReturnValue;
                 },
-                onFallback: (result, exception, ctx) => base.Configuration.RaiseFallbackEvent(exception, ctx),
+                onFallback: (result, exception, ctx) =>
+                {
+                    base.Configuration.RaiseFallbackEvent(exception, ctx);
+                    return Constants.DummyReturnValue;
+                },
                 resultChecker: result => true,
                 context: context,
                 token: token);
@@ -31,7 +35,12 @@ namespace Trybot.Fallback
                     await base.InnerBot.ExecuteAsync(action, ctx, t);
                     return Constants.CompletedTask;
                 },
-                onFallbackAsync: (result, exception, ctx, t) => base.Configuration.RaiseFallbackEventAsync(exception, ctx, t),
+                onFallbackAsync: async (result, exception, ctx, t) =>
+                {
+                    await base.Configuration.RaiseFallbackEventAsync(exception, ctx, t)
+                        .ConfigureAwait(ctx.BotPolicyConfiguration.ContinueOnCapturedContext);
+                    return Constants.CompletedTask;
+                },
                 resultChecker: result => true,
                 context: context,
                 token: token);
@@ -43,7 +52,12 @@ namespace Trybot.Fallback
                     await base.InnerBot.ExecuteAsync(operation, ctx, t);
                     return Constants.CompletedTask;
                 },
-                onFallbackAsync: (result, exception, ctx, t) => base.Configuration.RaiseFallbackEventAsync(exception, ctx, t),
+                onFallbackAsync: async (result, exception, ctx, t) =>
+                {
+                    await base.Configuration.RaiseFallbackEventAsync(exception, ctx, t)
+                        .ConfigureAwait(ctx.BotPolicyConfiguration.ContinueOnCapturedContext);
+                    return Constants.CompletedTask;
+                },
                 resultChecker: result => true,
                 context: context,
                 token: token);
@@ -65,17 +79,17 @@ namespace Trybot.Fallback
                 context: context,
                 token: token);
 
-        public override Task<TResult> ExecuteAsync(Func<ExecutionContext, CancellationToken, TResult> operation,
+        public override async Task<TResult> ExecuteAsync(Func<ExecutionContext, CancellationToken, TResult> operation,
             ExecutionContext context, CancellationToken token) =>
-            this.fallbackEngine.ExecuteAsync(base.Configuration, (ctx, t) => this.InnerBot.ExecuteAsync(operation, ctx, t),
+            await this.fallbackEngine.ExecuteAsync(base.Configuration, (ctx, t) => this.InnerBot.ExecuteAsync(operation, ctx, t),
                 onFallbackAsync: (result, exception, ctx, t) => base.Configuration.RaiseFallbackEventAsync(result, exception, ctx, t),
                 resultChecker: result => base.Configuration.AcceptsResult(result),
                 context: context,
                 token: token);
 
-        public override Task<TResult> ExecuteAsync(Func<ExecutionContext, CancellationToken, Task<TResult>> operation,
+        public override async Task<TResult> ExecuteAsync(Func<ExecutionContext, CancellationToken, Task<TResult>> operation,
             ExecutionContext context, CancellationToken token) =>
-            this.fallbackEngine.ExecuteAsync(base.Configuration, (ctx, t) => this.InnerBot.ExecuteAsync(operation, ctx, t),
+            await this.fallbackEngine.ExecuteAsync(base.Configuration, (ctx, t) => this.InnerBot.ExecuteAsync(operation, ctx, t),
                 onFallbackAsync: (result, exception, ctx, t) => base.Configuration.RaiseFallbackEventAsync(result, exception, ctx, t),
                 resultChecker: result => base.Configuration.AcceptsResult(result),
                 context: context,
