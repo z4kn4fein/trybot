@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Trybot.Operations;
 
 namespace Trybot
 {
@@ -27,15 +28,10 @@ namespace Trybot
 
             return this;
         }
-
-        public TResult Execute(Func<ExecutionContext, CancellationToken, TResult> operation, CancellationToken token) =>
+        public TResult Execute(IBotOperation<TResult> operation, CancellationToken token) =>
             this.Bot.Execute(operation, ExecutionContext.New(base.Configuration), token);
 
-        public async Task<TResult> ExecuteAsync(Func<ExecutionContext, CancellationToken, TResult> operation, CancellationToken token) =>
-            await this.Bot.ExecuteAsync(operation, ExecutionContext.New(base.Configuration), token)
-                .ConfigureAwait(base.Configuration.ContinueOnCapturedContext);
-
-        public async Task<TResult> ExecuteAsync(Func<ExecutionContext, CancellationToken, Task<TResult>> operation, CancellationToken token) =>
+        public async Task<TResult> ExecuteAsync(IAsyncBotOperation<TResult> operation, CancellationToken token) =>
             await this.Bot.ExecuteAsync(operation, ExecutionContext.New(base.Configuration), token)
                 .ConfigureAwait(base.Configuration.ContinueOnCapturedContext);
     }
@@ -64,14 +60,10 @@ namespace Trybot
             return this;
         }
 
-        public void Execute(Action<ExecutionContext, CancellationToken> action, CancellationToken token) =>
-            base.Bot.Execute(action, ExecutionContext.New(base.Configuration), token);
+        public void Execute(IBotOperation operation, CancellationToken token) =>
+            base.Bot.Execute(operation, ExecutionContext.New(base.Configuration), token);
 
-        public async Task ExecuteAsync(Action<ExecutionContext, CancellationToken> action, CancellationToken token) =>
-            await base.Bot.ExecuteAsync(action, ExecutionContext.New(base.Configuration), token)
-                .ConfigureAwait(base.Configuration.ContinueOnCapturedContext);
-
-        public async Task ExecuteAsync(Func<ExecutionContext, CancellationToken, Task> operation, CancellationToken token) =>
+        public async Task ExecuteAsync(IAsyncBotOperation operation, CancellationToken token) =>
             await base.Bot.ExecuteAsync(operation, ExecutionContext.New(base.Configuration), token)
                 .ConfigureAwait(base.Configuration.ContinueOnCapturedContext);
     }

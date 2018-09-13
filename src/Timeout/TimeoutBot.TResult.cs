@@ -1,56 +1,57 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Trybot.Operations;
 using Trybot.Timeout.Exceptions;
 using Trybot.Utils;
 
 namespace Trybot.Timeout
 {
-    internal class TimeoutEngine
+    public class TimeoutBot<TResult> : ConfigurableBot<TimeoutConfiguration, TResult>
     {
-        public TResult Execute<TResult>(TimeoutConfiguration configuration,
-            Func<ExecutionContext, CancellationToken, TResult> operation,
-            ExecutionContext context,
-            CancellationToken token)
+        internal TimeoutBot(Bot<TResult> innerPolicy, TimeoutConfiguration configuration) : base(innerPolicy, configuration)
+        { }
+
+        public override TResult Execute(IBotOperation<TResult> operation,
+            ExecutionContext context, CancellationToken token)
+
         {
             using (var timeoutTokenSource = new CancellationTokenSource())
             using (var combinedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(token, timeoutTokenSource.Token))
             {
                 try
                 {
-                    timeoutTokenSource.CancelAfter(configuration.Timeout);
-                    return operation(context, combinedTokenSource.Token);
+                    timeoutTokenSource.CancelAfter(base.Configuration.Timeout);
+                    return base.InnerBot.Execute(operation, context, combinedTokenSource.Token);
                 }
                 catch (Exception ex)
                 {
                     if (!timeoutTokenSource.IsCancellationRequested) throw;
 
-                    configuration.RaiseTimeoutEvent(context);
+                    base.Configuration.RaiseTimeoutEvent(context);
                     throw new OperationTimeoutException(Constants.TimeoutExceptionMessage, ex);
 
                 }
             }
         }
 
-        public async Task<TResult> ExecuteAsync<TResult>(TimeoutConfiguration configuration,
-            Func<ExecutionContext, CancellationToken, Task<TResult>> operation,
-            ExecutionContext context,
-            CancellationToken token)
+        public override async Task<TResult> ExecuteAsync(IAsyncBotOperation<TResult> operation,
+            ExecutionContext context, CancellationToken token)
         {
             using (var timeoutTokenSource = new CancellationTokenSource())
             using (var combinedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(token, timeoutTokenSource.Token))
             {
                 try
                 {
-                    timeoutTokenSource.CancelAfter(configuration.Timeout);
-                    return await operation(context, combinedTokenSource.Token)
+                    timeoutTokenSource.CancelAfter(base.Configuration.Timeout);
+                    return await base.InnerBot.ExecuteAsync(operation, context, combinedTokenSource.Token)
                         .ConfigureAwait(context.BotPolicyConfiguration.ContinueOnCapturedContext);
                 }
                 catch (Exception ex)
                 {
                     if (!timeoutTokenSource.IsCancellationRequested) throw;
 
-                    await configuration.RaiseAsyncTimeoutEvent(context)
+                    await base.Configuration.RaiseAsyncTimeoutEvent(context)
                         .ConfigureAwait(context.BotPolicyConfiguration.ContinueOnCapturedContext);
                     throw new OperationTimeoutException(Constants.TimeoutExceptionMessage, ex);
 

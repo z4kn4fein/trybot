@@ -1,6 +1,6 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
+using Trybot.Operations;
 using Trybot.Utils;
 
 namespace Trybot
@@ -19,11 +19,9 @@ namespace Trybot
         internal Bot()
         { }
 
-        public abstract void Execute(Action<ExecutionContext, CancellationToken> action, ExecutionContext context, CancellationToken token);
+        public abstract void Execute(IBotOperation operation, ExecutionContext context, CancellationToken token);
 
-        public abstract Task ExecuteAsync(Action<ExecutionContext, CancellationToken> action, ExecutionContext context, CancellationToken token);
-
-        public abstract Task ExecuteAsync(Func<ExecutionContext, CancellationToken, Task> operation, ExecutionContext context, CancellationToken token);
+        public abstract Task ExecuteAsync(IAsyncBotOperation operation, ExecutionContext context, CancellationToken token);
     }
 
     public abstract class Bot<TResult>
@@ -40,11 +38,9 @@ namespace Trybot
         internal Bot()
         { }
 
-        public abstract TResult Execute(Func<ExecutionContext, CancellationToken, TResult> operation, ExecutionContext context, CancellationToken token);
+        public abstract TResult Execute(IBotOperation<TResult> operation, ExecutionContext context, CancellationToken token);
 
-        public abstract Task<TResult> ExecuteAsync(Func<ExecutionContext, CancellationToken, TResult> operation, ExecutionContext context, CancellationToken token);
-
-        public abstract Task<TResult> ExecuteAsync(Func<ExecutionContext, CancellationToken, Task<TResult>> operation, ExecutionContext context, CancellationToken token);
+        public abstract Task<TResult> ExecuteAsync(IAsyncBotOperation<TResult> operation, ExecutionContext context, CancellationToken token);
     }
 
     public abstract class ConfigurableBot<TConfiguration> : Bot

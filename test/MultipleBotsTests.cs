@@ -1,8 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Trybot.Operations;
 
 namespace Trybot.Tests
 {
@@ -46,11 +46,10 @@ namespace Trybot.Tests
             var mockBot = this.CreateMockBot(policy);
 
             var source = new CancellationTokenSource();
-            Action<ExecutionContext, CancellationToken> action = (ctx, t) => { };
 
-            policy.Execute(action, source.Token);
+            policy.Execute((ctx, t) => { }, source.Token);
 
-            mockBot.Verify(m => m.Execute(action, It.IsAny<ExecutionContext>(), source.Token));
+            mockBot.Verify(m => m.Execute(It.IsAny<IBotOperation>(), It.IsAny<ExecutionContext>(), source.Token));
         }
 
         [TestMethod]
@@ -60,11 +59,10 @@ namespace Trybot.Tests
             var mockBot = this.CreateMockBot(policy);
 
             var source = new CancellationTokenSource();
-            Func<ExecutionContext, CancellationToken, int> operation = (ctx, t) => 0;
 
-            policy.Execute(operation, source.Token);
+            policy.Execute((ctx, t) => 0, source.Token);
 
-            mockBot.Verify(m => m.Execute(operation, It.IsAny<ExecutionContext>(), source.Token));
+            mockBot.Verify(m => m.Execute(It.IsAny<IBotOperation<int>>(), It.IsAny<ExecutionContext>(), source.Token));
         }
 
         [TestMethod]
@@ -74,11 +72,10 @@ namespace Trybot.Tests
             var mockBot = this.CreateMockBot(policy);
 
             var source = new CancellationTokenSource();
-            Action<ExecutionContext, CancellationToken> action = (ctx, t) => { };
 
-            await policy.ExecuteAsync(action, source.Token);
+            await policy.ExecuteAsync((ctx, t) => { }, source.Token);
 
-            mockBot.Verify(m => m.ExecuteAsync(action, It.IsAny<ExecutionContext>(), source.Token));
+            mockBot.Verify(m => m.ExecuteAsync(It.IsAny<IAsyncBotOperation>(), It.IsAny<ExecutionContext>(), source.Token));
         }
 
         [TestMethod]
@@ -88,11 +85,10 @@ namespace Trybot.Tests
             var mockBot = this.CreateMockBot(policy);
 
             var source = new CancellationTokenSource();
-            Func<ExecutionContext, CancellationToken, Task> operation = (ctx, t) => Task.FromResult(0);
 
-            await policy.ExecuteAsync(operation, source.Token);
+            await policy.ExecuteAsync((ctx, t) => Task.FromResult(0), source.Token);
 
-            mockBot.Verify(m => m.ExecuteAsync(operation, It.IsAny<ExecutionContext>(), source.Token));
+            mockBot.Verify(m => m.ExecuteAsync(It.IsAny<IAsyncBotOperation>(), It.IsAny<ExecutionContext>(), source.Token));
         }
 
         [TestMethod]
@@ -102,11 +98,10 @@ namespace Trybot.Tests
             var mockBot = this.CreateMockBot(policy);
 
             var source = new CancellationTokenSource();
-            Func<ExecutionContext, CancellationToken, int> operation = (ctx, t) => 0;
 
-            await policy.ExecuteAsync(operation, source.Token);
+            await policy.ExecuteAsync((ctx, t) => 0, source.Token);
 
-            mockBot.Verify(m => m.ExecuteAsync(operation, It.IsAny<ExecutionContext>(), source.Token));
+            mockBot.Verify(m => m.ExecuteAsync(It.IsAny<IAsyncBotOperation<int>>(), It.IsAny<ExecutionContext>(), source.Token));
         }
 
         [TestMethod]
@@ -116,11 +111,10 @@ namespace Trybot.Tests
             var mockBot = this.CreateMockBot(policy);
 
             var source = new CancellationTokenSource();
-            Func<ExecutionContext, CancellationToken, Task<int>> operation = (ctx, t) => Task.FromResult(0);
 
-            await policy.ExecuteAsync(operation, source.Token);
+            await policy.ExecuteAsync((ctx, t) => Task.FromResult(0), source.Token);
 
-            mockBot.Verify(m => m.ExecuteAsync(operation, It.IsAny<ExecutionContext>(), source.Token));
+            mockBot.Verify(m => m.ExecuteAsync(It.IsAny<IAsyncBotOperation<int>>(), It.IsAny<ExecutionContext>(), source.Token));
         }
     }
 }
