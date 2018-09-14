@@ -21,10 +21,10 @@ namespace Trybot.Retry
             await TaskDelayer.Sleep(waitTime, token)
                 .ConfigureAwait(context.BotPolicyConfiguration.ContinueOnCapturedContext);
 
-        public static TimeSpan CalculateNextDelay<TResult>(RetryConfiguration<TResult> configuration, int currentAttempt, TResult result) =>
-            configuration.CalculateNextDelay(currentAttempt, result);
+        public static TimeSpan CalculateNextDelay<TResult>(RetryConfiguration<TResult> configuration, int currentAttempt, Exception exception, TResult result) =>
+            configuration.CalculateNextDelay(currentAttempt, exception, result);
 
-        public static TimeSpan CalculateNextDelay(RetryConfiguration configuration, int currentAttempt) =>
-            configuration.CalculateNextDelay(currentAttempt);
+        public static TimeSpan CalculateNextDelay(RetryConfiguration configuration, int currentAttempt, Exception exception) =>
+            configuration.CalculateNextDelay(currentAttempt, exception);
     }
 }

@@ -82,7 +82,8 @@ namespace Trybot.Tests.RetryTests
         [TestMethod]
         public void RetryTests_Action_Fail_Wait()
         {
-            var policy = this.CreatePolicyWithRetry(this.CreateConfiguration(5).WaitBetweenAttempts(attempt => TimeSpan.FromMilliseconds(200)));
+            var policy = this.CreatePolicyWithRetry(this.CreateConfiguration(5)
+                .WaitBetweenAttempts((attempt, ex) => TimeSpan.FromMilliseconds(200)));
             var counter = 0;
             var source = new CancellationTokenSource();
             source.CancelAfter(TimeSpan.FromMilliseconds(500));

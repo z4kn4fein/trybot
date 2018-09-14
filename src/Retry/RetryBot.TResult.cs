@@ -27,7 +27,7 @@ namespace Trybot.Retry
 
                 if (RetryBotUtils.HasMaxAttemptsReached(base.Configuration, currentAttempt)) break;
 
-                var nextDelay = base.Configuration.CalculateNextDelay(currentAttempt, tryResult.OperationResult);
+                var nextDelay = base.Configuration.CalculateNextDelay(currentAttempt, tryResult.Exception, tryResult.OperationResult);
                 base.Configuration.RaiseRetryEvent(tryResult.OperationResult, tryResult.Exception, AttemptContext.New(currentAttempt, nextDelay, context));
 
                 RetryBotUtils.Wait(nextDelay, token);
@@ -54,8 +54,8 @@ namespace Trybot.Retry
 
                 if (RetryBotUtils.HasMaxAttemptsReached(base.Configuration, currentAttempt)) break;
 
-                var nextDelay = base.Configuration.CalculateNextDelay(currentAttempt, tryResult.OperationResult);
-                await base.Configuration.RaiseRetryEventAsync(tryResult.OperationResult, tryResult.Exception, 
+                var nextDelay = base.Configuration.CalculateNextDelay(currentAttempt, tryResult.Exception, tryResult.OperationResult);
+                await base.Configuration.RaiseRetryEventAsync(tryResult.OperationResult, tryResult.Exception,
                         AttemptContext.New(currentAttempt, nextDelay, context), token)
                     .ConfigureAwait(context.BotPolicyConfiguration.ContinueOnCapturedContext);
 

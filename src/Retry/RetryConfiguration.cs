@@ -19,7 +19,7 @@ namespace Trybot.Retry
             return this;
         }
 
-        public RetryConfiguration WaitBetweenAttempts(Func<int, TimeSpan> retryStrategy)
+        public RetryConfiguration WaitBetweenAttempts(Func<int, Exception, TimeSpan> retryStrategy)
         {
             this.RetryStrategy = retryStrategy;
             return this;
@@ -46,7 +46,7 @@ namespace Trybot.Retry
 
     public class RetryConfiguration<TResult> : RetryConfigurationBase, IRetryConfiguration<RetryConfiguration<TResult>, TResult>
     {
-        private Func<int, TResult, TimeSpan> resultRetryStrategy;
+        private Func<int, Exception, TResult, TimeSpan> resultRetryStrategy;
         private Func<TResult, bool> resultPolicy;
         private Action<TResult, Exception, AttemptContext> retryHandlerWithResult;
         private Func<TResult, Exception, AttemptContext, CancellationToken, Task> asyncRetryHandlerWithResult;
@@ -63,7 +63,7 @@ namespace Trybot.Retry
             return this;
         }
 
-        public RetryConfiguration<TResult> WaitBetweenAttempts(Func<int, TimeSpan> retryStrategy)
+        public RetryConfiguration<TResult> WaitBetweenAttempts(Func<int, Exception, TimeSpan> retryStrategy)
         {
             this.RetryStrategy = retryStrategy;
             return this;
@@ -87,7 +87,7 @@ namespace Trybot.Retry
             return this;
         }
 
-        public RetryConfiguration<TResult> WaitBetweenAttempts(Func<int, TResult, TimeSpan> resultRetryStrategy)
+        public RetryConfiguration<TResult> WaitBetweenAttempts(Func<int, Exception, TResult, TimeSpan> resultRetryStrategy)
         {
             this.resultRetryStrategy = resultRetryStrategy;
             return this;
@@ -114,8 +114,8 @@ namespace Trybot.Retry
         internal bool AcceptsResult(TResult result) =>
             !this.resultPolicy?.Invoke(result) ?? true;
 
-        internal TimeSpan CalculateNextDelay(int currentAttempt, TResult result) =>
-            this.resultRetryStrategy?.Invoke(currentAttempt, result) ?? this.RetryStrategy(currentAttempt);
+        internal TimeSpan CalculateNextDelay(int currentAttempt, Exception exception, TResult result) =>
+            this.resultRetryStrategy?.Invoke(currentAttempt, exception, result) ?? this.RetryStrategy(currentAttempt, exception);
 
         internal void RaiseRetryEvent(TResult result, Exception exception, AttemptContext context)
         {

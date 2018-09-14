@@ -140,7 +140,8 @@ namespace Trybot.Tests.RetryTests
         [TestMethod]
         public async Task RetryTests_Func_Fail_Wait()
         {
-            var policy = this.CreatePolicyWithRetry(this.CreateConfiguration<int>(5).WaitBetweenAttempts(attempt => TimeSpan.FromMilliseconds(200)));
+            var policy = this.CreatePolicyWithRetry(this.CreateConfiguration<int>(5)
+                .WaitBetweenAttempts((attempt, ex) => TimeSpan.FromMilliseconds(200)));
             var counter = 0;
             var result = 0;
             var source = new CancellationTokenSource();
@@ -164,7 +165,7 @@ namespace Trybot.Tests.RetryTests
         {
             var delayResult = 0;
             var nextDelay = TimeSpan.Zero;
-            var policy = this.CreatePolicyWithRetry(this.CreateConfiguration<int>(5).WaitBetweenAttempts((attempt, r) =>
+            var policy = this.CreatePolicyWithRetry(this.CreateConfiguration<int>(5).WaitBetweenAttempts((attempt, ex, r) =>
             {
                 delayResult = r;
                 return TimeSpan.FromMilliseconds(200);

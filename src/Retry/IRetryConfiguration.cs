@@ -11,7 +11,7 @@ namespace Trybot.Retry
 
         TConfiguration RetryIndefinitely();
 
-        TConfiguration WaitBetweenAttempts(Func<int, TimeSpan> retryStrategy);
+        TConfiguration WaitBetweenAttempts(Func<int, Exception, TimeSpan> retryStrategy);
 
         TConfiguration WhenExceptionOccurs(Func<Exception, bool> retryPolicy);
 
@@ -22,7 +22,7 @@ namespace Trybot.Retry
 
     public interface IRetryConfiguration<out TConfiguration, out TResult> : IRetryConfiguration<TConfiguration>
     {
-        TConfiguration WaitBetweenAttempts(Func<int, TResult, TimeSpan> resultRetryStrategy);
+        TConfiguration WaitBetweenAttempts(Func<int, Exception, TResult, TimeSpan> resultRetryStrategy);
 
         TConfiguration WhenResultIs(Func<TResult, bool> resultPolicy);
 

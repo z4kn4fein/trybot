@@ -73,20 +73,27 @@ namespace Trybot.Tests.RetryTests
         [TestMethod]
         public void RetryTests_Action_Fail_Wait()
         {
-            var policy = this.CreatePolicyWithRetry(this.CreateConfiguration<int>(5).WaitBetweenAttempts(attempt => TimeSpan.FromMilliseconds(200)));
+            Exception delayFactoryExceptionParam = null;
+            var policy = this.CreatePolicyWithRetry(this.CreateConfiguration<int>(5)
+                .WaitBetweenAttempts((attempt, ex) =>
+                {
+                    delayFactoryExceptionParam = ex;
+                    return TimeSpan.FromMilliseconds(200);
+                }));
             var counter = 0;
             var result = 0;
             var source = new CancellationTokenSource();
             source.CancelAfter(TimeSpan.FromMilliseconds(500));
-
+            var exception = new Exception();
             Assert.ThrowsException<OperationCanceledException>(() => result = policy
                 .Execute((ctx, t) =>
                 {
                     counter++;
-                    throw new Exception();
+                    throw exception;
                 }, source.Token));
 
             Assert.AreEqual(0, result);
+            Assert.AreSame(exception, delayFactoryExceptionParam);
             Assert.IsTrue(counter > 2 && counter < 5);
         }
 
@@ -95,7 +102,7 @@ namespace Trybot.Tests.RetryTests
         {
             var delayResult = 0;
             var nextDelay = TimeSpan.Zero;
-            var policy = this.CreatePolicyWithRetry(this.CreateConfiguration<int>(5).WaitBetweenAttempts((attempt, r) =>
+            var policy = this.CreatePolicyWithRetry(this.CreateConfiguration<int>(5).WaitBetweenAttempts((attempt, ex, r) =>
             {
                 delayResult = r;
                 return TimeSpan.FromMilliseconds(200);
