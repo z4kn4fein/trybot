@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <!--<TargetFrameworks>net45;netstandard1.0;portable-net45+win8+wpa81+wp8</TargetFrameworks>-->
-        <TargetFramework>netstandard1.0</TargetFramework>
+        <TargetFrameworks>net45;netstandard1.0;netstandard2.0;portable-net45+win8+wpa81+wp8</TargetFrameworks>
         <AssemblyName>Trybot</AssemblyName>
         <AssemblyTitle>Trybot</AssemblyTitle>
         <RootNamespace>Trybot</RootNamespace>
@@ -30,6 +29,9 @@
     <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.0'">
         <AssemblyTitle>Trybot .NET Standard 1.0</AssemblyTitle>
     </PropertyGroup>
+    <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+      <AssemblyTitle>Trybot .NET Standard 2.0</AssemblyTitle>
+    </PropertyGroup>
     <PropertyGroup Condition="'$(TargetFramework)' == 'portable-net45+win8+wpa81+wp8' And '$(MSBuildRuntimeType)' == 'Full'">
         <AssemblyTitle>Trybot Portable</AssemblyTitle>
         <IncludeProjectPriFile>false</IncludeProjectPriFile>
@@ -39,4 +41,12 @@
         <NugetTargetMoniker>.NETPortable,Version=v0.0,Profile=Profile259</NugetTargetMoniker>
         <LanguageTargets>$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets</LanguageTargets>
     </PropertyGroup>
+    <ItemGroup>
+      <Compile Remove="trybot.tests\**" />
+      <Compile Remove="trybot\**" />
+      <EmbeddedResource Remove="trybot.tests\**" />
+      <EmbeddedResource Remove="trybot\**" />
+      <None Remove="trybot.tests\**" />
+      <None Remove="trybot\**" />
+    </ItemGroup>
 </Project>

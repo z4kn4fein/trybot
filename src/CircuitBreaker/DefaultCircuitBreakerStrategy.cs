@@ -49,11 +49,9 @@ namespace Trybot.CircuitBreaker
 
         public override void OperationFailedInClosed()
         {
-            if(Interlocked.Increment(ref this.currentFailedOperationCount) >= this.maxFailureCountBeforeOpen)
-            {
-                this.Reset();
-                base.Switcher.Open(this.openStateDuration);
-            }
+            if (Interlocked.Increment(ref this.currentFailedOperationCount) < this.maxFailureCountBeforeOpen) return;
+            this.Reset();
+            base.Switcher.Open(this.openStateDuration);
         }
 
         public override void OperationFailedInHalfOpen()
@@ -67,11 +65,9 @@ namespace Trybot.CircuitBreaker
 
         public override void OperationSucceededInHalfOpen()
         {
-            if(Interlocked.Increment(ref this.currentSuccededOperationCount) >= this.minSuccessCountBeforeClose)
-            {
-                this.Reset();
-                base.Switcher.Close();
-            }
+            if (Interlocked.Increment(ref this.currentSuccededOperationCount) < this.minSuccessCountBeforeClose) return;
+            this.Reset();
+            base.Switcher.Close();
         }
 
         private void Reset()

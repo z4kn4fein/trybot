@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Trybot.CircuitBreaker
+﻿namespace Trybot.CircuitBreaker
 {
     public interface ICircuitBreakerStrategy
     {
