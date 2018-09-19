@@ -152,6 +152,7 @@ namespace Trybot.Tests.CircuitBreakerTests
                         {
                             counter++;
                             Assert.AreEqual(State.HalfOpen, state);
+                            Task.Delay(TimeSpan.FromMilliseconds(100)).Wait();
                         }, CancellationToken.None);
 
                     }
