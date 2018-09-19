@@ -30,7 +30,7 @@ build_script:
 - msbuild /t:Build /p:Configuration=%CONFIGURATION% trybot.sln
 
 after_build:
-- msbuild /t:Pack /p:IncludeSymbols=true /p:Configuration=%CONFIGURATION% /p:PackageOutputPath=..\..\artifacts src\trybot.csproj
+- msbuild /t:Pack /p:IncludeSymbols=true /p:Configuration=%CONFIGURATION% /p:PackageOutputPath=..\artifacts src\trybot.csproj
 
 artifacts:
 - path: artifacts\Trybot.*.nupkg

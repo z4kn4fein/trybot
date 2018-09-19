@@ -27,7 +27,7 @@ build_script:
 - msbuild /t:Build /p:Configuration=%configuration% trybot.sln
 
 after_build:
-- msbuild /t:Pack /p:IncludeSymbols=true /p:Configuration=%configuration% /p:PackageOutputPath=..\..\artifacts src\trybot.csproj
+- msbuild /t:Pack /p:IncludeSymbols=true /p:Configuration=%configuration% /p:PackageOutputPath=..\artifacts src\trybot.csproj
 
 test_script:
 - dotnet test test\trybot.tests.csproj  -f net45 -c %configuration% --no-build
