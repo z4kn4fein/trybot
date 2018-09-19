@@ -6,7 +6,13 @@ namespace Trybot.CircuitBreaker
     {
         protected Func<Exception, bool> ExceptionPolicy { get; set; }
 
-        internal ICircuitStateStore StateStore { get; set; }
+        internal Action<TimeSpan> OpenStateHandler { get; set; }
+
+        internal Action HalfOpenStateHandler { get; set; }
+
+        internal Action ClosedStateHandler { get; set; }
+
+        internal ICircuitStateStore StateStore { get; set; } = new InMemoryCircuitStateStore();
 
         internal bool HandlesException(Exception exception) =>
             this.ExceptionPolicy?.Invoke(exception) ?? false;
@@ -23,6 +29,24 @@ namespace Trybot.CircuitBreaker
         public CircuitBreakerConfiguration WithStateStore(ICircuitStateStore stateStore)
         {
             base.StateStore = stateStore;
+            return this;
+        }
+
+        public CircuitBreakerConfiguration OnOpen(Action<TimeSpan> openHandler)
+        {
+            base.OpenStateHandler = openHandler;
+            return this;
+        }
+
+        public CircuitBreakerConfiguration OnClosed(Action closedHandler)
+        {
+            base.ClosedStateHandler = closedHandler;
+            return this;
+        }
+
+        public CircuitBreakerConfiguration OnHalfOpen(Action halfOpenHandler)
+        {
+            base.HalfOpenStateHandler = halfOpenHandler;
             return this;
         }
     }
@@ -42,10 +66,28 @@ namespace Trybot.CircuitBreaker
             this.resultPolicy = resultPolicy;
             return this;
         }
-        
+
         public CircuitBreakerConfiguration<TResult> WithStateStore(ICircuitStateStore stateStore)
         {
             base.StateStore = stateStore;
+            return this;
+        }
+
+        public CircuitBreakerConfiguration<TResult> OnOpen(Action<TimeSpan> openHandler)
+        {
+            base.OpenStateHandler = openHandler;
+            return this;
+        }
+
+        public CircuitBreakerConfiguration<TResult> OnClosed(Action closedHandler)
+        {
+            base.ClosedStateHandler = closedHandler;
+            return this;
+        }
+
+        public CircuitBreakerConfiguration<TResult> OnHalfOpen(Action halfOpenHandler)
+        {
+            base.HalfOpenStateHandler = halfOpenHandler;
             return this;
         }
 

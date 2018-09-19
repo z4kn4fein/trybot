@@ -4,7 +4,7 @@ namespace Trybot.CircuitBreaker
 {
     internal class InMemoryCircuitStateStore : ICircuitStateStore
     {
-        private CircuitState storedState;
+        private CircuitState storedState = CircuitState.Closed;
 
         public CircuitState Get() => this.storedState;
 

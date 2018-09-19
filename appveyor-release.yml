@@ -1,14 +1,17 @@
 deploy:
 - provider: NuGet
-  server: https://www.myget.org/F/pcsajtai/api/v2/package
-  skip_symbols: true
   api_key:
-    secure: 2bITagXOj2s3bTJaGXh8/iyWtST8OQOFaMM+0GAKgZts9OjCVCiV7C+E/0SYsM6M
+    secure: doqtwSE1NadH7pf4jqYifDu4tcXzsNiJtPWOccnbUrhSnIJX+5js7m8z+kV9LNJ2
+
+- provider: GitHub
+  tag: $(build_version)
+  release: Trybot v$(build_version)
+  auth_token:
+    secure: TaIug8cHioxT2qDznFpGtDinZiDi+20pEMQZUVAATWCvGLG9Y5LrjaxDUQtGyt38
+  artifact: /.*\.nupkg/
 
 environment:
   build_version: ''
-
-skip_tags: true
 
 image: Visual Studio 2017
   
@@ -17,10 +20,10 @@ configuration: Release
 install:
 - ps: |
     $env:build_version = Get-Content ".version"
-    Update-AppveyorBuild -Version "$env:build_version-preview-$env:appveyor_build_number"
+    Update-AppveyorBuild -Version "$env:build_version-$env:appveyor_build_number"
 
 before_build:
-- ps: . .\patch-version.ps1 "src\trybot.csproj" $env:build_version $env:appveyor_build_version
+- ps: . .\patch-version.ps1 "src\trybot.csproj" $env:build_version $env:build_version
 
 build_script:
 - msbuild /t:Restore /p:Configuration=%CONFIGURATION% trybot.sln
@@ -28,12 +31,6 @@ build_script:
 
 after_build:
 - msbuild /t:Pack /p:IncludeSymbols=true /p:Configuration=%CONFIGURATION% /p:PackageOutputPath=..\..\artifacts src\trybot.csproj
-
-test_script:
-- ps: . .\set-debug-type.ps1 "src\trybot.csproj"
-- dotnet test test\trybot.tests.csproj  -f net45 -c %CONFIGURATION% --no-build
-- dotnet test test\trybot.tests.csproj  -f netcoreapp2.0 -c %CONFIGURATION% --no-build
-- ps: . .\coverage.ps1
 
 artifacts:
 - path: artifacts\Trybot.*.nupkg
