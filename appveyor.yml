@@ -23,16 +23,18 @@ before_build:
 - ps: . .\patch-version.ps1 "src\trybot.csproj" $env:build_version $env:appveyor_build_version
 
 build_script:
-- msbuild /t:Restore /p:Configuration=%CONFIGURATION% trybot.sln
-- msbuild /t:Build /p:Configuration=%CONFIGURATION% trybot.sln
+- msbuild /t:Restore /p:Configuration=%configuration% trybot.sln
+- msbuild /t:Build /p:Configuration=%configuration% trybot.sln
 
 after_build:
-- msbuild /t:Pack /p:IncludeSymbols=true /p:Configuration=%CONFIGURATION% /p:PackageOutputPath=..\..\artifacts src\trybot.csproj
+- msbuild /t:Pack /p:IncludeSymbols=true /p:Configuration=%configuration% /p:PackageOutputPath=..\..\artifacts src\trybot.csproj
 
 test_script:
+- dotnet test test\trybot.tests.csproj  -f net45 -c %configuration% --no-build
+- dotnet test test\trybot.tests.csproj  -f netcoreapp2.0 -c %configuration% --no-build
+
+after_test:
 - ps: . .\set-debug-type.ps1 "src\trybot.csproj"
-- dotnet test test\trybot.tests.csproj  -f net45 -c %CONFIGURATION% --no-build
-- dotnet test test\trybot.tests.csproj  -f netcoreapp2.0 -c %CONFIGURATION% --no-build
 - ps: . .\coverage.ps1
 
 artifacts:
