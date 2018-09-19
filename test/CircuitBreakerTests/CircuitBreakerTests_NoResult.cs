@@ -60,7 +60,7 @@ namespace Trybot.Tests.CircuitBreakerTests
             await policy.ExecuteAsync((ex, t) =>
             {
                 counter++;
-                return Task.CompletedTask;
+                return Task.FromResult(0);
             }, CancellationToken.None);
 
             Assert.AreEqual(1, counter);
