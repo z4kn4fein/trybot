@@ -4,20 +4,26 @@ using System.Threading.Tasks;
 
 namespace Trybot.Fallback
 {
+    /// <summary>
+    /// Represents the configuration of the fallback bot.
+    /// </summary>
     public class FallbackConfiguration : FallbackConfigurationBase, IFallbackConfiguration<FallbackConfiguration>
     {
+        /// <inheritdoc />
         public FallbackConfiguration WhenExceptionOccurs(Func<Exception, bool> fallbackPolicy)
         {
             base.FallbackPolicy = fallbackPolicy;
             return this;
         }
 
+        /// <inheritdoc />
         public FallbackConfiguration OnFallback(Action<Exception, ExecutionContext> onFallbackAction)
         {
             base.FallbackHandler = onFallbackAction;
             return this;
         }
 
+        /// <inheritdoc />
         public FallbackConfiguration OnFallbackAsync(Func<Exception, ExecutionContext, CancellationToken, Task> onFallbackFunc)
         {
             base.AsyncFallbackHandler = onFallbackFunc;
@@ -25,6 +31,9 @@ namespace Trybot.Fallback
         }
     }
 
+    /// <summary>
+    /// Represents the configuration of the fallback bot.
+    /// </summary>
     public class FallbackConfiguration<TResult> : FallbackConfigurationBase, IFallbackConfiguration<FallbackConfiguration<TResult>, TResult>
     {
         internal Func<TResult, bool> ResultPolicy { get; set; }
@@ -33,36 +42,42 @@ namespace Trybot.Fallback
 
         internal Func<TResult, Exception, ExecutionContext, CancellationToken, Task<TResult>> AsyncFallbackHandlerWithResult { get; set; }
 
+        /// <inheritdoc />
         public FallbackConfiguration<TResult> WhenExceptionOccurs(Func<Exception, bool> fallbackPolicy)
         {
             base.FallbackPolicy = fallbackPolicy;
             return this;
         }
 
+        /// <inheritdoc />
         public FallbackConfiguration<TResult> OnFallback(Action<Exception, ExecutionContext> onFallbackAction)
         {
             base.FallbackHandler = onFallbackAction;
             return this;
         }
 
+        /// <inheritdoc />
         public FallbackConfiguration<TResult> OnFallbackAsync(Func<Exception, ExecutionContext, CancellationToken, Task> onFallbackFunc)
         {
             base.AsyncFallbackHandler = onFallbackFunc;
             return this;
         }
 
+        /// <inheritdoc />
         public FallbackConfiguration<TResult> WhenResultIs(Func<TResult, bool> resultPolicy)
         {
             this.ResultPolicy = resultPolicy;
             return this;
         }
 
+        /// <inheritdoc />
         public FallbackConfiguration<TResult> OnFallback(Func<TResult, Exception, ExecutionContext, TResult> onFallbackAction)
         {
             this.FallbackHandlerWithResult = onFallbackAction;
             return this;
         }
 
+        /// <inheritdoc />
         public FallbackConfiguration<TResult> OnFallbackAsync(Func<TResult, Exception, ExecutionContext, CancellationToken, Task<TResult>> onFallbackFunc)
         {
             this.AsyncFallbackHandlerWithResult = onFallbackFunc;

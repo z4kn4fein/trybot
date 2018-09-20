@@ -5,38 +5,47 @@ using Trybot.Retry.Model;
 
 namespace Trybot.Retry
 {
+    /// <summary>
+    /// Represents the configuration of the retry bot.
+    /// </summary>
     public class RetryConfiguration : RetryConfigurationBase, IRetryConfiguration<RetryConfiguration>
     {
+        /// <inheritdoc />
         public RetryConfiguration WithMaxAttemptCount(int numOfAttempts)
         {
             this.RetryCount = numOfAttempts;
             return this;
         }
 
+        /// <inheritdoc />
         public RetryConfiguration RetryIndefinitely()
         {
             this.RetryCount = int.MaxValue;
             return this;
         }
 
+        /// <inheritdoc />
         public RetryConfiguration WaitBetweenAttempts(Func<int, Exception, TimeSpan> retryStrategy)
         {
             this.RetryStrategy = retryStrategy;
             return this;
         }
 
+        /// <inheritdoc />
         public RetryConfiguration WhenExceptionOccurs(Func<Exception, bool> retryPolicy)
         {
             this.RetryPolicy = retryPolicy;
             return this;
         }
 
+        /// <inheritdoc />
         public RetryConfiguration OnRetry(Action<Exception, AttemptContext> onRetryAction)
         {
             this.RetryHandler = onRetryAction;
             return this;
         }
 
+        /// <inheritdoc />
         public RetryConfiguration OnRetryAsync(Func<Exception, AttemptContext, CancellationToken, Task> onRetryFunc)
         {
             this.AsyncRetryHandler = onRetryFunc;
@@ -44,6 +53,9 @@ namespace Trybot.Retry
         }
     }
 
+    /// <summary>
+    /// Represents the configuration of the retry bot.
+    /// </summary>
     public class RetryConfiguration<TResult> : RetryConfigurationBase, IRetryConfiguration<RetryConfiguration<TResult>, TResult>
     {
         private Func<int, Exception, TResult, TimeSpan> resultRetryStrategy;
@@ -51,60 +63,70 @@ namespace Trybot.Retry
         private Action<TResult, Exception, AttemptContext> retryHandlerWithResult;
         private Func<TResult, Exception, AttemptContext, CancellationToken, Task> asyncRetryHandlerWithResult;
 
+        /// <inheritdoc />
         public RetryConfiguration<TResult> WithMaxAttemptCount(int numOfAttempts)
         {
             this.RetryCount = numOfAttempts;
             return this;
         }
 
+        /// <inheritdoc />
         public RetryConfiguration<TResult> RetryIndefinitely()
         {
             this.RetryCount = int.MaxValue;
             return this;
         }
 
+        /// <inheritdoc />
         public RetryConfiguration<TResult> WaitBetweenAttempts(Func<int, Exception, TimeSpan> retryStrategy)
         {
             this.RetryStrategy = retryStrategy;
             return this;
         }
 
+        /// <inheritdoc />
         public RetryConfiguration<TResult> WhenExceptionOccurs(Func<Exception, bool> retryPolicy)
         {
             this.RetryPolicy = retryPolicy;
             return this;
         }
 
+        /// <inheritdoc />
         public RetryConfiguration<TResult> OnRetry(Action<Exception, AttemptContext> onRetryAction)
         {
             this.RetryHandler = onRetryAction;
             return this;
         }
 
+        /// <inheritdoc />
         public RetryConfiguration<TResult> OnRetryAsync(Func<Exception, AttemptContext, CancellationToken, Task> onRetryFunc)
         {
             this.AsyncRetryHandler = onRetryFunc;
             return this;
         }
 
+        /// <inheritdoc />
         public RetryConfiguration<TResult> WaitBetweenAttempts(Func<int, Exception, TResult, TimeSpan> resultRetryStrategy)
         {
             this.resultRetryStrategy = resultRetryStrategy;
             return this;
         }
 
+        /// <inheritdoc />
         public RetryConfiguration<TResult> WhenResultIs(Func<TResult, bool> resultPolicy)
         {
             this.resultPolicy = resultPolicy;
             return this;
         }
 
+        /// <inheritdoc />
         public RetryConfiguration<TResult> OnRetry(Action<TResult, Exception, AttemptContext> onRetryAction)
         {
             this.retryHandlerWithResult = onRetryAction;
             return this;
         }
 
+        /// <inheritdoc />
         public RetryConfiguration<TResult> OnRetryAsync(Func<TResult, Exception, AttemptContext, CancellationToken, Task> onRetryFunc)
         {
             this.asyncRetryHandlerWithResult = onRetryFunc;

@@ -2,6 +2,9 @@ using System;
 
 namespace Trybot.CircuitBreaker
 {
+    /// <summary>
+    /// Represents the fluent api of the circuit breaker configuration.
+    /// </summary>
     public interface ICircuitBreakerConfiguration<out TConfiguration>
     {
         TConfiguration BrakeWhenExceptionOccurs(Func<Exception, bool> exceptionPolicy);
@@ -15,7 +18,10 @@ namespace Trybot.CircuitBreaker
         TConfiguration OnHalfOpen(Action halfOpenHandler);
     }
 
-    public interface ICircuitBreakerConfiguration<out TConfiguration, TResult> : ICircuitBreakerConfiguration<TConfiguration>
+    /// <summary>
+    /// Represents the fluent api of the circuit breaker configuration.
+    /// </summary>
+    public interface ICircuitBreakerConfiguration<out TConfiguration, out TResult> : ICircuitBreakerConfiguration<TConfiguration>
     {
         TConfiguration BrakeWhenResultIs(Func<TResult, bool> resultPolicy);
     }

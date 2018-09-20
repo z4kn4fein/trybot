@@ -25,6 +25,6 @@ namespace Trybot.Retry.Model
         public static TryResult<TResult> Succeeded(TResult result = default) => new TryResult<TResult> { IsSucceeded = true, OperationResult = result };
 
 
-        public static new TryResult<TResult> Default = new TryResult<TResult>();
+        public new static TryResult<TResult> Default = new TryResult<TResult>();
     }
 }

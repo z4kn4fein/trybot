@@ -4,7 +4,7 @@ using Trybot.Operations;
 
 namespace Trybot.Passthrough
 {
-    public class PassthroughBot : Bot
+    internal class PassthroughBot : Bot
     {
         internal PassthroughBot(Bot innerBot) : base(innerBot)
         { }
@@ -16,7 +16,7 @@ namespace Trybot.Passthrough
             this.InnerBot.ExecuteAsync(operation, context, token);
     }
 
-    public class PassthroughBot<TResult> : Bot<TResult>
+    internal class PassthroughBot<TResult> : Bot<TResult>
     {
         internal PassthroughBot(Bot<TResult> innerBot) : base(innerBot)
         { }

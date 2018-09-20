@@ -5,7 +5,7 @@ using Trybot.Operations;
 
 namespace Trybot.Fallback
 {
-    public class FallbackBot : ConfigurableBot<FallbackConfiguration>
+    internal class FallbackBot : ConfigurableBot<FallbackConfiguration>
     {
         internal FallbackBot(Bot innerBot, FallbackConfiguration configuration) : base(innerBot, configuration)
         { }

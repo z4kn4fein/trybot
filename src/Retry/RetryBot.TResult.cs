@@ -8,7 +8,7 @@ using Trybot.Utils;
 
 namespace Trybot.Retry
 {
-    public class RetryBot<TResult> : ConfigurableBot<RetryConfiguration<TResult>, TResult>
+    internal class RetryBot<TResult> : ConfigurableBot<RetryConfiguration<TResult>, TResult>
     {
         internal RetryBot(Bot<TResult> innerPolicy, RetryConfiguration<TResult> configuration) : base(innerPolicy, configuration)
         { }

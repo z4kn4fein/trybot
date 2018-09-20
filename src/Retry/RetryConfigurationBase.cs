@@ -5,13 +5,16 @@ using Trybot.Retry.Model;
 
 namespace Trybot.Retry
 {
+    /// <summary>
+    /// Contains the shared members of the different types of retry configurations.
+    /// </summary>
     public class RetryConfigurationBase
     {
-        protected int RetryCount { get; set; } = 1;
-        protected Func<int, Exception, TimeSpan> RetryStrategy { get; set; } = (attempt, ex) => TimeSpan.Zero;
-        protected Func<Exception, bool> RetryPolicy { get; set; }
-        protected Action<Exception, AttemptContext> RetryHandler { get; set; }
-        protected Func<Exception, AttemptContext, CancellationToken, Task> AsyncRetryHandler { get; set; }
+        internal int RetryCount { get; set; } = 1;
+        internal Func<int, Exception, TimeSpan> RetryStrategy { get; set; } = (attempt, ex) => TimeSpan.Zero;
+        internal Func<Exception, bool> RetryPolicy { get; set; }
+        internal Action<Exception, AttemptContext> RetryHandler { get; set; }
+        internal Func<Exception, AttemptContext, CancellationToken, Task> AsyncRetryHandler { get; set; }
 
         internal bool HandlesException(Exception exception) =>
             this.RetryPolicy?.Invoke(exception) ?? false;

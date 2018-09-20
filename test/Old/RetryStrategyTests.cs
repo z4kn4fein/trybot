@@ -20,7 +20,7 @@ namespace Trybot.Tests
         public void RetryStrategyTests_CubicRetryStrategyTest()
         {
             var strategy = new CubicRetryStrategy(5, TimeSpan.FromMilliseconds(5));
-#if NETCOREAPP2_0
+#if NETCOREAPP2_0 || NETCOREAPP1_0
             var method = typeof(CubicRetryStrategy).GetMethod("GetNextDelay", BindingFlags.Instance | BindingFlags.NonPublic);
             var result = method.Invoke(strategy, new object[] { 2 });
 #else
@@ -34,7 +34,7 @@ namespace Trybot.Tests
         public void RetryStrategyTests_LinearRetryStrategyTest()
         {
             var strategy = new LinearRetryStrategy(5, TimeSpan.FromMilliseconds(5));
-#if NETCOREAPP2_0
+#if NETCOREAPP2_0 || NETCOREAPP1_0
             var method = typeof(LinearRetryStrategy).GetMethod("GetNextDelay", BindingFlags.Instance | BindingFlags.NonPublic);
             var result = method.Invoke(strategy, new object[] { 2 });
 #else
@@ -48,7 +48,7 @@ namespace Trybot.Tests
         public void RetryStrategyTests_SquareRetryStrategyTest()
         {
             var strategy = new SquareRetryStartegy(5, TimeSpan.FromMilliseconds(5));
-#if NETCOREAPP2_0
+#if NETCOREAPP2_0 || NETCOREAPP1_0
             var method = typeof(SquareRetryStartegy).GetMethod("GetNextDelay", BindingFlags.Instance | BindingFlags.NonPublic);
             var result = method.Invoke(strategy, new object[] { 2 });
 #else

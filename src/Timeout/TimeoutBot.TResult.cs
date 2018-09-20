@@ -7,7 +7,7 @@ using Trybot.Utils;
 
 namespace Trybot.Timeout
 {
-    public class TimeoutBot<TResult> : ConfigurableBot<TimeoutConfiguration, TResult>
+    internal class TimeoutBot<TResult> : ConfigurableBot<TimeoutConfiguration, TResult>
     {
         internal TimeoutBot(Bot<TResult> innerPolicy, TimeoutConfiguration configuration) : base(innerPolicy, configuration)
         { }

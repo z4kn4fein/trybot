@@ -4,6 +4,9 @@ using System.Threading.Tasks;
 
 namespace Trybot.Fallback
 {
+    /// <summary>
+    /// Contains the shared members of the different types of fallback configurations.
+    /// </summary>
     public class FallbackConfigurationBase
     {
         internal Func<Exception, bool> FallbackPolicy { get; set; }
