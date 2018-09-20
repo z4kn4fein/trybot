@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,7 +8,7 @@ using Trybot.CircuitBreaker.Exceptions;
 namespace Trybot.Tests.CircuitBreakerTests
 {
     [TestClass]
-    public class CircuitBreakerTestsNoResult
+    public class CircuitBreakerTests
     {
         enum State
         {
@@ -17,13 +17,13 @@ namespace Trybot.Tests.CircuitBreakerTests
             HalfOpen
         }
 
-        private IBotPolicy CreatePolicy(CircuitBreakerConfiguration conf, DefaultCircuitBreakerStrategyConfiguration strConf) =>
-            new BotPolicy(config => config
+        private IBotPolicy<TResult> CreatePolicy<TResult>(CircuitBreakerConfiguration<TResult> conf, DefaultCircuitBreakerStrategyConfiguration strConf) =>
+            new BotPolicy<TResult>(config => config
                 .Configure(botconfig => botconfig
                     .CircuitBreaker(conf, strConf)));
 
-        private CircuitBreakerConfiguration CreateConfiguration() =>
-            new CircuitBreakerConfiguration()
+        private CircuitBreakerConfiguration<TResult> CreateConfiguration<TResult>() =>
+            new CircuitBreakerConfiguration<TResult>()
                 .BrakeWhenExceptionOccurs(ex => true);
 
         private DefaultCircuitBreakerStrategyConfiguration CreateStrategyConfiguration(int failure, int success, TimeSpan openDuration) =>
@@ -35,7 +35,7 @@ namespace Trybot.Tests.CircuitBreakerTests
         [TestMethod]
         public void CircuitBreakerTests_Ok()
         {
-            var policy = this.CreatePolicy(this.CreateConfiguration(), this.CreateStrategyConfiguration(2, 2, TimeSpan.FromMilliseconds(200)));
+            var policy = this.CreatePolicy(this.CreateConfiguration<int>(), this.CreateStrategyConfiguration(2, 2, TimeSpan.FromMilliseconds(200)));
             var counter = 0;
             policy.Execute((ex, t) => counter++, CancellationToken.None);
 
@@ -45,7 +45,7 @@ namespace Trybot.Tests.CircuitBreakerTests
         [TestMethod]
         public async Task CircuitBreakerTests_Ok_Async()
         {
-            var policy = this.CreatePolicy(this.CreateConfiguration(), this.CreateStrategyConfiguration(2, 2, TimeSpan.FromMilliseconds(200)));
+            var policy = this.CreatePolicy(this.CreateConfiguration<int>(), this.CreateStrategyConfiguration(2, 2, TimeSpan.FromMilliseconds(200)));
             var counter = 0;
             await policy.ExecuteAsync((ex, t) => counter++, CancellationToken.None);
 
@@ -55,7 +55,7 @@ namespace Trybot.Tests.CircuitBreakerTests
         [TestMethod]
         public async Task CircuitBreakerTests_Ok_Async_Task()
         {
-            var policy = this.CreatePolicy(this.CreateConfiguration(), this.CreateStrategyConfiguration(2, 2, TimeSpan.FromMilliseconds(200)));
+            var policy = this.CreatePolicy(this.CreateConfiguration<int>(), this.CreateStrategyConfiguration(2, 2, TimeSpan.FromMilliseconds(200)));
             var counter = 0;
             await policy.ExecuteAsync((ex, t) =>
             {
@@ -71,7 +71,7 @@ namespace Trybot.Tests.CircuitBreakerTests
         {
             var state = State.Closed;
 
-            var policy = this.CreatePolicy(this.CreateConfiguration()
+            var policy = this.CreatePolicy(this.CreateConfiguration<int>()
                 .OnClosed(() => state = State.Closed)
                 .OnHalfOpen(() => state = State.HalfOpen)
                 .OnOpen(ts =>
@@ -89,7 +89,7 @@ namespace Trybot.Tests.CircuitBreakerTests
             Assert.AreEqual(State.Open, state);
 
             var openException = Assert.ThrowsException<CircuitOpenException>(() =>
-                policy.Execute((ctx, t) => { }, CancellationToken.None));
+                policy.Execute((ctx, t) => 0, CancellationToken.None));
 
             Assert.IsTrue(openException.RemainingOpenTime <= TimeSpan.FromMilliseconds(200) &&
                           openException.RemainingOpenTime > TimeSpan.FromMilliseconds(100));
@@ -102,12 +102,14 @@ namespace Trybot.Tests.CircuitBreakerTests
             {
                 counter++;
                 Assert.AreEqual(State.HalfOpen, state);
+                return 0;
             }, CancellationToken.None);
 
             policy.Execute((ctx, t) =>
             {
                 counter++;
                 Assert.AreEqual(State.HalfOpen, state);
+                return 0;
             }, CancellationToken.None);
 
             Assert.AreEqual(State.Closed, state);
@@ -120,7 +122,7 @@ namespace Trybot.Tests.CircuitBreakerTests
         {
             var state = State.Closed;
 
-            var policy = this.CreatePolicy(this.CreateConfiguration()
+            var policy = this.CreatePolicy(this.CreateConfiguration<int>()
                 .OnClosed(() => state = State.Closed)
                 .OnHalfOpen(() => state = State.HalfOpen)
                 .OnOpen(ts =>
@@ -132,13 +134,17 @@ namespace Trybot.Tests.CircuitBreakerTests
 
             // brake the circuit
             for (var i = 0; i++ < 2;)
-                await Assert.ThrowsExceptionAsync<InvalidOperationException>(() =>
-                     policy.ExecuteAsync((ctx, t) => throw new InvalidOperationException(), CancellationToken.None));
+                await Assert.ThrowsExceptionAsync<NullReferenceException>(() =>
+                     policy.ExecuteAsync((ctx, t) => {
+                         object o = null;
+                         o.GetHashCode();
+                         return Task.FromResult(0);
+                     }, CancellationToken.None));
 
             Assert.AreEqual(State.Open, state);
 
             var openException = await Assert.ThrowsExceptionAsync<CircuitOpenException>(() =>
-                policy.ExecuteAsync((ctx, t) => { }, CancellationToken.None));
+                policy.ExecuteAsync((ctx, t) => 0, CancellationToken.None));
 
             Assert.IsTrue(openException.RemainingOpenTime <= TimeSpan.FromMilliseconds(200) &&
                           openException.RemainingOpenTime > TimeSpan.FromMilliseconds(100));
@@ -158,6 +164,7 @@ namespace Trybot.Tests.CircuitBreakerTests
             {
                 counter++;
                 Assert.AreEqual(State.HalfOpen, state);
+                return 0;
             }, CancellationToken.None);
 
             Assert.AreEqual(State.Closed, state);
@@ -170,7 +177,7 @@ namespace Trybot.Tests.CircuitBreakerTests
         {
             var state = State.Closed;
 
-            var policy = this.CreatePolicy(this.CreateConfiguration()
+            var policy = this.CreatePolicy(this.CreateConfiguration<int>()
                 .OnClosed(() => state = State.Closed)
                 .OnHalfOpen(() => state = State.HalfOpen)
                 .OnOpen(ts =>
@@ -188,7 +195,7 @@ namespace Trybot.Tests.CircuitBreakerTests
             Assert.AreEqual(State.Open, state);
 
             var openException = Assert.ThrowsException<CircuitOpenException>(() =>
-                policy.Execute((ctx, t) => { }, CancellationToken.None));
+                policy.Execute((ctx, t) => 0, CancellationToken.None));
 
             // wait until the open duration is being expired
             Thread.Sleep(openException.RemainingOpenTime.Add(TimeSpan.FromMilliseconds(10)));
@@ -203,6 +210,7 @@ namespace Trybot.Tests.CircuitBreakerTests
                             counter++;
                             Assert.AreEqual(State.HalfOpen, state);
                             Task.Delay(TimeSpan.FromMilliseconds(100)).Wait();
+                            return 0;
                         }, CancellationToken.None);
 
                     }
@@ -221,6 +229,7 @@ namespace Trybot.Tests.CircuitBreakerTests
             {
                 counter++;
                 Assert.AreEqual(State.HalfOpen, state);
+                return 0;
             }, CancellationToken.None);
 
             Assert.AreEqual(State.Closed, state);

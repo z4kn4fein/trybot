@@ -33,7 +33,7 @@ namespace Trybot.Retry
 
         /// <summary>
         /// Sets the delegate which will be used to determine whether the given operation should be
-        /// reexecuted or not when a specific exception occured.
+        /// reexecuted or not when a specific exception occurs.
         /// </summary>
         /// <param name="retryPolicy">The determination delegate.</param>
         /// <returns>Itself because of the fluent api.</returns>

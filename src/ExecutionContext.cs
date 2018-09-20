@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace Trybot
 {
+    /// <summary>
+    /// Represents the contextual data related to an actual execution.
+    /// </summary>
     public class ExecutionContext
     {
         internal static ExecutionContext New(BotPolicyConfiguration configuration) =>
@@ -11,10 +14,19 @@ namespace Trybot
         internal static ExecutionContext New(BotPolicyConfiguration configuration, Guid correlationId) =>
             new ExecutionContext(configuration, correlationId);
 
+        /// <summary>
+        /// Configuration of the bot policy.
+        /// </summary>
         public BotPolicyConfiguration BotPolicyConfiguration { get; }
 
+        /// <summary>
+        /// The correlation id.
+        /// </summary>
         public Guid CorrelationId { get; }
 
+        /// <summary>
+        /// Generic data store.
+        /// </summary>
         public IDictionary<object, object> GenericData { get; }
 
         internal ExecutionContext(BotPolicyConfiguration configuration)

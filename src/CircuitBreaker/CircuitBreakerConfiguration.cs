@@ -2,9 +2,12 @@ using System;
 
 namespace Trybot.CircuitBreaker
 {
+    /// <summary>
+    /// Contains shared members for the circuit breaker configurations.
+    /// </summary>
     public class CircuitBreakerConfigurationBase
     {
-        protected Func<Exception, bool> ExceptionPolicy { get; set; }
+        internal Func<Exception, bool> ExceptionPolicy { get; set; }
 
         internal Action<TimeSpan> OpenStateHandler { get; set; }
 
@@ -18,32 +21,40 @@ namespace Trybot.CircuitBreaker
             this.ExceptionPolicy?.Invoke(exception) ?? false;
     }
 
+    /// <summary>
+    /// Represents the configuration of the circuit breaker bot.
+    /// </summary>
     public class CircuitBreakerConfiguration : CircuitBreakerConfigurationBase, ICircuitBreakerConfiguration<CircuitBreakerConfiguration>
     {
+        /// <inheritdoc />
         public CircuitBreakerConfiguration BrakeWhenExceptionOccurs(Func<Exception, bool> exceptionPolicy)
         {
             base.ExceptionPolicy = exceptionPolicy;
             return this;
         }
 
+        /// <inheritdoc />
         public CircuitBreakerConfiguration WithStateStore(ICircuitStateStore stateStore)
         {
             base.StateStore = stateStore;
             return this;
         }
 
+        /// <inheritdoc />
         public CircuitBreakerConfiguration OnOpen(Action<TimeSpan> openHandler)
         {
             base.OpenStateHandler = openHandler;
             return this;
         }
 
+        /// <inheritdoc />
         public CircuitBreakerConfiguration OnClosed(Action closedHandler)
         {
             base.ClosedStateHandler = closedHandler;
             return this;
         }
 
+        /// <inheritdoc />
         public CircuitBreakerConfiguration OnHalfOpen(Action halfOpenHandler)
         {
             base.HalfOpenStateHandler = halfOpenHandler;
@@ -51,40 +62,49 @@ namespace Trybot.CircuitBreaker
         }
     }
 
+    /// <summary>
+    /// Represents the configuration of the circuit breaker bot.
+    /// </summary>
     public class CircuitBreakerConfiguration<TResult> : CircuitBreakerConfigurationBase, ICircuitBreakerConfiguration<CircuitBreakerConfiguration<TResult>, TResult>
     {
         private Func<TResult, bool> resultPolicy;
 
+        /// <inheritdoc />
         public CircuitBreakerConfiguration<TResult> BrakeWhenExceptionOccurs(Func<Exception, bool> exceptionPolicy)
         {
             base.ExceptionPolicy = exceptionPolicy;
             return this;
         }
 
+        /// <inheritdoc />
         public CircuitBreakerConfiguration<TResult> BrakeWhenResultIs(Func<TResult, bool> resultPolicy)
         {
             this.resultPolicy = resultPolicy;
             return this;
         }
 
+        /// <inheritdoc />
         public CircuitBreakerConfiguration<TResult> WithStateStore(ICircuitStateStore stateStore)
         {
             base.StateStore = stateStore;
             return this;
         }
 
+        /// <inheritdoc />
         public CircuitBreakerConfiguration<TResult> OnOpen(Action<TimeSpan> openHandler)
         {
             base.OpenStateHandler = openHandler;
             return this;
         }
 
+        /// <inheritdoc />
         public CircuitBreakerConfiguration<TResult> OnClosed(Action closedHandler)
         {
             base.ClosedStateHandler = closedHandler;
             return this;
         }
 
+        /// <inheritdoc />
         public CircuitBreakerConfiguration<TResult> OnHalfOpen(Action halfOpenHandler)
         {
             base.HalfOpenStateHandler = halfOpenHandler;

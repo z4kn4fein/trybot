@@ -11,7 +11,7 @@ namespace Trybot.Fallback
     {
         /// <summary>
         /// Sets the delegate which will be used to determine whether the given fallback operation should be
-        /// executed or not when a specific exception occured.
+        /// executed or not when a specific exception occurs.
         /// </summary>
         /// <param name="fallbackPolicy">The determination delegate.</param>
         /// <returns>Itself because of the fluent api.</returns>

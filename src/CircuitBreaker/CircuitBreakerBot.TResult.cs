@@ -7,7 +7,7 @@ using Trybot.Utils;
 
 namespace Trybot.CircuitBreaker
 {
-    public class CircuitBreakerBot<TResult> : ConfigurableBot<CircuitBreakerConfiguration<TResult>, TResult>
+    internal class CircuitBreakerBot<TResult> : ConfigurableBot<CircuitBreakerConfiguration<TResult>, TResult>
     {
         private readonly CircuitBreakerController controller;
         private readonly AtomicBool executionBarrier;
