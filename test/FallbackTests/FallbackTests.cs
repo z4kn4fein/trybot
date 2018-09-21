@@ -93,13 +93,14 @@ namespace Trybot.Tests.FallbackTests
         public async Task FallbackTests_Fail_Async_Without_Fallback()
         {
             var policy = this.CreatePolicy(this.CreateConfiguration<int>());
-            await Assert.ThrowsExceptionAsync<NullReferenceException>(() =>
-                policy.ExecuteAsync((ex, t) =>
+            var result = await policy.ExecuteAsync((ex, t) =>
                 {
                     object o = null;
                     o.GetHashCode();
-                    return 0;
-                }, CancellationToken.None));
+                    return 5;
+                }, CancellationToken.None);
+
+            Assert.AreEqual(default(int), result);
         }
 
         [TestMethod]
