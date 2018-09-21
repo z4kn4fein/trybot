@@ -90,6 +90,19 @@ namespace Trybot.Tests.FallbackTests
         }
 
         [TestMethod]
+        public async Task FallbackTests_Fail_Async_Without_Fallback()
+        {
+            var policy = this.CreatePolicy(this.CreateConfiguration<int>());
+            await Assert.ThrowsExceptionAsync<NullReferenceException>(() =>
+                policy.ExecuteAsync((ex, t) =>
+                {
+                    object o = null;
+                    o.GetHashCode();
+                    return 0;
+                }, CancellationToken.None));
+        }
+
+        [TestMethod]
         public void FallbackTests_Fail_ResultFilter()
         {
             var policy = this.CreatePolicy(this.CreateConfiguration<int>()

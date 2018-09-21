@@ -56,7 +56,8 @@ namespace Trybot.CircuitBreaker
 
             try
             {
-                var result = await base.InnerBot.ExecuteAsync(operation, context, token);
+                var result = await base.InnerBot.ExecuteAsync(operation, context, token)
+                    .ConfigureAwait(context.BotPolicyConfiguration.ContinueOnCapturedContext);
                 if (base.Configuration.AcceptsResult(result))
                     this.controller.OperationSucceeded();
                 else

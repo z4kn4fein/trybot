@@ -50,7 +50,8 @@ namespace Trybot.CircuitBreaker
 
             try
             {
-                await base.InnerBot.ExecuteAsync(operation, context, token);
+                await base.InnerBot.ExecuteAsync(operation, context, token)
+                    .ConfigureAwait(context.BotPolicyConfiguration.ContinueOnCapturedContext);
                 this.controller.OperationSucceeded();
             }
             catch (Exception exception)

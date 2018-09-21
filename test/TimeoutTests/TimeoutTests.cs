@@ -40,6 +40,16 @@ namespace Trybot.Tests.TimeoutTests
         }
 
         [TestMethod]
+        public async Task TimeoutTest_Ok_Result_Async_Task()
+        {
+            var policy = this.CreatePolicyWithTimeout<int>(this.CreateConfiguration(TimeSpan.FromSeconds(.2)));
+            var result = await policy
+                .ExecuteAsync((ex, t) => Task.FromResult(5), CancellationToken.None);
+
+            Assert.AreEqual(5, result);
+        }
+
+        [TestMethod]
         public void TimeoutTest_Config()
         {
             var policy = new BotPolicy<int>(config => config

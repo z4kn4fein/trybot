@@ -29,7 +29,6 @@ namespace Trybot.Timeout
 
                     base.Configuration.RaiseTimeoutEvent(context);
                     throw new OperationTimeoutException(Constants.TimeoutExceptionMessage, ex);
-
                 }
             }
         }
@@ -53,7 +52,6 @@ namespace Trybot.Timeout
                     await base.Configuration.RaiseAsyncTimeoutEvent(context)
                         .ConfigureAwait(context.BotPolicyConfiguration.ContinueOnCapturedContext);
                     throw new OperationTimeoutException(Constants.TimeoutExceptionMessage, ex);
-
                 }
             }
         }

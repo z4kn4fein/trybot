@@ -124,5 +124,16 @@ namespace Trybot.Tests.FallbackTests
 
             Assert.AreEqual(2, counter);
         }
+
+        [TestMethod]
+        public async Task FallbackTests_Async_Fail_Without_Async_Handler()
+        {
+            var counter = 0;
+            var policy = this.CreatePolicy(this.CreateConfiguration()
+                .OnFallback((ex, ctx) => counter++));
+            await policy.ExecuteAsync((ex, t) => throw new Exception(), CancellationToken.None);
+
+            Assert.AreEqual(1, counter);
+        }
     }
 }
