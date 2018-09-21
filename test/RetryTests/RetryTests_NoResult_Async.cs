@@ -115,7 +115,7 @@ namespace Trybot.Tests.RetryTests
 
             await Assert.ThrowsExceptionAsync<OperationCanceledException>(async () => await policy.ExecuteAsync(action, source.Token));
 
-            Assert.IsTrue(counter > 2 && counter < 5);
+            Assert.IsTrue(counter >= 2 && counter < 5);
         }
 
         [TestMethod]
@@ -133,7 +133,7 @@ namespace Trybot.Tests.RetryTests
                 throw new Exception();
             }, source.Token));
 
-            Assert.IsTrue(counter > 2 && counter < 5);
+            Assert.IsTrue(counter >= 2 && counter < 5);
         }
 
         [TestMethod]
