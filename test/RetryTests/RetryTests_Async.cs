@@ -275,5 +275,24 @@ namespace Trybot.Tests.RetryTests
             Assert.AreEqual(6, handlerResult);
             Assert.AreEqual(counter, onRetryCounter);
         }
+
+        [TestMethod]
+        public async Task RetryTests_Action_Handles_Only_Configured_Exception()
+        {
+            var policy = this.CreatePolicyWithRetry(this.CreateConfiguration<int>(2)
+                .RetryIndefinitely()
+                .WhenExceptionOccurs(ex => ex is InvalidOperationException));
+            var counter = 0;
+            await Assert.ThrowsExceptionAsync<NullReferenceException>(() =>
+                policy.ExecuteAsync((ctx, t) =>
+                {
+                    counter++;
+                    object o = null;
+                    o.GetHashCode();
+                    return 0;
+                }, CancellationToken.None));
+
+            Assert.AreEqual(1, counter);
+        }
     }
 }

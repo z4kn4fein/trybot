@@ -47,6 +47,26 @@ namespace Trybot.Tests
         }
 
         [TestMethod]
+        public void BotPolicyTest_Config()
+        {
+            var policy = new BotPolicy();
+            policy.SetCapturedContextContinuation(true);
+            policy.Execute((ctx, t) => Assert.IsTrue(ctx.BotPolicyConfiguration.ContinueOnCapturedContext), CancellationToken.None);
+        }
+
+        [TestMethod]
+        public void BotPolicyTest_Config_Result()
+        {
+            var policy = new BotPolicy<int>();
+            policy.SetCapturedContextContinuation(true);
+            policy.Execute((ctx, t) =>
+            {
+                Assert.IsTrue(ctx.BotPolicyConfiguration.ContinueOnCapturedContext);
+                return 0;
+            }, CancellationToken.None);
+        }
+
+        [TestMethod]
         public void BotPolicyTest_Execute_Func()
         {
             var policy = new BotPolicy<int>();

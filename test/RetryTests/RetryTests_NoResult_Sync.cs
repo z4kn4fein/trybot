@@ -31,9 +31,22 @@ namespace Trybot.Tests.RetryTests
         }
 
         [TestMethod]
+        public void RetryTests_Action_Ok_Config()
+        {
+            var policy = new BotPolicy(config => config
+                .Configure(botconfig => botconfig
+                    .Retry(retryConfig => retryConfig.WithMaxAttemptCount(2).WhenExceptionOccurs(ex => true))));
+            var counter = 0;
+            policy.Execute((ctx, t) => counter++, CancellationToken.None);
+
+            Assert.AreEqual(1, counter);
+        }
+
+        [TestMethod]
         public void RetryTests_Action_Handles_Only_Configured_Exception()
         {
             var policy = this.CreatePolicyWithRetry(this.CreateConfiguration(2)
+                .RetryIndefinitely()
                 .WhenExceptionOccurs(ex => ex is NullReferenceException));
             var counter = 0;
             Assert.ThrowsException<InvalidOperationException>(() =>

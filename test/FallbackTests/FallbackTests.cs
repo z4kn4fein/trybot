@@ -28,6 +28,40 @@ namespace Trybot.Tests.FallbackTests
         }
 
         [TestMethod]
+        public void FallbackTests_Ok_Config()
+        {
+            var policy = new BotPolicy<int>(config => config
+                .Configure(botconfig => botconfig
+                    .Fallback(conf => conf.WhenExceptionOccurs(ex => true))));
+            var result = policy.Execute((ex, t) => 5, CancellationToken.None);
+
+            Assert.AreEqual(5, result);
+        }
+
+        [TestMethod]
+        public void FallbackTests_Handles_Only_Configured_Exception()
+        {
+            var policy = this.CreatePolicy(this.CreateConfiguration<int>()
+                .WhenExceptionOccurs(ex => ex is NullReferenceException));
+            Assert.ThrowsException<InvalidOperationException>(() =>
+                policy.Execute((ex, t) => throw new InvalidOperationException(), CancellationToken.None));
+        }
+
+        [TestMethod]
+        public async Task FallbackTests_Handles_Only_Configured_Exception_Async()
+        {
+            var policy = this.CreatePolicy(this.CreateConfiguration<int>()
+                .WhenExceptionOccurs(ex => ex is InvalidOperationException));
+            await Assert.ThrowsExceptionAsync<NullReferenceException>(() =>
+                policy.ExecuteAsync((ex, t) =>
+                {
+                    object o = null;
+                    o.GetHashCode();
+                    return 0;
+                }, CancellationToken.None));
+        }
+
+        [TestMethod]
         public async Task FallbackTests_Async_Ok()
         {
             var policy = this.CreatePolicy(this.CreateConfiguration<int>());
@@ -62,6 +96,17 @@ namespace Trybot.Tests.FallbackTests
                 .WhenResultIs(r => r != 0)
                 .OnFallback((r, ex, ctx) => 6));
             var result = policy.Execute((ex, t) => 5, CancellationToken.None);
+
+            Assert.AreEqual(6, result);
+        }
+
+        [TestMethod]
+        public async Task FallbackTests_Fail_ResultFilter_Async()
+        {
+            var policy = this.CreatePolicy(this.CreateConfiguration<int>()
+                .WhenResultIs(r => r != 0)
+                .OnFallback((r, ex, ctx) => 6));
+            var result = await policy.ExecuteAsync((ex, t) => 5, CancellationToken.None);
 
             Assert.AreEqual(6, result);
         }

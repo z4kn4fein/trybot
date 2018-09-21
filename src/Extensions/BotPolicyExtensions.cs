@@ -17,7 +17,7 @@ namespace Trybot
         /// <param name="action">The action to execute.</param>
         /// <param name="token">Tha cancellation token.</param>
         public static void Execute(this IBotPolicy policy, Action<ExecutionContext, CancellationToken> action, CancellationToken token) =>
-            policy.Execute(new BotOperation(action), token);
+            policy.Execute(new BotOperation(action), Guid.NewGuid(), token);
 
         /// <summary>
         /// Executes an action asynchronously within the bot policy.
@@ -27,7 +27,7 @@ namespace Trybot
         /// <param name="token">Tha cancellation token.</param>
         /// <returns>The task to await.</returns>
         public static Task ExecuteAsync(this IBotPolicy policy, Action<ExecutionContext, CancellationToken> action, CancellationToken token) =>
-            policy.ExecuteAsync(new AsyncBotOperation(action), token);
+            policy.ExecuteAsync(new AsyncBotOperation(action), Guid.NewGuid(), token);
 
         /// <summary>
         /// Executes an action asynchronously within the bot policy.
@@ -37,7 +37,7 @@ namespace Trybot
         /// <param name="token">Tha cancellation token.</param>
         /// <returns>The task to await.</returns>
         public static Task ExecuteAsync(this IBotPolicy policy, Func<ExecutionContext, CancellationToken, Task> operation, CancellationToken token) =>
-            policy.ExecuteAsync(new AsyncBotOperation(operation), token);
+            policy.ExecuteAsync(new AsyncBotOperation(operation), Guid.NewGuid(), token);
 
         /// <summary>
         /// Executes an opeariont synchronously within the bot policy and returns with its result.
@@ -48,7 +48,7 @@ namespace Trybot
         /// <param name="token">Tha cancellation token.</param>
         /// <returns>The operations result.</returns>
         public static TResult Execute<TResult>(this IBotPolicy<TResult> policy, Func<ExecutionContext, CancellationToken, TResult> operation, CancellationToken token) =>
-            policy.Execute(new BotOperation<TResult>(operation), token);
+            policy.Execute(new BotOperation<TResult>(operation), Guid.NewGuid(), token);
 
         /// <summary>
         /// Executes an action asynchronously within the bot policy and returns with its result.
@@ -58,7 +58,7 @@ namespace Trybot
         /// <param name="token">Tha cancellation token.</param>
         /// <returns>The task to await.</returns>
         public static Task<TResult> ExecuteAsync<TResult>(this IBotPolicy<TResult> policy, Func<ExecutionContext, CancellationToken, TResult> operation, CancellationToken token) =>
-            policy.ExecuteAsync(new AsyncBotOperation<TResult>(operation), token);
+            policy.ExecuteAsync(new AsyncBotOperation<TResult>(operation), Guid.NewGuid(), token);
 
         /// <summary>
         /// Executes an action asynchronously within the bot policy and returns with its result.
@@ -68,6 +68,6 @@ namespace Trybot
         /// <param name="token">Tha cancellation token.</param>
         /// <returns>The task to await.</returns>
         public static Task<TResult> ExecuteAsync<TResult>(this IBotPolicy<TResult> policy, Func<ExecutionContext, CancellationToken, Task<TResult>> operation, CancellationToken token) =>
-            policy.ExecuteAsync(new AsyncBotOperation<TResult>(operation), token);
+            policy.ExecuteAsync(new AsyncBotOperation<TResult>(operation), Guid.NewGuid(), token);
     }
 }

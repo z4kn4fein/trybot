@@ -9,6 +9,10 @@ namespace Trybot.Fallback
     /// </summary>
     public class FallbackConfiguration : FallbackConfigurationBase, IFallbackConfiguration<FallbackConfiguration>
     {
+        internal Action<Exception, ExecutionContext> FallbackHandler { get; set; }
+
+        internal Func<Exception, ExecutionContext, CancellationToken, Task> AsyncFallbackHandler { get; set; }
+
         /// <inheritdoc />
         public FallbackConfiguration WhenExceptionOccurs(Func<Exception, bool> fallbackPolicy)
         {
@@ -19,15 +23,29 @@ namespace Trybot.Fallback
         /// <inheritdoc />
         public FallbackConfiguration OnFallback(Action<Exception, ExecutionContext> onFallbackAction)
         {
-            base.FallbackHandler = onFallbackAction;
+            this.FallbackHandler = onFallbackAction;
             return this;
         }
 
         /// <inheritdoc />
         public FallbackConfiguration OnFallbackAsync(Func<Exception, ExecutionContext, CancellationToken, Task> onFallbackFunc)
         {
-            base.AsyncFallbackHandler = onFallbackFunc;
+            this.AsyncFallbackHandler = onFallbackFunc;
             return this;
+        }
+
+        internal void RaiseFallbackEvent(Exception exception, ExecutionContext context) =>
+            this.FallbackHandler?.Invoke(exception, context);
+
+        internal async Task RaiseFallbackEventAsync(Exception exception, ExecutionContext context, CancellationToken token)
+        {
+            this.RaiseFallbackEvent(exception, context);
+
+            if (this.AsyncFallbackHandler == null)
+                return;
+
+            await this.AsyncFallbackHandler(exception, context, token)
+                .ConfigureAwait(context.BotPolicyConfiguration.ContinueOnCapturedContext);
         }
     }
 
@@ -48,21 +66,7 @@ namespace Trybot.Fallback
             base.FallbackPolicy = fallbackPolicy;
             return this;
         }
-
-        /// <inheritdoc />
-        public FallbackConfiguration<TResult> OnFallback(Action<Exception, ExecutionContext> onFallbackAction)
-        {
-            base.FallbackHandler = onFallbackAction;
-            return this;
-        }
-
-        /// <inheritdoc />
-        public FallbackConfiguration<TResult> OnFallbackAsync(Func<Exception, ExecutionContext, CancellationToken, Task> onFallbackFunc)
-        {
-            base.AsyncFallbackHandler = onFallbackFunc;
-            return this;
-        }
-
+        
         /// <inheritdoc />
         public FallbackConfiguration<TResult> WhenResultIs(Func<TResult, bool> resultPolicy)
         {
@@ -86,17 +90,11 @@ namespace Trybot.Fallback
 
         internal TResult RaiseFallbackEvent(TResult result, Exception exception, ExecutionContext context)
         {
-            base.RaiseFallbackEvent(exception, context);
-
             return this.FallbackHandlerWithResult == null ? result : this.FallbackHandlerWithResult(result, exception, context);
         }
 
         internal async Task<TResult> RaiseFallbackEventAsync(TResult result, Exception exception, ExecutionContext context, CancellationToken token)
         {
-            base.RaiseFallbackEvent(exception, context);
-            await base.RaiseFallbackEventAsync(exception, context, token)
-                .ConfigureAwait(context.BotPolicyConfiguration.ContinueOnCapturedContext);
-
             if (this.FallbackHandlerWithResult != null)
                 return this.FallbackHandlerWithResult(result, exception, context);
 

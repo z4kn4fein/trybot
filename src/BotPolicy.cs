@@ -39,12 +39,12 @@ namespace Trybot
         }
 
         /// <inheritdoc />
-        public TResult Execute(IBotOperation<TResult> operation, CancellationToken token) =>
-            this.Bot.Execute(operation, ExecutionContext.New(base.Configuration), token);
+        public TResult Execute(IBotOperation<TResult> operation, object correlationId, CancellationToken token) =>
+            this.Bot.Execute(operation, ExecutionContext.New(base.Configuration, correlationId), token);
 
         /// <inheritdoc />
-        public async Task<TResult> ExecuteAsync(IAsyncBotOperation<TResult> operation, CancellationToken token) =>
-            await this.Bot.ExecuteAsync(operation, ExecutionContext.New(base.Configuration), token)
+        public async Task<TResult> ExecuteAsync(IAsyncBotOperation<TResult> operation, object correlationId, CancellationToken token) =>
+            await this.Bot.ExecuteAsync(operation, ExecutionContext.New(base.Configuration, correlationId), token)
                 .ConfigureAwait(base.Configuration.ContinueOnCapturedContext);
     }
 
@@ -82,12 +82,12 @@ namespace Trybot
         }
 
         /// <inheritdoc />
-        public void Execute(IBotOperation operation, CancellationToken token) =>
-            base.Bot.Execute(operation, ExecutionContext.New(base.Configuration), token);
+        public void Execute(IBotOperation operation, object correlationId, CancellationToken token) =>
+            base.Bot.Execute(operation, ExecutionContext.New(base.Configuration, correlationId), token);
 
         /// <inheritdoc />
-        public async Task ExecuteAsync(IAsyncBotOperation operation, CancellationToken token) =>
-            await base.Bot.ExecuteAsync(operation, ExecutionContext.New(base.Configuration), token)
+        public async Task ExecuteAsync(IAsyncBotOperation operation, object correlationId, CancellationToken token) =>
+            await base.Bot.ExecuteAsync(operation, ExecutionContext.New(base.Configuration, correlationId), token)
                 .ConfigureAwait(base.Configuration.ContinueOnCapturedContext);
     }
 }

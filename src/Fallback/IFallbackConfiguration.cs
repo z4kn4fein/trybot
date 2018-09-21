@@ -38,8 +38,17 @@ namespace Trybot.Fallback
     /// <summary>
     /// Represents the fluent api of the fallback configuration.
     /// </summary>
-    public interface IFallbackConfiguration<out TConfiguration, TResult> : IFallbackConfiguration<TConfiguration>
+    public interface IFallbackConfiguration<out TConfiguration, TResult>
     {
+        /// <summary>
+        /// Sets the delegate which will be used to determine whether the given fallback operation should be
+        /// executed or not when a specific exception occurs.
+        /// </summary>
+        /// <param name="fallbackPolicy">The determination delegate.</param>
+        /// <returns>Itself because of the fluent api.</returns>
+        /// <example><code>config.WhenExceptionOccurs(exception => exception is HttpRequestException)</code></example>
+        TConfiguration WhenExceptionOccurs(Func<Exception, bool> fallbackPolicy);
+
         /// <summary>
         /// Sets the delegate which will be used to determine whether the given fallback operation should be
         /// executed or not based on the originals return value.

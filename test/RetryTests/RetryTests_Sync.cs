@@ -32,6 +32,19 @@ namespace Trybot.Tests.RetryTests
         }
 
         [TestMethod]
+        public void RetryTests_Action_Ok_Config()
+        {
+            var policy = new BotPolicy<int>(config => config
+                .Configure(botconfig => botconfig
+                    .Retry(retryConfig => retryConfig.WithMaxAttemptCount(2).WhenExceptionOccurs(ex => true))));
+            var counter = 0;
+            var result = policy.Execute((ctx, t) => { counter++; return 5; }, CancellationToken.None);
+
+            Assert.AreEqual(5, result);
+            Assert.AreEqual(1, counter);
+        }
+
+        [TestMethod]
         public void RetryTests_Action_Fail()
         {
             var policy = this.CreatePolicyWithRetry(this.CreateConfiguration<int>(2));
@@ -200,6 +213,25 @@ namespace Trybot.Tests.RetryTests
             Assert.AreEqual(0, result);
             Assert.AreEqual(6, handlerResult);
             Assert.AreEqual(counter, onRetryCounter);
+        }
+
+        [TestMethod]
+        public void RetryTests_Action_Handles_Only_Configured_Exception()
+        {
+            var policy = this.CreatePolicyWithRetry(this.CreateConfiguration<int>(2)
+                .RetryIndefinitely()
+                .WhenExceptionOccurs(ex => ex is InvalidOperationException));
+            var counter = 0;
+            Assert.ThrowsException<NullReferenceException>(() =>
+                policy.Execute((ctx, t) =>
+                {
+                    counter++;
+                    object o = null;
+                    o.GetHashCode();
+                    return 0;
+                }, CancellationToken.None));
+
+            Assert.AreEqual(1, counter);
         }
     }
 }

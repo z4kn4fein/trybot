@@ -29,6 +29,36 @@ namespace Trybot.Tests.FallbackTests
         }
 
         [TestMethod]
+        public void FallbackTests_Ok_Config()
+        {
+            var counter = 0;
+            var policy = new BotPolicy(config => config
+                .Configure(botconfig => botconfig
+                    .Fallback(conf => conf.WhenExceptionOccurs(ex => true))));
+            policy.Execute((ex, t) => counter++, CancellationToken.None);
+
+            Assert.AreEqual(1, counter);
+        }
+
+        [TestMethod]
+        public void FallbackTests_Handles_Only_Configured_Exception()
+        {
+            var policy = this.CreatePolicy(this.CreateConfiguration()
+                .WhenExceptionOccurs(ex => ex is NullReferenceException));
+            Assert.ThrowsException<InvalidOperationException>(() =>
+                policy.Execute((ex, t) => throw new InvalidOperationException(), CancellationToken.None));
+        }
+
+        [TestMethod]
+        public async Task FallbackTests_Handles_Only_Configured_Exception_Async()
+        {
+            var policy = this.CreatePolicy(this.CreateConfiguration()
+                .WhenExceptionOccurs(ex => ex is NullReferenceException));
+            await Assert.ThrowsExceptionAsync<InvalidOperationException>(() =>
+                policy.ExecuteAsync((ex, t) => throw new InvalidOperationException(), CancellationToken.None));
+        }
+
+        [TestMethod]
         public async Task FallbackTests_Async_Ok()
         {
             var policy = this.CreatePolicy(this.CreateConfiguration());

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Trybot
 {
@@ -8,10 +7,7 @@ namespace Trybot
     /// </summary>
     public class ExecutionContext
     {
-        internal static ExecutionContext New(BotPolicyConfiguration configuration) =>
-            new ExecutionContext(configuration);
-
-        internal static ExecutionContext New(BotPolicyConfiguration configuration, Guid correlationId) =>
+        internal static ExecutionContext New(BotPolicyConfiguration configuration, object correlationId) =>
             new ExecutionContext(configuration, correlationId);
 
         /// <summary>
@@ -20,20 +16,16 @@ namespace Trybot
         public BotPolicyConfiguration BotPolicyConfiguration { get; }
 
         /// <summary>
-        /// The correlation id.
+        /// A unique id for each execution.
         /// </summary>
-        public Guid CorrelationId { get; }
+        public object CorrelationId { get; }
 
         /// <summary>
         /// Generic data store.
         /// </summary>
         public IDictionary<object, object> GenericData { get; }
 
-        internal ExecutionContext(BotPolicyConfiguration configuration)
-            : this(configuration, Guid.NewGuid())
-        { }
-
-        internal ExecutionContext(BotPolicyConfiguration configuration, Guid correlationId)
+        internal ExecutionContext(BotPolicyConfiguration configuration, object correlationId)
         {
             this.BotPolicyConfiguration = configuration;
             this.CorrelationId = correlationId;

@@ -30,6 +30,28 @@ namespace Trybot.Tests.TimeoutTests
         }
 
         [TestMethod]
+        public async Task TimeoutTest_Ok_Async()
+        {
+            var policy = this.CreatePolicyWithTimeout(this.CreateConfiguration(TimeSpan.FromSeconds(.2)));
+            CancellationToken token;
+            await policy.ExecuteAsync((ex, t) => { token = t; }, CancellationToken.None);
+
+            Assert.IsFalse(token.IsCancellationRequested);
+        }
+
+        [TestMethod]
+        public void TimeoutTest_Config()
+        {
+            var policy = new BotPolicy(config => config
+                .Configure(botconfig => botconfig
+                    .Timeout(timeoutConfig => timeoutConfig
+                        .After(TimeSpan.FromSeconds(.2)))));
+
+            Assert.ThrowsException<OperationTimeoutException>(() => policy.Execute((ctx, t) =>
+                Task.Delay(500, t).Wait(t), CancellationToken.None));
+        }
+
+        [TestMethod]
         public void TimeoutTest_Timeout()
         {
             var policy = this.CreatePolicyWithTimeout(this.CreateConfiguration(TimeSpan.FromSeconds(.2)));
