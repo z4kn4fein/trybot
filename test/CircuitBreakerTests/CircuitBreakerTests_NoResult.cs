@@ -243,7 +243,10 @@ namespace Trybot.Tests.CircuitBreakerTests
             Thread.Sleep(openException.RemainingOpenTime.Add(TimeSpan.FromMilliseconds(10)));
 
             // simulate fast parallel calls, the faster one will win and attempts to close the circuit, the other one will be rejected
-            Parallel.For(0, 2, (i, s) =>
+            var tasks = new List<Task>();
+            for (var i = 0; i++ < 2;)
+            {
+                tasks.Add(Task.Run(() =>
                 {
                     try
                     {
@@ -251,7 +254,7 @@ namespace Trybot.Tests.CircuitBreakerTests
                         {
                             counter++;
                             Assert.AreEqual(State.HalfOpen, state);
-                            Task.Delay(TimeSpan.FromMilliseconds(100)).Wait();
+                            Task.Delay(TimeSpan.FromMilliseconds(100), t).Wait(t);
                         }, CancellationToken.None);
 
                     }
@@ -259,7 +262,10 @@ namespace Trybot.Tests.CircuitBreakerTests
                     {
                         Assert.IsInstanceOfType(e, typeof(HalfOpenExecutionLimitExceededException));
                     }
-                });
+                }));
+            }
+
+            Task.WhenAll(tasks).Wait();
 
             Assert.AreEqual(State.HalfOpen, state);
 
