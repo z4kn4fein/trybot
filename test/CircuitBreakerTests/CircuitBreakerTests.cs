@@ -90,7 +90,7 @@ namespace Trybot.Tests.CircuitBreakerTests
             var counter = 0;
 
             // brake the circuit
-            for (var i = 0; i++ < 2;)
+            for (var i = 0; i < 2; i++)
                 policy.Execute((ctx, t) => successResult + 1, CancellationToken.None);
 
             Assert.AreEqual(State.Open, state);
@@ -142,7 +142,7 @@ namespace Trybot.Tests.CircuitBreakerTests
             var counter = 0;
 
             // brake the circuit
-            for (var i = 0; i++ < 2;)
+            for (var i = 0; i < 2; i++)
                 await policy.ExecuteAsync((ctx, t) => Task.FromResult(successResult + 1), CancellationToken.None);
 
             Assert.AreEqual(State.Open, state);
@@ -192,7 +192,7 @@ namespace Trybot.Tests.CircuitBreakerTests
             var counter = 0;
 
             // brake the circuit
-            for (var i = 0; i++ < 2;)
+            for (var i = 0; i < 2; i++)
                 Assert.ThrowsException<InvalidOperationException>(() =>
                     policy.Execute((ctx, t) => throw new InvalidOperationException(), CancellationToken.None));
 
@@ -257,7 +257,7 @@ namespace Trybot.Tests.CircuitBreakerTests
             var counter = 0;
 
             // brake the circuit
-            for (var i = 0; i++ < 2;)
+            for (var i = 0; i < 2; i++)
                 await Assert.ThrowsExceptionAsync<NullReferenceException>(() =>
                     policy.ExecuteAsync((ctx, t) =>
                     {
@@ -276,7 +276,7 @@ namespace Trybot.Tests.CircuitBreakerTests
 
             // simulate fast parallel calls, the faster one will win and attempts to close the circuit, the other one will be rejected
             var tasks = new List<Task>();
-            for (var i = 0; i++ < 2;)
+            for (var i = 0; i < 2; i++)
             {
                 tasks.Add(Task.Run(async () =>
                 {

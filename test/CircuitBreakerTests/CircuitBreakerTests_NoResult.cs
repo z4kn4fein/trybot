@@ -86,7 +86,7 @@ namespace Trybot.Tests.CircuitBreakerTests
             var counter = 0;
 
             // brake the circuit
-            for (var i = 0; i++ < 2;)
+            for (var i = 0; i < 2; i++)
                 Assert.ThrowsException<InvalidOperationException>(() =>
                     policy.Execute((ctx, t) => throw new InvalidOperationException(), CancellationToken.None));
 
@@ -135,7 +135,7 @@ namespace Trybot.Tests.CircuitBreakerTests
             var counter = 0;
 
             // brake the circuit
-            for (var i = 0; i++ < 2;)
+            for (var i = 0; i < 2; i++)
                 Assert.ThrowsException<InvalidOperationException>(() =>
                     policy.Execute((ctx, t) => throw new InvalidOperationException(), CancellationToken.None));
 
@@ -180,7 +180,7 @@ namespace Trybot.Tests.CircuitBreakerTests
             var counter = 0;
 
             // brake the circuit
-            for (var i = 0; i++ < 2;)
+            for (var i = 0; i < 2; i++)
                 await Assert.ThrowsExceptionAsync<InvalidOperationException>(() =>
                      policy.ExecuteAsync((ctx, t) => throw new InvalidOperationException(), CancellationToken.None));
 
@@ -230,7 +230,7 @@ namespace Trybot.Tests.CircuitBreakerTests
             var counter = 0;
 
             // brake the circuit
-            for (var i = 0; i++ < 2;)
+            for (var i = 0; i < 2; i++)
                 Assert.ThrowsException<InvalidOperationException>(() =>
                     policy.Execute((ctx, t) => throw new InvalidOperationException(), CancellationToken.None));
 
@@ -243,10 +243,10 @@ namespace Trybot.Tests.CircuitBreakerTests
             Thread.Sleep(openException.RemainingOpenTime.Add(TimeSpan.FromMilliseconds(10)));
 
             // simulate fast parallel calls, the faster one will win and attempts to close the circuit, the other one will be rejected
-            var tasks = new List<Task>();
-            for (var i = 0; i++ < 2;)
+            var tasks = new Task[2];
+            for (var i = 0; i < 2; i++)
             {
-                tasks.Add(Task.Run(() =>
+                tasks[i] = Task.Run(() =>
                 {
                     try
                     {
@@ -262,10 +262,10 @@ namespace Trybot.Tests.CircuitBreakerTests
                     {
                         Assert.IsInstanceOfType(e, typeof(HalfOpenExecutionLimitExceededException));
                     }
-                }));
+                });
             }
 
-            Task.WhenAll(tasks).Wait();
+            Task.WaitAll(tasks, CancellationToken.None);
 
             Assert.AreEqual(State.HalfOpen, state);
 
@@ -299,7 +299,7 @@ namespace Trybot.Tests.CircuitBreakerTests
             var counter = 0;
 
             // brake the circuit
-            for (var i = 0; i++ < 2;)
+            for (var i = 0; i < 2; i++)
                 await Assert.ThrowsExceptionAsync<NullReferenceException>(() =>
                     policy.ExecuteAsync((ctx, t) =>
                     {
@@ -317,7 +317,7 @@ namespace Trybot.Tests.CircuitBreakerTests
 
             // simulate fast parallel calls, the faster one will win and attempts to close the circuit, the other one will be rejected
             var tasks = new List<Task>();
-            for (var i = 0; i++ < 2;)
+            for (var i = 0; i < 2; i++)
             {
                 tasks.Add(Task.Run(async () =>
                 {
