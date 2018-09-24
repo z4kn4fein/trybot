@@ -228,6 +228,8 @@ namespace Trybot.Tests.CircuitBreakerTests
                 });
             }
 
+            Task.WaitAll(tasks, CancellationToken.None);
+
             Assert.AreEqual(State.HalfOpen, state);
 
             Assert.AreEqual(1, counter);
