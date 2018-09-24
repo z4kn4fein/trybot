@@ -1,5 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Trybot.CircuitBreaker;
@@ -35,7 +37,11 @@ namespace Trybot.Tests.CircuitBreakerTests
         [TestMethod]
         public void CircuitBreakerTests_Ok()
         {
-            var policy = this.CreatePolicy(this.CreateConfiguration(), this.CreateStrategyConfiguration(2, 2, TimeSpan.FromMilliseconds(200)));
+            var mockStore = new Mock<ICircuitStateStore>();
+            mockStore.Setup(s => s.Get()).Returns(CircuitState.Closed).Verifiable();
+            var policy = this.CreatePolicy(this.CreateConfiguration()
+                .WithStateStore(mockStore.Object),
+                this.CreateStrategyConfiguration(2, 2, TimeSpan.FromMilliseconds(200)));
             var counter = 0;
             policy.Execute((ex, t) => counter++, CancellationToken.None);
 
@@ -97,7 +103,7 @@ namespace Trybot.Tests.CircuitBreakerTests
             // wait until the open duration is being expired
             Thread.Sleep(openException.RemainingOpenTime.Add(TimeSpan.FromMilliseconds(10)));
 
-            // two synchronous calls will close the circuit
+            // two calls will close the circuit
             policy.Execute((ctx, t) =>
             {
                 counter++;
@@ -113,6 +119,51 @@ namespace Trybot.Tests.CircuitBreakerTests
             Assert.AreEqual(State.Closed, state);
 
             Assert.AreEqual(2, counter);
+        }
+
+        [TestMethod]
+        public void CircuitBreakerTests_Brake_Then_Close_Break_On_HalfOpen()
+        {
+            var state = State.Closed;
+
+            var policy = this.CreatePolicy(this.CreateConfiguration()
+                .OnClosed(() => state = State.Closed)
+                .OnHalfOpen(() => state = State.HalfOpen)
+                .OnOpen(ts =>
+                {
+                    state = State.Open;
+                    Assert.AreEqual(TimeSpan.FromMilliseconds(200), ts);
+                }), this.CreateStrategyConfiguration(2, 2, TimeSpan.FromMilliseconds(200)));
+            var counter = 0;
+
+            // brake the circuit
+            for (var i = 0; i++ < 2;)
+                Assert.ThrowsException<InvalidOperationException>(() =>
+                    policy.Execute((ctx, t) => throw new InvalidOperationException(), CancellationToken.None));
+
+            Assert.AreEqual(State.Open, state);
+
+            var openException = Assert.ThrowsException<CircuitOpenException>(() =>
+                policy.Execute((ctx, t) => { }, CancellationToken.None));
+
+            Assert.IsTrue(openException.RemainingOpenTime <= TimeSpan.FromMilliseconds(200) &&
+                          openException.RemainingOpenTime > TimeSpan.FromMilliseconds(100));
+
+            // wait until the open duration is being expired
+            Thread.Sleep(openException.RemainingOpenTime.Add(TimeSpan.FromMilliseconds(10)));
+
+            // reopen the circuit with a failing call
+            Assert.ThrowsException<InvalidOperationException>(() =>
+            policy.Execute((ctx, t) =>
+            {
+                counter++;
+                Assert.AreEqual(State.HalfOpen, state);
+                throw new InvalidOperationException();
+            }, CancellationToken.None));
+
+            Assert.AreEqual(State.Open, state);
+
+            Assert.AreEqual(1, counter);
         }
 
         [TestMethod]
@@ -211,6 +262,79 @@ namespace Trybot.Tests.CircuitBreakerTests
                         Assert.IsInstanceOfType(e, typeof(HalfOpenExecutionLimitExceededException));
                     }
                 });
+
+            Assert.AreEqual(State.HalfOpen, state);
+
+            Assert.AreEqual(1, counter);
+
+            // next call will close the circuit
+            policy.Execute((ctx, t) =>
+            {
+                counter++;
+                Assert.AreEqual(State.HalfOpen, state);
+            }, CancellationToken.None);
+
+            Assert.AreEqual(State.Closed, state);
+
+            Assert.AreEqual(2, counter);
+        }
+
+        [TestMethod]
+        public async Task CircuitBreakerTests_Brake_Then_Only_Allow_One_Execution_On_HalfOpen_Async()
+        {
+            var state = State.Closed;
+
+            var policy = this.CreatePolicy(this.CreateConfiguration()
+                .OnClosed(() => state = State.Closed)
+                .OnHalfOpen(() => state = State.HalfOpen)
+                .OnOpen(ts =>
+                {
+                    state = State.Open;
+                    Assert.AreEqual(TimeSpan.FromMilliseconds(200), ts);
+                }), this.CreateStrategyConfiguration(2, 2, TimeSpan.FromMilliseconds(200)));
+            var counter = 0;
+
+            // brake the circuit
+            for (var i = 0; i++ < 2;)
+                await Assert.ThrowsExceptionAsync<NullReferenceException>(() =>
+                    policy.ExecuteAsync((ctx, t) =>
+                    {
+                        object o = null;
+                        o.GetHashCode();
+                    }, CancellationToken.None));
+
+            Assert.AreEqual(State.Open, state);
+
+            var openException = await Assert.ThrowsExceptionAsync<CircuitOpenException>(() =>
+                policy.ExecuteAsync((ctx, t) => { }, CancellationToken.None));
+
+            // wait until the open duration is being expired
+            Thread.Sleep(openException.RemainingOpenTime.Add(TimeSpan.FromMilliseconds(10)));
+
+            // simulate fast parallel calls, the faster one will win and attempts to close the circuit, the other one will be rejected
+            var tasks = new List<Task>();
+            for (var i = 0; i++ < 2;)
+            {
+                tasks.Add(Task.Run(async () =>
+                {
+                    try
+                    {
+                        await policy.ExecuteAsync(async (ctx, t) =>
+                        {
+                            counter++;
+                            Assert.AreEqual(State.HalfOpen, state);
+                            await Task.Delay(TimeSpan.FromMilliseconds(100), t);
+                        }, CancellationToken.None);
+
+                    }
+                    catch (Exception e)
+                    {
+                        Assert.IsInstanceOfType(e, typeof(HalfOpenExecutionLimitExceededException));
+                    }
+                }));
+            }
+
+            await Task.WhenAll(tasks);
 
             Assert.AreEqual(State.HalfOpen, state);
 
