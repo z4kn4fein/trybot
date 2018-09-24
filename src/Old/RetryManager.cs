@@ -11,6 +11,7 @@ namespace Trybot
     /// <summary>
     /// Represents a <see cref="IRetryManager"/> implementation.
     /// </summary>
+    [Obsolete("This component is not maintained anymore, check the new api: https://github.com/z4kn4fein/trybot")]
     public class RetryManager : IRetryManager
     {
         private static readonly IRetryPolicy DefaultPolicy = new DefaultRetryPolicy();

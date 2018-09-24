@@ -5,6 +5,7 @@ namespace Trybot.Strategy
     /// <summary>
     /// Represents a retry strategy with basic cubic delay calculation.
     /// </summary>
+    [Obsolete("This component is not maintained anymore, check the new api: https://github.com/z4kn4fein/trybot")]
     public class CubicRetryStrategy : RetryStartegy
     {
 

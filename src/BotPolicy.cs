@@ -5,9 +5,25 @@ using Trybot.Operations;
 
 namespace Trybot
 {
-    /// <inheritdoc cref="BotPolicyBase{TBot}" />
-    /// <inheritdoc cref="IBotPolicy{TResult}" />
-    /// <inheritdoc cref="IBotPolicyConfigurator{TResult}" />
+    /// <summary>
+    /// Represents a bot policy which can be configured with several <see cref="Bot{TResult}"/> implementations.
+    /// </summary>
+    /// <typeparam name="TResult">The result type of the operation passed to the bot policy.</typeparam>
+    /// <example>
+    /// <code>
+    /// var policy = new BotPolicy&lt;int&gt;();
+    /// policy.Configure(botConfig => botconfig
+    ///     .Retry(...)
+    ///     .Timeout(...));
+    /// 
+    /// policy.Execute((context, token) => 
+    ///     {
+    ///         someAction());
+    ///         someOtherAction());
+    ///         return 2;
+    ///     });
+    /// </code>
+    /// </example>
     public class BotPolicy<TResult> : BotPolicyBase<Bot<TResult>>, IBotPolicy<TResult>, IBotPolicyConfigurator<TResult>
     {
         /// <summary>
@@ -48,9 +64,23 @@ namespace Trybot
                 .ConfigureAwait(base.Configuration.ContinueOnCapturedContext);
     }
 
-    /// <inheritdoc cref="BotPolicyBase{TBot}" />
-    /// <inheritdoc cref="IBotPolicy" />
-    /// <inheritdoc cref="IBotPolicyConfigurator" />
+    /// <summary>
+    /// Represents a bot policy which can be configured with several <see cref="Bot"/> implementations.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// var policy = new BotPolicy();
+    /// policy.Configure(botConfig => botconfig
+    ///     .Retry(...)
+    ///     .Timeout(...));
+    /// 
+    /// policy.Execute((context, token) => 
+    ///     {
+    ///         someAction());
+    ///         someOtherAction());
+    ///     });
+    /// </code>
+    /// </example>
     public class BotPolicy : BotPolicyBase<Bot>, IBotPolicy, IBotPolicyConfigurator
     {
         /// <summary>

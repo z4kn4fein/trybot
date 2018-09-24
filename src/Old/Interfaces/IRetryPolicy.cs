@@ -5,6 +5,7 @@ namespace Trybot.Interfaces
     /// <summary>
     /// Interface for retry policy implementations.
     /// </summary>
+    [Obsolete("This component is not maintained anymore, check the new api: https://github.com/z4kn4fein/trybot")]
     public interface IRetryPolicy
     {
         /// <summary>

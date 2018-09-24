@@ -8,6 +8,7 @@ namespace Trybot.Strategy
     /// <summary>
     /// Base class for RetryStrategy implementations.
     /// </summary>
+    [Obsolete("This component is not maintained anymore, check the new api: https://github.com/z4kn4fein/trybot")]
     public abstract class RetryStartegy
     {
         private static RetryStartegy defaultRetryStrategy = new FixedIntervalRetryStartegy(5, TimeSpan.FromMilliseconds(500));

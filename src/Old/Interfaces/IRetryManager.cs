@@ -8,6 +8,7 @@ namespace Trybot.Interfaces
     /// <summary>
     /// Represents an interface for retry manager implementations.
     /// </summary>
+    [Obsolete("This component is not maintained anymore, check the new api: https://github.com/z4kn4fein/trybot")]
     public interface IRetryManager
     {
         /// <summary>

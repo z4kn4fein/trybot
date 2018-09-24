@@ -5,6 +5,7 @@ namespace Trybot.Strategy
     /// <summary>
     /// Represents a retry strategy implementation with fixed intervals.
     /// </summary>
+    [Obsolete("This component is not maintained anymore, check the new api: https://github.com/z4kn4fein/trybot")]
     public class FixedIntervalRetryStartegy : RetryStartegy
     {
         /// <summary>
