@@ -59,12 +59,10 @@ namespace Trybot
         /// </code>
         /// </example>
         public static IBotPolicyBuilder CustomCircuitBreaker(this IBotPolicyBuilder builder,
-        Func<ICircuitBreakerStateSwitcher, ICircuitBreakerStrategy> strategyFactory, Action<CircuitBreakerConfiguration> configuratorAction)
+        Func<ICircuitBreakerStateSwitcher, CircuitBreakerStrategy> strategyFactory, Action<CircuitBreakerConfiguration> configuratorAction)
         {
             Shield.EnsureNotNull(configuratorAction, nameof(configuratorAction));
             Shield.EnsureNotNull(strategyFactory, nameof(strategyFactory));
-
-            
 
             return builder.AddBot((innerBot, config) => new CircuitBreakerBot(innerBot, config, strategyFactory), configuratorAction);
         }
@@ -117,7 +115,7 @@ namespace Trybot
         /// </code>
         /// </example>
         public static IBotPolicyBuilder CustomCircuitBreaker(this IBotPolicyBuilder builder,
-            Func<ICircuitBreakerStateSwitcher, ICircuitBreakerStrategy> strategyFactory, CircuitBreakerConfiguration configuration)
+            Func<ICircuitBreakerStateSwitcher, CircuitBreakerStrategy> strategyFactory, CircuitBreakerConfiguration configuration)
         {
             Shield.EnsureNotNull(configuration, nameof(configuration));
             Shield.EnsureNotNull(strategyFactory, nameof(strategyFactory));
@@ -177,7 +175,7 @@ namespace Trybot
         /// </code>
         /// </example>
         public static IBotPolicyBuilder<TResult> CustomCircuitBreaker<TResult>(this IBotPolicyBuilder<TResult> builder,
-            Func<ICircuitBreakerStateSwitcher, ICircuitBreakerStrategy> strategyFactory, Action<CircuitBreakerConfiguration<TResult>> configuratorAction)
+            Func<ICircuitBreakerStateSwitcher, CircuitBreakerStrategy> strategyFactory, Action<CircuitBreakerConfiguration<TResult>> configuratorAction)
         {
             Shield.EnsureNotNull(configuratorAction, nameof(configuratorAction));
             Shield.EnsureNotNull(strategyFactory, nameof(strategyFactory));
@@ -235,7 +233,7 @@ namespace Trybot
         /// </code>
         /// </example>
         public static IBotPolicyBuilder<TResult> CustomCircuitBreaker<TResult>(this IBotPolicyBuilder<TResult> builder,
-            Func<ICircuitBreakerStateSwitcher, ICircuitBreakerStrategy> strategyFactory, CircuitBreakerConfiguration<TResult> configuraton)
+            Func<ICircuitBreakerStateSwitcher, CircuitBreakerStrategy> strategyFactory, CircuitBreakerConfiguration<TResult> configuraton)
         {
             Shield.EnsureNotNull(configuraton, nameof(configuraton));
             Shield.EnsureNotNull(strategyFactory, nameof(strategyFactory));

@@ -12,13 +12,6 @@ namespace Trybot.Tests.CircuitBreakerTests
     [TestClass]
     public class CircuitBreakerTestsNoResult
     {
-        enum State
-        {
-            Open,
-            Closed,
-            HalfOpen
-        }
-
         private IBotPolicy CreatePolicy(CircuitBreakerConfiguration conf, DefaultCircuitBreakerStrategyConfiguration strConf) =>
             new BotPolicy(config => config
                 .Configure(botconfig => botconfig
@@ -39,9 +32,14 @@ namespace Trybot.Tests.CircuitBreakerTests
         {
             var mockStore = new Mock<ICircuitStateStore>();
             mockStore.Setup(s => s.Get()).Returns(CircuitState.Closed).Verifiable();
-            var policy = this.CreatePolicy(this.CreateConfiguration()
-                .WithStateStore(mockStore.Object),
-                this.CreateStrategyConfiguration(2, 2, TimeSpan.FromMilliseconds(200)));
+            var policy = new BotPolicy(config => config
+                .Configure(botconfig => botconfig
+                    .CircuitBreaker(conf => conf
+                            .WithStateStore(mockStore.Object),
+                        defConfig => defConfig
+                            .FailureThresholdBeforeOpen(2)
+                            .SuccessThresholdInHalfOpen(2)
+                            .DurationOfOpen(TimeSpan.FromMilliseconds(200)))));
             var counter = 0;
             policy.Execute((ex, t) => counter++, CancellationToken.None);
 

@@ -12,7 +12,7 @@ namespace Trybot.CircuitBreaker
         private readonly CircuitBreakerController controller;
         private readonly AtomicBool executionBarrier;
 
-        internal CircuitBreakerBot(Bot innerBot, CircuitBreakerConfiguration configuration, Func<ICircuitBreakerStateSwitcher, ICircuitBreakerStrategy> strategyFactory) : base(innerBot, configuration)
+        internal CircuitBreakerBot(Bot innerBot, CircuitBreakerConfiguration configuration, Func<ICircuitBreakerStateSwitcher, CircuitBreakerStrategy> strategyFactory) : base(innerBot, configuration)
         {
             this.controller = new CircuitBreakerController(strategyFactory, base.Configuration);
             this.executionBarrier = new AtomicBool();
