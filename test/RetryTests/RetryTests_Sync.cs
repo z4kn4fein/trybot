@@ -137,7 +137,7 @@ namespace Trybot.Tests.RetryTests
             Assert.AreEqual(0, result);
             Assert.AreEqual(6, delayResult);
             Assert.AreEqual(TimeSpan.FromMilliseconds(200), nextDelay);
-            Assert.IsTrue(counter > 2 && counter < 5);
+            Assert.IsTrue(counter >= 2 && counter < 5);
         }
 
         [TestMethod]
