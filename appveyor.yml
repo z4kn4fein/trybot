@@ -20,8 +20,14 @@ install:
     Update-AppveyorBuild -Version "$env:build_version-preview-$env:appveyor_build_number"
     dotnet tool install -g InheritDocTool
 
-before_build:
-- ps: . .\patch-version.ps1 "src\trybot.csproj" $env:build_version $env:appveyor_build_version
+dotnet_csproj:
+  patch: true
+  file: "src\trybot.csproj"
+  version: $(build_version)
+  package_version: $(appveyor_build_number)
+  assembly_version: $(build_version)
+  file_version: $(build_version)
+  informational_version: $(build_version)
 
 build_script:
 - msbuild /t:Restore /p:Configuration=%configuration% trybot.sln
@@ -51,3 +57,8 @@ notifications:
   on_build_success: false
   on_build_failure: true
   on_build_status_changed: true
+
+- provider: Slack
+  auth_token:
+    secure: /KAOQIEOWc7w1EUl6J01qNam+f+ujntrwh53yJ0zg4qRWsdfWbkjKP2UG7tQDW7/hSVJHqF7Hz/IPdS6Cp5ilsfgH6xYroLB/sawQ/pdC5k=
+  channel: '#ci'

@@ -17,3 +17,6 @@ before_script:
 
 script:
   - dotnet test test/trybot.tests.csproj -c Release -f netcoreapp2.0
+
+notifications:
+  slack: pcsajtai-dev:h2wOfP7OIteSvf9KJ3j64gZD
