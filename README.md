@@ -81,7 +81,7 @@ Allows to configure auto re-execution of a given operation based on exceptions t
 
 ## Timeout
 
-Ensures that the caller won't have to wait indefinitely for an operation to finish, by setting a maximum time range within the given operation should be executed.
+Ensures that the caller won't have to wait indefinitely for an operation to finish by setting a maximum time range within the given operation should be executed.
 
 ### Configuration
 
@@ -111,7 +111,7 @@ policy.Configure(policyConfig => policyConfig
 
 ## Fallback
 
-Handles faults by executing an alternative operation when the original one is failing. It also provides the ability to produce an alternative result value when the original operation is not able to do it.
+Handles faults by executing an alternative operation when the original one is failing, also provides the ability to produce an alternative result value when the original operation is not able to do it.
 
 ### Configuration
     
@@ -160,7 +160,11 @@ Handles faults by executing an alternative operation when the original one is fa
 
 ## Circuit breaker
 
-Allows 
+Prevents the continuous re-execution of a failing operation by blocking the traffic for a configured amount of time, when the number of failures exceed a given threshold. This usually could give some break to a remote resource to heal itself.
+
+### Default implementation
+
+
 
 ## Execution of the configured policy
     
