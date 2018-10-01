@@ -19,7 +19,7 @@ namespace Trybot.Fallback
         TConfiguration WhenExceptionOccurs(Func<Exception, bool> fallbackPolicy);
 
         /// <summary>
-        /// Sets the delegate which will be invoked when the fallback operation is being executed.
+        /// Sets the delegate which will be invoked when the original operation is failed.
         /// </summary>
         /// <param name="onFallbackAction">The action to be invoked on a fallback.</param>
         /// <returns>Itself because of the fluent api.</returns>
@@ -27,7 +27,7 @@ namespace Trybot.Fallback
         TConfiguration OnFallback(Action<Exception, ExecutionContext> onFallbackAction);
 
         /// <summary>
-        /// Sets the delegate which will be invoked asynchronously when the fallback operation is being executed.
+        /// Sets the delegate which will be invoked asynchronously when the original operation is failed.
         /// </summary>
         /// <param name="onFallbackFunc">The asynchronous action to be invoked on a fallback.</param>
         /// <returns>Itself because of the fluent api.</returns>
@@ -59,7 +59,7 @@ namespace Trybot.Fallback
         TConfiguration WhenResultIs(Func<TResult, bool> resultPolicy);
 
         /// <summary>
-        /// Sets the delegate which will be invoked when the fallback operation is being executed.
+        /// Sets the delegate which will be invoked when the original operation is failed.
         /// </summary>
         /// <param name="onFallbackAction">The action to be invoked on a fallback.</param>
         /// <returns>Itself because of the fluent api.</returns>
@@ -67,7 +67,7 @@ namespace Trybot.Fallback
         TConfiguration OnFallback(Func<TResult, Exception, ExecutionContext, TResult> onFallbackAction);
 
         /// <summary>
-        /// Sets the delegate which will be invoked asynchronously when the fallback operation is being executed.
+        /// Sets the delegate which will be invoked asynchronously when the original operation is failed.
         /// </summary>
         /// <param name="onFallbackFunc">The asynchronous action to be invoked on a fallback.</param>
         /// <returns>Itself because of the fluent api.</returns>

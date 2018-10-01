@@ -1,6 +1,6 @@
 # trybot [![Appveyor build status](https://img.shields.io/appveyor/ci/pcsajtai/trybot/master.svg?label=appveyor)](https://ci.appveyor.com/project/pcsajtai/trybot/branch/master) [![Travis CI build status](https://img.shields.io/travis/z4kn4fein/trybot/master.svg?label=travis-ci)](https://travis-ci.org/z4kn4fein/trybot) [![Tests](https://img.shields.io/appveyor/tests/pcsajtai/trybot-1453m/master.svg)](https://ci.appveyor.com/project/pcsajtai/trybot-1453m/build/tests) [![Coverage Status](https://img.shields.io/codecov/c/github/z4kn4fein/trybot.svg)](https://codecov.io/gh/z4kn4fein/trybot) [![Join the chat at https://gitter.im/z4kn4fein/stashbox](https://img.shields.io/gitter/room/z4kn4fein/trybot.svg)](https://gitter.im/z4kn4fein/trybot?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Slack](https://img.shields.io/badge/chat-on%20slack-orange.svg?style=flat)](https://pcsajtai-dev-slack-in.herokuapp.com/)
 
-Trybot is a lock-free (but thread-safe) transient fault handling framework including such built-in bots as [Retry](#retry), [Timeout](#timeout), [Fallback](#fallback) and [Circuit Breaker](#circuit-breaker). The framework is extendable with [custom, user-defined](#custom-policies) policies as well.
+Trybot is a lock-free (but thread-safe) transient fault handling framework including such built-in bots as [Retry](#retry), [Timeout](#timeout), [Fallback](#fallback) and [Circuit Breaker](#circuit-breaker). The framework is extendable with [custom, user-defined](#custom-bots) bots as well.
 
 Github (stable) | NuGet (stable) | MyGet (pre-release) 
 --- | --- | ---
@@ -17,70 +17,175 @@ Github (stable) | NuGet (stable) | MyGet (pre-release)
 
 ## Retry
 
-- Configuration
-    - For operations **without** a return value
-        ```c#
-        // Create a new bot policy
-        var policy = new BotPolicy();
+Allows configuring auto re-executions based on specific exceptions thrown by the given operation or on its return value.
 
-        // Configure the policy to retry failed operations
-        policy.Configure(policyConfig => policyConfig
-            .Retry(retryConfig => retryConfig
-                // Set the maximum retry count
-                .WithMaxAttemptCount(5)
-                // Set the predicate which will used to decide that whether an exception should be handled or not
-                .WhenExceptionOccurs(exception => exception is HttpRequestException)))
-                // Set the delegate function used to calculate the amount of time to wait between the retry attempts
-                .WaitBetweenAttempts((attempt, exception) => TimeSpan.FromSeconds(5))
-                // (optional) Set a callback delegate which will be invoked when the given operation is being re-executed
-                .OnRetry((exception, attemptContext) => Console.WriteLine($"{attemptContext.CurrentAttempt}. retry attempt, waiting {attemptContext.CurrentDelay}"));
-        ```
-    - For operations **with** a return value
-        ```c#
-        // Create a new bot policy
-        var policy = new BotPolicy<HttpResponseMessage>();
+### Configuration
+    
+- For operations **without** a return value
+    ```c#
+    // Create a new bot policy
+    var policy = new BotPolicy();
 
-        // Configure the policy to retry failed operations
-        policy.Configure(policyConfig => policyConfig
-            .Retry(retryConfig => retryConfig
-                // Set the maximum retry count
-                .WithMaxAttemptCount(5)
-                // Set the predicate which will used to decide that whether an exception should be handled or not
-                .WhenExceptionOccurs(exception => exception is HttpRequestException)))
-                // Set the predicate which will used to decide that whether the result of the operation should be handled or not
-                .WhenResultIs(result => result.StatusCode != HttpStatusCode.Ok)))
-                // Set the delegate function used to calculate the amount of time to wait between the retry attempts
-                .WaitBetweenAttempts((attempt, result, exception) => TimeSpan.FromSeconds(5))
-                // (optional) Set a callback delegate which will be invoked when the given operation is being re-executed
-                .OnRetry((exception, result, attemptContext) => Console.WriteLine($"{attemptContext.CurrentAttempt}. retry attempt, waiting {attemptContext.CurrentDelay}, result: {result}"));
-        ```
-- Execute the configured policy
-    - With cancellation
-        ```c#
-        var tokenSource = new CancellationTokenSource();
-        policy.Execute((context, cancellationToken) => DoSomeCancellableAction(cancellationToken), tokenSource.Token);
-        ```
-    - With custom correlation id
-        ```c#
-        var correlationId = Guid.NewGuid();
-        policy.Execute((context, cancellationToken) => DoSomeActionWithCorrelationId(context.CorrelationId), correlationId);
-        ```
-        > Without setting a custom correlation id, the framework will always generate a unique one for every policy execution.
-    - Synchronously
-        ```c#
-        // Without lambda parameters
-        policy.Execute(() => DoSomeAction());
-        ```
-    - Asynchronously
-        ```c#
-        // Without lambda parameters
-        await policy.ExecuteAsync(() => DoSomeAction());
-        ```
+    // Configure the policy to retry failed operations
+    policy.Configure(policyConfig => policyConfig
+        .Retry(retryConfig => retryConfig
+            // Set the maximum retry count
+            .WithMaxAttemptCount(5)
+            // Set the predicate which will used to decide that whether an 
+            // exception should be handled or not
+            .WhenExceptionOccurs(exception => exception is HttpRequestException)
+            // Set the delegate function used to calculate the amount of time to 
+            // wait between the retry attempts
+            .WaitBetweenAttempts((attempt, exception) => TimeSpan.FromSeconds(5))
+            // (optional) Set a callback delegate which will be invoked when the 
+            // given operation is being re-executed
+            .OnRetry((exception, attemptContext) => Console.WriteLine($"{attemptContext.CurrentAttempt}. retry attempt, waiting {attemptContext.CurrentDelay}"))));
+    ```
+- For operations **with** a return value
+    ```c#
+    // Create a new bot policy
+    var policy = new BotPolicy<HttpResponseMessage>();
 
-> When the number of re-executions are reaching the configured maximum attempt count, a custom `MaxRetryAttemptsReachedException` exception is being thrown.
+    // Configure the policy to retry failed operations
+    policy.Configure(policyConfig => policyConfig
+        .Retry(retryConfig => retryConfig
+            // Set the maximum retry count
+            .WithMaxAttemptCount(5)
+            // Additionally you can set a predicate which will used to decide that 
+            // whether the result of the operation should be handled or not
+            .WhenResultIs(result => result.StatusCode != HttpStatusCode.Ok)
+            // Set the delegate function used to calculate the amount of time to wait 
+            // between the retry attempts
+            .WaitBetweenAttempts((attempt, result, exception) => TimeSpan.FromSeconds(5))
+            // (optional) Set a callback delegate which will be invoked when the 
+            // given operation is being re-executed
+            .OnRetry((exception, result, attemptContext) => Console.WriteLine($"{attemptContext.CurrentAttempt}. retry attempt, waiting {attemptContext.CurrentDelay}, result was: {result}"))));
+    ```
+    
+### Available configuration options
+- Same for policies **with or without** a return value
+    - `.WithMaxAttemptCount(int)` - Sets the maximum number of retry attempts.
+    - `.RetryIndefinitely()` - Sets the maximum number of retry attempts to int.MaxValue.
+    - `.WaitBetweenAttempts(Func<int, Exception, TimeSpan>)` - Sets the delegate which will be used to calculate the wait time between the retry attempts.
+    - `.WhenExceptionOccurs(Func<Exception, bool>)` - Sets the delegate which will be used to determine whether the given operation should be re-executed or not when a specific exception occurs.
+    - `.OnRetry(Action<Exception, AttemptContext>)` - Sets the delegate which will be invoked when the given operation is being re-executed.
+    - `.OnRetryAsync(Func<Exception, AttemptContext, CancellationToken, Task>)` - Sets the delegate which will be invoked asynchronously when the given operation is being re-executed.
+  
+- Only for policies **with** a return value
+    - `.WaitBetweenAttempts(Func<int, Exception, TResult, TimeSpan>)` - Sets the delegate which will be used to calculate the wait time between the retry attempts.
+    - `.WhenResultIs(Func<TResult, bool>)` - Sets the delegate which will be used to determine whether the given operation should be re-executed or not based on its return value.
+    - `.OnRetry(Action<TResult, Exception, AttemptContext>)` - Sets the delegate which will be invoked when the given operation is being re-executed.
+    - `.OnRetryAsync(Func<TResult, Exception, AttemptContext, CancellationToken, Task>)` - Sets the delegate which will be invoked asynchronously when the given operation is being re-executed.
+
+> When the number of re-executions are reaching the configured maximum attempt count, the framework throws a custom `MaxRetryAttemptsReachedException` exception.
 
 ## Timeout
 
+Allows configuring a maximum time within the given operation should be executed, so the caller won't be blocked beyond that time.
+
+### Configuration
+
+```c#
+// Create a new bot policy
+var policy = new BotPolicy();
+
+// Or with a return value
+var policy = new BotPolicy<HttpResponseMessage>();
+
+// Configure the policy to retry failed operations
+policy.Configure(policyConfig => policyConfig
+    .Timeout(timeoutConfig => timeoutConfig
+        // Set after how much time should be the given operation cancelled.
+        .After(TimeSpan.FromSeconds(15))
+        // (optional) Set a callback delegate which will be invoked when the 
+        // given operation is timed out
+        .OnTimeout((context) => Console.WriteLine("Operation timed out."))));
+```
+
+### Available configuration options
+- `.After(TimeSpan)` - Sets after how much time should be the given operation cancelled.
+- `.OnTimeout(Action<ExecutionContext>)` - Sets the delegate which will be invoked when the given operation is timing out.
+- `.OnTimeoutAsync(Func<ExecutionContext, Task>)` - Sets the asynchronous delegate which will be invoked when the given operation is timing out.
+
+> When the configured time is expired the framework throws a custom `OperationTimeoutException` exception.
+
 ## Fallback
 
+Allows to configure an alternative operation to be executed when the original one fails, it also can be used to define other ways to produce a requested value.
+
+### Configuration
+    
+- For operations **without** a return value
+    ```c#
+    // Create a new bot policy
+    var policy = new BotPolicy();
+
+    // Configure the policy to retry failed operations
+    policy.Configure(policyConfig => policyConfig
+        .Fallback(fallbackConfig => fallbackConfig
+            // Set a delegate which will be used to determine whether the given fallback 
+            // operation should be executed or not when a specific exception occurs.
+            .WhenExceptionOccurs(exception => exception is HttpRequestException)
+            // Set a delegate which will be invoked when the original operation is failed.
+            .OnFallback((exception, context) => DoFallbackOperation())));
+    ```
+- For operations **with** a return value
+    ```c#
+    // Create a new bot policy
+    var policy = new BotPolicy<HttpResponseMessage>();
+
+    // Configure the policy to retry failed operations
+    policy.Configure(policyConfig => policyConfig
+        .Fallback(fallbackConfig => fallbackConfig
+            // Set a delegate which will be used to determine whether the given fallback 
+            // operation should be executed or not based on the originals return value.
+            .WhenResultIs(result => result.StatusCode != HttpStatusCode.Ok)
+            // Set a delegate which will be invoked asynchronously when the original operation is failed. 
+            // It must provide an alternative return value.
+            .OnFallback((result, exception, context) => DoFallbackOperation())));
+    ```
+
+### Available configuration options
+- Same for policies **with or without** a return value
+    - `.WhenExceptionOccurs(Func<Exception, bool>)` - Sets the delegate which will be used to determine whether the given fallback operation should be executed or not when a specific exception occurs.
+
+- Only for policies **without** a return value
+    - `.OnFallback(Action<Exception, ExecutionContext>)` - Sets the delegate which will be invoked when the original operation is failed.
+    - `.OnFallbackAsync(Func<Exception, AttemptContext, CancellationToken, Task>)` - Sets the delegate which will be invoked asynchronously when the original operation is failed.
+  
+- Only for policies **with** a return value
+    - `.WhenResultIs(Func<TResult, bool>)` - Sets the delegate which will be used to determine whether the given operation should be re-executed or not based on its return value.
+    - `.OnFallback(Func<TResult, Exception, ExecutionContext, TResult>)` - Sets the delegate which will be invoked when the original operation is failed. Also provides an alternative return value.
+    - `.OnFallbackAsync(Func<TResult, Exception, ExecutionContext, CancellationToken, Task<TResult>>)` - Sets the delegate which will be invoked asynchronously when the original operation is failed. Also provides an alternative return value.
+
 ## Circuit breaker
+
+## Execution of the configured policy
+    
+- With cancellation
+    ```c#
+    var tokenSource = new CancellationTokenSource();
+    policy.Execute((context, cancellationToken) => DoSomeCancellableOperation(cancellationToken), tokenSource.Token);
+    ```
+- With a custom correlation id
+    ```c#
+    var correlationId = Guid.NewGuid();
+    policy.Execute((context, cancellationToken) => DoSomeOperationWithCorrelationId(context.CorrelationId), correlationId);
+    ```
+    > Without setting a custom correlation id, the framework will always generate a unique one for every policy execution.
+- Synchronously
+    ```c#
+    // Without lambda parameters
+    policy.Execute(() => DoSomeOperation());
+
+    // Or with lambda parameters
+    policy.Execute((context, cancellationToken) => DoSomeOperation());
+    ```
+- Asynchronously
+    ```c#
+    // Without lambda parameters
+    await policy.ExecuteAsync(() => DoSomeAsyncOperation());
+
+    // Or with lambda parameters
+    await policy.ExecuteAsync((context, cancellationToken) => DoSomeAsyncOperation());
+    ```

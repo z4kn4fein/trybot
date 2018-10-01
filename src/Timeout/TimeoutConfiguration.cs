@@ -16,7 +16,7 @@ namespace Trybot.Timeout
         private Func<ExecutionContext, Task> onTimeoutAsync;
 
         /// <summary>
-        /// Sets after how much time should the given operation being cancelled.
+        /// Sets after how much time should be the given operation cancelled.
         /// </summary>
         /// <param name="timeout">The timeout value.</param>
         /// <returns>Itself because of the fluent access.</returns>
