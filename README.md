@@ -17,7 +17,7 @@ Github (stable) | NuGet (stable) | MyGet (pre-release)
 
 ## Retry
 
-Allows to configure auto re-executions based on specific exceptions thrown by a given operation, or its return value.
+Allows to configure auto re-execution of a given operation based on exceptions thrown, or return values.
 
 ### Configuration
     
@@ -81,7 +81,7 @@ Allows to configure auto re-executions based on specific exceptions thrown by a 
 
 ## Timeout
 
-Allows to set a maximum time within the given operation should be executed, so ensures that the caller won't be blocked beyond the configured time.
+Ensures that the caller won't have to wait indefinitely for an operation to finish, by setting a maximum time range within the given operation should be executed.
 
 ### Configuration
 
@@ -111,7 +111,7 @@ policy.Configure(policyConfig => policyConfig
 
 ## Fallback
 
-Allows to configure an alternative operation to be executed when the original one fails, it also can be used to define other ways to produce a requested value.
+Handles faults by executing an alternative operation when the original one is failing. It also provides the ability to produce an alternative result value when the original operation is not able to do it.
 
 ### Configuration
     
@@ -159,6 +159,8 @@ Allows to configure an alternative operation to be executed when the original on
     - `.OnFallbackAsync(Func<TResult, Exception, ExecutionContext, CancellationToken, Task<TResult>>)` - Sets the delegate which will be invoked asynchronously when the original operation is failed. Also provides an alternative return value.
 
 ## Circuit breaker
+
+Allows 
 
 ## Execution of the configured policy
     
