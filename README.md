@@ -17,7 +17,7 @@ Github (stable) | NuGet (stable) | MyGet (pre-release)
 
 ## Retry
 
-Allows configuring auto re-executions based on specific exceptions thrown by the given operation or on its return value.
+Allows to configure auto re-executions based on specific exceptions thrown by a given operation, or its return value.
 
 ### Configuration
     
@@ -81,7 +81,7 @@ Allows configuring auto re-executions based on specific exceptions thrown by the
 
 ## Timeout
 
-Allows configuring a maximum time within the given operation should be executed, so the caller won't be blocked beyond that time.
+Allows to set a maximum time within the given operation should be executed, so ensures that the caller won't be blocked beyond the configured time.
 
 ### Configuration
 
