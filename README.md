@@ -17,20 +17,67 @@ Github (stable) | NuGet (stable) | MyGet (pre-release)
 
 ## Retry
 
-```c#
-// Create a new bot policy
-var policy = new BotPolicy();
+- Configuration
+    - For operations **without** a return value
+        ```c#
+        // Create a new bot policy
+        var policy = new BotPolicy();
 
-// Configure the policy to retry failed operations
-policy.Configure(policyConfig => policyConfig
-    .Retry(retryConfig => retryConfig
-        // Sets the maximum retry count
-        .WithMaxAttemptCount(5)
-        // Sets the predicate which will used to decide that whether an exception should be handled or not
-        .WhenExceptionOccurs(exception => exception is HttpRequestException)))
-        // Sets the delegate function used to calculate the amount of time to wait between the retry attempts
-        .WaitBetweenAttempts((attempt, exception) => TimeSpan.FromSeconds(5))
-```
+        // Configure the policy to retry failed operations
+        policy.Configure(policyConfig => policyConfig
+            .Retry(retryConfig => retryConfig
+                // Set the maximum retry count
+                .WithMaxAttemptCount(5)
+                // Set the predicate which will used to decide that whether an exception should be handled or not
+                .WhenExceptionOccurs(exception => exception is HttpRequestException)))
+                // Set the delegate function used to calculate the amount of time to wait between the retry attempts
+                .WaitBetweenAttempts((attempt, exception) => TimeSpan.FromSeconds(5))
+                // (optional) Set a callback delegate which will be invoked when the given operation is being re-executed
+                .OnRetry((exception, attemptContext) => Console.WriteLine($"{attemptContext.CurrentAttempt}. retry attempt, waiting {attemptContext.CurrentDelay}"));
+        ```
+    - For operations **with** a return value
+        ```c#
+        // Create a new bot policy
+        var policy = new BotPolicy<HttpResponseMessage>();
+
+        // Configure the policy to retry failed operations
+        policy.Configure(policyConfig => policyConfig
+            .Retry(retryConfig => retryConfig
+                // Set the maximum retry count
+                .WithMaxAttemptCount(5)
+                // Set the predicate which will used to decide that whether an exception should be handled or not
+                .WhenExceptionOccurs(exception => exception is HttpRequestException)))
+                // Set the predicate which will used to decide that whether the result of the operation should be handled or not
+                .WhenResultIs(result => result.StatusCode != HttpStatusCode.Ok)))
+                // Set the delegate function used to calculate the amount of time to wait between the retry attempts
+                .WaitBetweenAttempts((attempt, result, exception) => TimeSpan.FromSeconds(5))
+                // (optional) Set a callback delegate which will be invoked when the given operation is being re-executed
+                .OnRetry((exception, result, attemptContext) => Console.WriteLine($"{attemptContext.CurrentAttempt}. retry attempt, waiting {attemptContext.CurrentDelay}, result: {result}"));
+        ```
+- Execute the configured policy
+    - With cancellation
+        ```c#
+        var tokenSource = new CancellationTokenSource();
+        policy.Execute((context, cancellationToken) => DoSomeCancellableAction(cancellationToken), tokenSource.Token);
+        ```
+    - With custom correlation id
+        ```c#
+        var correlationId = Guid.NewGuid();
+        policy.Execute((context, cancellationToken) => DoSomeActionWithCorrelationId(context.CorrelationId), correlationId);
+        ```
+        > Without setting a custom correlation id, the framework will always generate a unique one for every policy execution.
+    - Synchronously
+        ```c#
+        // Without lambda parameters
+        policy.Execute(() => DoSomeAction());
+        ```
+    - Asynchronously
+        ```c#
+        // Without lambda parameters
+        await policy.ExecuteAsync(() => DoSomeAction());
+        ```
+
+> When the number of re-executions are reaching the configured maximum attempt count, a custom `MaxRetryAttemptsReachedException` exception is being thrown.
 
 ## Timeout
 
