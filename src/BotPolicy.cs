@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Trybot.Operations;
+using Trybot.Utils;
 
 namespace Trybot
 {
@@ -46,6 +47,8 @@ namespace Trybot
         /// <inheritdoc />
         public IBotPolicyConfigurator<TResult> Configure(Action<IBotPolicyBuilder<TResult>> configuratorAction)
         {
+            Shield.EnsureNotNull(configuratorAction, nameof(configuratorAction));
+
             var configurator = new BotPolicyBuilder<TResult>();
             configuratorAction(configurator);
 
@@ -55,13 +58,23 @@ namespace Trybot
         }
 
         /// <inheritdoc />
-        public TResult Execute(IBotOperation<TResult> operation, object correlationId, CancellationToken token) =>
-            this.Bot.Execute(operation, ExecutionContext.New(base.Configuration, correlationId), token);
+        public TResult Execute(IBotOperation<TResult> operation, object correlationId, CancellationToken token)
+        {
+            Shield.EnsureNotNull(operation, nameof(operation));
+            Shield.EnsureNotNull(correlationId, nameof(correlationId));
+
+            return this.Bot.Execute(operation, ExecutionContext.New(base.Configuration, correlationId), token);
+        }
 
         /// <inheritdoc />
-        public async Task<TResult> ExecuteAsync(IAsyncBotOperation<TResult> operation, object correlationId, CancellationToken token) =>
-            await this.Bot.ExecuteAsync(operation, ExecutionContext.New(base.Configuration, correlationId), token)
+        public async Task<TResult> ExecuteAsync(IAsyncBotOperation<TResult> operation, object correlationId, CancellationToken token)
+        {
+            Shield.EnsureNotNull(operation, nameof(operation));
+            Shield.EnsureNotNull(correlationId, nameof(correlationId));
+
+            return await this.Bot.ExecuteAsync(operation, ExecutionContext.New(base.Configuration, correlationId), token)
                 .ConfigureAwait(base.Configuration.ContinueOnCapturedContext);
+        }
     }
 
     /// <summary>
@@ -112,12 +125,22 @@ namespace Trybot
         }
 
         /// <inheritdoc />
-        public void Execute(IBotOperation operation, object correlationId, CancellationToken token) =>
+        public void Execute(IBotOperation operation, object correlationId, CancellationToken token)
+        {
+            Shield.EnsureNotNull(operation, nameof(operation));
+            Shield.EnsureNotNull(correlationId, nameof(correlationId));
+
             base.Bot.Execute(operation, ExecutionContext.New(base.Configuration, correlationId), token);
+        }
 
         /// <inheritdoc />
-        public async Task ExecuteAsync(IAsyncBotOperation operation, object correlationId, CancellationToken token) =>
+        public async Task ExecuteAsync(IAsyncBotOperation operation, object correlationId, CancellationToken token)
+        {
+            Shield.EnsureNotNull(operation, nameof(operation));
+            Shield.EnsureNotNull(correlationId, nameof(correlationId));
+
             await base.Bot.ExecuteAsync(operation, ExecutionContext.New(base.Configuration, correlationId), token)
                 .ConfigureAwait(base.Configuration.ContinueOnCapturedContext);
+        }
     }
 }
