@@ -53,6 +53,20 @@ namespace Trybot.Tests
         }
 
         [TestMethod]
+        public void BotPolicyTest_Execute_Action_CorrelationId()
+        {
+            var policy = new BotPolicy();
+            var mockBot = this.CreateMockBot(policy);
+            var correlationId = new object();
+
+            mockBot.Setup(m => m.Execute(It.IsAny<IBotOperation>(), It.IsAny<ExecutionContext>(), CancellationToken.None))
+                .Callback<IBotOperation, ExecutionContext, CancellationToken>((o, ctx, t) => Assert.AreEqual(correlationId, ctx.CorrelationId))
+                .Verifiable();
+
+            policy.Execute((ctx, t) => { }, correlationId);
+        }
+
+        [TestMethod]
         public void BotPolicyTest_Execute_Action_Without_Parameters()
         {
             var policy = new BotPolicy();
@@ -90,6 +104,21 @@ namespace Trybot.Tests
             policy.Execute((ctx, t) => 0, source.Token);
 
             mockBot.Verify(m => m.Execute(It.IsAny<IBotOperation<int>>(), It.IsAny<ExecutionContext>(), source.Token));
+        }
+
+        [TestMethod]
+        public void BotPolicyTest_Execute_Func_With_CorrelationId()
+        {
+            var policy = new BotPolicy<int>();
+            var mockBot = this.CreateMockBot(policy);
+            var correlationId = new object();
+
+            mockBot.Setup(m => m.Execute(It.IsAny<IBotOperation<int>>(), It.IsAny<ExecutionContext>(), CancellationToken.None))
+                .Callback<IBotOperation<int>, ExecutionContext, CancellationToken>((o, ctx, t) => Assert.AreEqual(correlationId, ctx.CorrelationId))
+                .Returns(0)
+                .Verifiable();
+
+            policy.Execute((ctx, t) => 0, correlationId);
         }
 
         [TestMethod]
@@ -136,6 +165,21 @@ namespace Trybot.Tests
         }
 
         [TestMethod]
+        public async Task BotPolicyTest_ExecuteAsync_Action_With_CorrelationId()
+        {
+            var policy = new BotPolicy();
+            var mockBot = this.CreateMockBot(policy);
+            var correlationId = new object();
+
+            mockBot.Setup(m => m.ExecuteAsync(It.IsAny<IAsyncBotOperation>(), It.IsAny<ExecutionContext>(), CancellationToken.None))
+                .Callback<IAsyncBotOperation, ExecutionContext, CancellationToken>((o, ctx, t) => Assert.AreEqual(correlationId, ctx.CorrelationId))
+                .Returns(Task.FromResult(0))
+                .Verifiable();
+
+            await policy.ExecuteAsync((ctx, t) => { }, correlationId);
+        }
+
+        [TestMethod]
         public async Task BotPolicyTest_ExecuteAsync_Action_Without_Parameters()
         {
             var policy = new BotPolicy();
@@ -175,6 +219,21 @@ namespace Trybot.Tests
             await policy.ExecuteAsync((ctx, t) => Task.FromResult(0), source.Token);
 
             mockBot.Verify(m => m.ExecuteAsync(It.IsAny<IAsyncBotOperation>(), It.IsAny<ExecutionContext>(), source.Token));
+        }
+
+        [TestMethod]
+        public async Task BotPolicyTest_ExecuteAsync_Func_With_CorrelationId()
+        {
+            var policy = new BotPolicy();
+            var mockBot = this.CreateMockBot(policy);
+            var correlationId = new object();
+
+            mockBot.Setup(m => m.ExecuteAsync(It.IsAny<IAsyncBotOperation>(), It.IsAny<ExecutionContext>(), CancellationToken.None))
+                .Callback<IAsyncBotOperation, ExecutionContext, CancellationToken>((o, ctx, t) => Assert.AreEqual(correlationId, ctx.CorrelationId))
+                .Returns(Task.FromResult(0))
+                .Verifiable();
+
+            await policy.ExecuteAsync((ctx, t) => Task.FromResult(0), correlationId);
         }
 
         [TestMethod]
@@ -220,6 +279,21 @@ namespace Trybot.Tests
         }
 
         [TestMethod]
+        public async Task BotPolicyTest_ExecuteAsync_Func_Result_With_CorrelationId()
+        {
+            var policy = new BotPolicy<int>();
+            var mockBot = this.CreateMockBot(policy);
+            var correlationId = new object();
+
+            mockBot.Setup(m => m.ExecuteAsync(It.IsAny<IAsyncBotOperation<int>>(), It.IsAny<ExecutionContext>(), CancellationToken.None))
+                .Callback<IAsyncBotOperation<int>, ExecutionContext, CancellationToken>((o, ctx, t) => Assert.AreEqual(correlationId, ctx.CorrelationId))
+                .Returns(Task.FromResult(0))
+                .Verifiable();
+
+            await policy.ExecuteAsync((ctx, t) => 0, correlationId);
+        }
+
+        [TestMethod]
         public async Task BotPolicyTest_ExecuteAsync_Func_Result_Without_Parameters()
         {
             var policy = new BotPolicy<int>();
@@ -259,6 +333,21 @@ namespace Trybot.Tests
             await policy.ExecuteAsync((ctx, t) => Task.FromResult(0), source.Token);
 
             mockBot.Verify(m => m.ExecuteAsync(It.IsAny<IAsyncBotOperation<int>>(), It.IsAny<ExecutionContext>(), source.Token));
+        }
+
+        [TestMethod]
+        public async Task BotPolicyTest_ExecuteAsync_Func_Task_Result_With_CorrelationId()
+        {
+            var policy = new BotPolicy<int>();
+            var mockBot = this.CreateMockBot(policy);
+            var correlationId = new object();
+
+            mockBot.Setup(m => m.ExecuteAsync(It.IsAny<IAsyncBotOperation<int>>(), It.IsAny<ExecutionContext>(), CancellationToken.None))
+                .Callback<IAsyncBotOperation<int>, ExecutionContext, CancellationToken>((o, ctx, t) => Assert.AreEqual(correlationId, ctx.CorrelationId))
+                .Returns(Task.FromResult(0))
+                .Verifiable();
+
+            await policy.ExecuteAsync((ctx, t) => Task.FromResult(0), correlationId);
         }
 
         [TestMethod]
