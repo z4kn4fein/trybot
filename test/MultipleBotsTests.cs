@@ -58,9 +58,11 @@ namespace Trybot.Tests
             var policy = new BotPolicy();
             var mockBot = this.CreateMockBot(policy);
 
-            policy.Execute(() => { });
+            mockBot.Setup(m => m.Execute(It.IsAny<IBotOperation>(), It.IsAny<ExecutionContext>(), CancellationToken.None))
+                .Callback<IBotOperation, ExecutionContext, CancellationToken>((op, ctx, t) => op.Execute(ctx, t))
+                .Verifiable();
 
-            mockBot.Verify(m => m.Execute(It.IsAny<IBotOperation>(), It.IsAny<ExecutionContext>(), CancellationToken.None));
+            policy.Execute(() => { });
         }
 
         [TestMethod]
@@ -96,9 +98,12 @@ namespace Trybot.Tests
             var policy = new BotPolicy<int>();
             var mockBot = this.CreateMockBot(policy);
 
-            policy.Execute(() => 0);
+            mockBot.Setup(m => m.Execute(It.IsAny<IBotOperation<int>>(), It.IsAny<ExecutionContext>(), CancellationToken.None))
+                .Callback<IBotOperation<int>, ExecutionContext, CancellationToken>((op, ctx, t) => op.Execute(ctx, t))
+                .Returns(0)
+                .Verifiable();
 
-            mockBot.Verify(m => m.Execute(It.IsAny<IBotOperation<int>>(), It.IsAny<ExecutionContext>(), CancellationToken.None));
+            policy.Execute(() => 0);
         }
 
         [TestMethod]
@@ -136,9 +141,12 @@ namespace Trybot.Tests
             var policy = new BotPolicy();
             var mockBot = this.CreateMockBot(policy);
 
-            await policy.ExecuteAsync(() => { });
+            mockBot.Setup(m => m.ExecuteAsync(It.IsAny<IAsyncBotOperation>(), It.IsAny<ExecutionContext>(), CancellationToken.None))
+                .Callback<IAsyncBotOperation, ExecutionContext, CancellationToken>((op, ctx, t) => op.ExecuteAsync(ctx, t))
+                .Returns(Task.FromResult(0))
+                .Verifiable();
 
-            mockBot.Verify(m => m.ExecuteAsync(It.IsAny<IAsyncBotOperation>(), It.IsAny<ExecutionContext>(), CancellationToken.None));
+            await policy.ExecuteAsync(() => { });
         }
 
         [TestMethod]
@@ -175,9 +183,12 @@ namespace Trybot.Tests
             var policy = new BotPolicy();
             var mockBot = this.CreateMockBot(policy);
 
-            await policy.ExecuteAsync(() => Task.FromResult(0));
+            mockBot.Setup(m => m.ExecuteAsync(It.IsAny<IAsyncBotOperation>(), It.IsAny<ExecutionContext>(), CancellationToken.None))
+                .Callback<IAsyncBotOperation, ExecutionContext, CancellationToken>((op, ctx, t) => op.ExecuteAsync(ctx, t))
+                .Returns(Task.FromResult(0))
+                .Verifiable();
 
-            mockBot.Verify(m => m.ExecuteAsync(It.IsAny<IAsyncBotOperation>(), It.IsAny<ExecutionContext>(), CancellationToken.None));
+            await policy.ExecuteAsync(() => Task.FromResult(0));
         }
 
         [TestMethod]
@@ -214,9 +225,12 @@ namespace Trybot.Tests
             var policy = new BotPolicy<int>();
             var mockBot = this.CreateMockBot(policy);
 
-            await policy.ExecuteAsync(() => 0);
+            mockBot.Setup(m => m.ExecuteAsync(It.IsAny<IAsyncBotOperation<int>>(), It.IsAny<ExecutionContext>(), CancellationToken.None))
+                .Callback<IAsyncBotOperation<int>, ExecutionContext, CancellationToken>((op, ctx, t) => op.ExecuteAsync(ctx, t))
+                .Returns(Task.FromResult(0))
+                .Verifiable();
 
-            mockBot.Verify(m => m.ExecuteAsync(It.IsAny<IAsyncBotOperation<int>>(), It.IsAny<ExecutionContext>(), CancellationToken.None));
+            await policy.ExecuteAsync(() => 0);
         }
 
         [TestMethod]
@@ -253,9 +267,12 @@ namespace Trybot.Tests
             var policy = new BotPolicy<int>();
             var mockBot = this.CreateMockBot(policy);
 
-            await policy.ExecuteAsync(() => Task.FromResult(0));
+            mockBot.Setup(m => m.ExecuteAsync(It.IsAny<IAsyncBotOperation<int>>(), It.IsAny<ExecutionContext>(), CancellationToken.None))
+                .Callback<IAsyncBotOperation<int>, ExecutionContext, CancellationToken>((op, ctx, t) => op.ExecuteAsync(ctx, t))
+                .Returns(Task.FromResult(0))
+                .Verifiable();
 
-            mockBot.Verify(m => m.ExecuteAsync(It.IsAny<IAsyncBotOperation<int>>(), It.IsAny<ExecutionContext>(), CancellationToken.None));
+            await policy.ExecuteAsync(() => Task.FromResult(0));
         }
 
         [TestMethod]

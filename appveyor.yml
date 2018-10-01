@@ -20,14 +20,8 @@ install:
     Update-AppveyorBuild -Version "$env:build_version-preview-$env:appveyor_build_number"
     dotnet tool install -g InheritDocTool
 
-dotnet_csproj:
-  patch: true
-  file: "src\trybot.csproj"
-  version: $(build_version)
-  package_version: $(appveyor_build_number)
-  assembly_version: $(build_version)
-  file_version: $(build_version)
-  informational_version: $(build_version)
+before_build:
+- ps: . .\patch-version.ps1 "src\trybot.csproj" $env:build_version $env:build_version
 
 build_script:
 - msbuild /t:Restore /p:Configuration=%configuration% trybot.sln
