@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Trybot.CircuitBreaker
+﻿namespace Trybot.CircuitBreaker
 {
     /// <summary>
     /// Represents the configuration of the default circuit breaker strategy used by the circuit breaker bot.
@@ -8,8 +6,6 @@ namespace Trybot.CircuitBreaker
     public class DefaultCircuitBreakerStrategyConfiguration
     {
         internal int MaxFailureCountBeforeOpen { get; private set; }
-
-        internal TimeSpan OpenStateDuration { get; private set; }
 
         internal int MinSuccessCountBeforeClose { get; private set; }
 
@@ -21,18 +17,6 @@ namespace Trybot.CircuitBreaker
         public DefaultCircuitBreakerStrategyConfiguration FailureThresholdBeforeOpen(int failureThresholdBeforeOpen)
         {
             this.MaxFailureCountBeforeOpen = failureThresholdBeforeOpen;
-            return this;
-        }
-
-        /// <summary>
-        /// Sets the amount of time of how long the circuit breaker should remain in the Open state before turning into HalfOpen.
-        /// </summary>
-        /// <param name="openStateDuration">The open state duration.</param>
-        /// <returns></returns>
-        /// <returns>Itself because of the fluent api.</returns>
-        public DefaultCircuitBreakerStrategyConfiguration DurationOfOpen(TimeSpan openStateDuration)
-        {
-            this.OpenStateDuration = openStateDuration;
             return this;
         }
 

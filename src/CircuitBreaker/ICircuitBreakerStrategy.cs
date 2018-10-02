@@ -1,4 +1,7 @@
-﻿namespace Trybot.CircuitBreaker
+﻿using System.Threading;
+using System.Threading.Tasks;
+
+namespace Trybot.CircuitBreaker
 {
     /// <summary>
     /// Represents a circuit breaker strategy used by the circuit bot internally.
@@ -7,23 +10,35 @@
     public interface ICircuitBreakerStrategy
     {
         /// <summary>
-        /// Called when the underlying operation is failed within the Closed circuit state.
+        /// 
         /// </summary>
-        void OperationFailedInClosed();
+        /// <returns></returns>
+        bool PreCheckCircuitState();
 
         /// <summary>
-        /// Called when the underlying operation is succeeded within the Closed circuit state.
+        /// 
         /// </summary>
-        void OperationSucceededInClosed();
+        /// <returns></returns>
+        Task<bool> PreCheckCircuitStateAsync(CancellationToken token, bool continueOnCapturedContext);
 
         /// <summary>
-        /// Called when the underlying operation is failed within the HalfOpen circuit state.
+        /// 
         /// </summary>
-        void OperationFailedInHalfOpen();
+        void OperationSucceeded();
 
         /// <summary>
-        /// Called when the underlying operation is succeeded within the HalfOpen circuit state.
+        /// 
         /// </summary>
-        void OperationSucceededInHalfOpen();
+        Task OperationSucceededAsync(CancellationToken token, bool continueOnCapturedContext);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        void OperationFailed();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        Task OperationFailedAsync(CancellationToken token, bool continueOnCapturedContext);
     }
 }

@@ -160,7 +160,7 @@ Handles faults by executing an alternative operation when the original one is fa
 
 ## Circuit breaker
 
-Prevents the continuous re-execution of a failing operation by blocking the traffic for a configured amount of time, when the number of failures exceed a given threshold. This usually could give some break to a remote resource to heal itself.
+Prevents the continuous re-execution of a failing operation by blocking the traffic for a configured amount of time, when the number of failures exceed a given threshold. This usually could give some break to a remote resource to heal itself properly.
 
 ### Default implementation
 

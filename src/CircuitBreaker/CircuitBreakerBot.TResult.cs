@@ -9,18 +9,18 @@ namespace Trybot.CircuitBreaker
 {
     internal class CircuitBreakerBot<TResult> : ConfigurableBot<CircuitBreakerConfiguration<TResult>, TResult>
     {
-        private readonly CircuitBreakerController controller;
+        private readonly CircuitBreakerStrategy strategy;
         private readonly AtomicBool executionBarrier;
 
-        internal CircuitBreakerBot(Bot<TResult> innerBot, CircuitBreakerConfiguration<TResult> configuration, Func<ICircuitBreakerStateSwitcher, CircuitBreakerStrategy> strategyFactory) : base(innerBot, configuration)
+        internal CircuitBreakerBot(Bot<TResult> innerBot, CircuitBreakerConfiguration<TResult> configuration, CircuitBreakerStrategy strategy) : base(innerBot, configuration)
         {
-            this.controller = new CircuitBreakerController(strategyFactory, base.Configuration);
+            this.strategy = strategy;
             this.executionBarrier = new AtomicBool();
         }
 
         public override TResult Execute(IBotOperation<TResult> operation, ExecutionContext context, CancellationToken token)
         {
-            var shouldLimitExecution = this.controller.PreCheckCircuitState();
+            var shouldLimitExecution = this.strategy.PreCheckCircuitState();
             if (shouldLimitExecution && !this.executionBarrier.CompareExchange(false, true))
                 throw new HalfOpenExecutionLimitExceededException(Constants.HalfOpenExecutionLimitExceededExceptionMessage);
 
@@ -29,16 +29,16 @@ namespace Trybot.CircuitBreaker
                 var result = base.InnerBot.Execute(operation, context, token);
 
                 if (base.Configuration.AcceptsResult(result))
-                    this.controller.OperationSucceeded();
+                    this.strategy.OperationSucceeded();
                 else
-                    this.controller.OperationFailed();
+                    this.strategy.OperationFailed();
 
                 return result;
             }
             catch (Exception exception)
             {
                 if (base.Configuration.HandlesException(exception))
-                    this.controller.OperationFailed();
+                    this.strategy.OperationFailed();
 
                 throw;
             }
@@ -50,7 +50,9 @@ namespace Trybot.CircuitBreaker
 
         public override async Task<TResult> ExecuteAsync(IAsyncBotOperation<TResult> operation, ExecutionContext context, CancellationToken token)
         {
-            var shouldLimitExecution = this.controller.PreCheckCircuitState();
+            var shouldLimitExecution = await this.strategy.PreCheckCircuitStateAsync(token, context.BotPolicyConfiguration.ContinueOnCapturedContext)
+                .ConfigureAwait(context.BotPolicyConfiguration.ContinueOnCapturedContext);
+
             if (shouldLimitExecution && !this.executionBarrier.CompareExchange(false, true))
                 throw new HalfOpenExecutionLimitExceededException(Constants.HalfOpenExecutionLimitExceededExceptionMessage);
 
@@ -58,17 +60,21 @@ namespace Trybot.CircuitBreaker
             {
                 var result = await base.InnerBot.ExecuteAsync(operation, context, token)
                     .ConfigureAwait(context.BotPolicyConfiguration.ContinueOnCapturedContext);
+
                 if (base.Configuration.AcceptsResult(result))
-                    this.controller.OperationSucceeded();
+                    await this.strategy.OperationSucceededAsync(token, context.BotPolicyConfiguration.ContinueOnCapturedContext)
+                        .ConfigureAwait(context.BotPolicyConfiguration.ContinueOnCapturedContext);
                 else
-                    this.controller.OperationFailed();
+                    await this.strategy.OperationFailedAsync(token, context.BotPolicyConfiguration.ContinueOnCapturedContext)
+                        .ConfigureAwait(context.BotPolicyConfiguration.ContinueOnCapturedContext);
 
                 return result;
             }
             catch (Exception exception)
             {
                 if (base.Configuration.HandlesException(exception))
-                    this.controller.OperationFailed();
+                    await this.strategy.OperationFailedAsync(token, context.BotPolicyConfiguration.ContinueOnCapturedContext)
+                        .ConfigureAwait(context.BotPolicyConfiguration.ContinueOnCapturedContext);
 
                 throw;
             }

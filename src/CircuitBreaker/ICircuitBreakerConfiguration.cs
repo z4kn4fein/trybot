@@ -17,11 +17,11 @@ namespace Trybot.CircuitBreaker
         TConfiguration BrakeWhenExceptionOccurs(Func<Exception, bool> exceptionPolicy);
 
         /// <summary>
-        /// Sets a the underlying circuit state store implementation.
+        /// Sets a the underlying circuit state handler implementation.
         /// </summary>
-        /// <param name="stateStore">The state store</param>
+        /// <param name="stateHandler">The state handler.</param>
         /// /// <returns>Itself because of the fluent api.</returns>
-        TConfiguration WithStateStore(ICircuitStateStore stateStore);
+        TConfiguration WithStateHandler(ICircuitStateHandler stateHandler);
 
         /// <summary>
         /// Sets the delegate which will be invoked when the circuit breaker trips to the open state.
@@ -46,6 +46,14 @@ namespace Trybot.CircuitBreaker
         /// <returns>Itself because of the fluent api.</returns>
         /// <example><code>config.OnHalfOpen(() => onHalfOpenAction())</code></example>
         TConfiguration OnHalfOpen(Action halfOpenHandler);
+
+        /// <summary>
+        /// Sets the amount of time of how long the circuit breaker should remain in the Open state before turning into HalfOpen.
+        /// </summary>
+        /// <param name="openStateDuration">The open state duration.</param>
+        /// <returns></returns>
+        /// <returns>Itself because of the fluent api.</returns>
+        TConfiguration DurationOfOpen(TimeSpan openStateDuration);
     }
 
     /// <summary>

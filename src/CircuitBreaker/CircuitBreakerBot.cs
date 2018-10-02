@@ -9,30 +9,30 @@ namespace Trybot.CircuitBreaker
 {
     internal class CircuitBreakerBot : ConfigurableBot<CircuitBreakerConfiguration>
     {
-        private readonly CircuitBreakerController controller;
+        private readonly CircuitBreakerStrategy strategy;
         private readonly AtomicBool executionBarrier;
 
-        internal CircuitBreakerBot(Bot innerBot, CircuitBreakerConfiguration configuration, Func<ICircuitBreakerStateSwitcher, CircuitBreakerStrategy> strategyFactory) : base(innerBot, configuration)
+        internal CircuitBreakerBot(Bot innerBot, CircuitBreakerConfiguration configuration, CircuitBreakerStrategy strategy) : base(innerBot, configuration)
         {
-            this.controller = new CircuitBreakerController(strategyFactory, base.Configuration);
+            this.strategy = strategy;
             this.executionBarrier = new AtomicBool();
         }
 
         public override void Execute(IBotOperation operation, ExecutionContext context, CancellationToken token)
         {
-            var shouldLimitExecution = this.controller.PreCheckCircuitState();
+            var shouldLimitExecution = this.strategy.PreCheckCircuitState();
             if (shouldLimitExecution && !this.executionBarrier.CompareExchange(false, true))
                 throw new HalfOpenExecutionLimitExceededException(Constants.HalfOpenExecutionLimitExceededExceptionMessage);
 
             try
             {
                 base.InnerBot.Execute(operation, context, token);
-                this.controller.OperationSucceeded();
+                this.strategy.OperationSucceeded();
             }
             catch (Exception exception)
             {
                 if (base.Configuration.HandlesException(exception))
-                    this.controller.OperationFailed();
+                    this.strategy.OperationFailed();
 
                 throw;
             }
@@ -44,7 +44,9 @@ namespace Trybot.CircuitBreaker
 
         public override async Task ExecuteAsync(IAsyncBotOperation operation, ExecutionContext context, CancellationToken token)
         {
-            var shouldLimitExecution = this.controller.PreCheckCircuitState();
+            var shouldLimitExecution = await this.strategy.PreCheckCircuitStateAsync(token, context.BotPolicyConfiguration.ContinueOnCapturedContext)
+                .ConfigureAwait(context.BotPolicyConfiguration.ContinueOnCapturedContext);
+
             if (shouldLimitExecution && !this.executionBarrier.CompareExchange(false, true))
                 throw new HalfOpenExecutionLimitExceededException(Constants.HalfOpenExecutionLimitExceededExceptionMessage);
 
@@ -52,12 +54,14 @@ namespace Trybot.CircuitBreaker
             {
                 await base.InnerBot.ExecuteAsync(operation, context, token)
                     .ConfigureAwait(context.BotPolicyConfiguration.ContinueOnCapturedContext);
-                this.controller.OperationSucceeded();
+                await this.strategy.OperationSucceededAsync(token, context.BotPolicyConfiguration.ContinueOnCapturedContext)
+                    .ConfigureAwait(context.BotPolicyConfiguration.ContinueOnCapturedContext);
             }
             catch (Exception exception)
             {
                 if (base.Configuration.HandlesException(exception))
-                    this.controller.OperationFailed();
+                    await this.strategy.OperationFailedAsync(token, context.BotPolicyConfiguration.ContinueOnCapturedContext)
+                        .ConfigureAwait(context.BotPolicyConfiguration.ContinueOnCapturedContext);
 
                 throw;
             }

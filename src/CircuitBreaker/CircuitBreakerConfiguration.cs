@@ -11,11 +11,13 @@ namespace Trybot.CircuitBreaker
 
         internal Action<TimeSpan> OpenStateHandler { get; set; }
 
+        internal TimeSpan OpenStateDuration { get; set; }
+
         internal Action HalfOpenStateHandler { get; set; }
 
         internal Action ClosedStateHandler { get; set; }
 
-        internal ICircuitStateStore StateStore { get; set; } = new InMemoryCircuitStateStore();
+        internal ICircuitStateHandler StateHandler { get; set; } = new InMemoryCircuitStateStore();
 
         internal bool HandlesException(Exception exception) =>
             this.ExceptionPolicy?.Invoke(exception) ?? false;
@@ -34,9 +36,9 @@ namespace Trybot.CircuitBreaker
         }
 
         /// <inheritdoc />
-        public CircuitBreakerConfiguration WithStateStore(ICircuitStateStore stateStore)
+        public CircuitBreakerConfiguration WithStateHandler(ICircuitStateHandler stateHandler)
         {
-            base.StateStore = stateStore;
+            base.StateHandler = stateHandler;
             return this;
         }
 
@@ -58,6 +60,13 @@ namespace Trybot.CircuitBreaker
         public CircuitBreakerConfiguration OnHalfOpen(Action halfOpenHandler)
         {
             base.HalfOpenStateHandler = halfOpenHandler;
+            return this;
+        }
+
+        /// <inheritdoc />
+        public CircuitBreakerConfiguration DurationOfOpen(TimeSpan openStateDuration)
+        {
+            this.OpenStateDuration = openStateDuration;
             return this;
         }
     }
@@ -84,9 +93,9 @@ namespace Trybot.CircuitBreaker
         }
 
         /// <inheritdoc />
-        public CircuitBreakerConfiguration<TResult> WithStateStore(ICircuitStateStore stateStore)
+        public CircuitBreakerConfiguration<TResult> WithStateHandler(ICircuitStateHandler stateHandler)
         {
-            base.StateStore = stateStore;
+            base.StateHandler = stateHandler;
             return this;
         }
 
@@ -108,6 +117,13 @@ namespace Trybot.CircuitBreaker
         public CircuitBreakerConfiguration<TResult> OnHalfOpen(Action halfOpenHandler)
         {
             base.HalfOpenStateHandler = halfOpenHandler;
+            return this;
+        }
+
+        /// <inheritdoc />
+        public CircuitBreakerConfiguration<TResult> DurationOfOpen(TimeSpan openStateDuration)
+        {
+            this.OpenStateDuration = openStateDuration;
             return this;
         }
 

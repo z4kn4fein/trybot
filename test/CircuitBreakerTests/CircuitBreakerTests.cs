@@ -17,29 +17,29 @@ namespace Trybot.Tests.CircuitBreakerTests
                 .Configure(botconfig => botconfig
                     .CircuitBreaker(conf, strConf)));
 
-        private CircuitBreakerConfiguration<TResult> CreateConfiguration<TResult>() =>
+        private CircuitBreakerConfiguration<TResult> CreateConfiguration<TResult>(TimeSpan openDuration) =>
             new CircuitBreakerConfiguration<TResult>()
-                .BrakeWhenExceptionOccurs(ex => true);
+                .BrakeWhenExceptionOccurs(ex => true)
+                .DurationOfOpen(openDuration);
 
-        private DefaultCircuitBreakerStrategyConfiguration CreateStrategyConfiguration(int failure, int success, TimeSpan openDuration) =>
+        private DefaultCircuitBreakerStrategyConfiguration CreateStrategyConfiguration(int failure, int success) =>
             new DefaultCircuitBreakerStrategyConfiguration()
                 .FailureThresholdBeforeOpen(failure)
-                .SuccessThresholdInHalfOpen(success)
-                .DurationOfOpen(openDuration);
+                .SuccessThresholdInHalfOpen(success);
 
         [TestMethod]
         public void CircuitBreakerTests_Ok()
         {
-            var mockStore = new Mock<ICircuitStateStore>();
-            mockStore.Setup(s => s.Get()).Returns(CircuitState.Closed).Verifiable();
+            var mockStore = new Mock<ICircuitStateHandler>();
+            mockStore.Setup(s => s.Read()).Returns(CircuitState.Closed).Verifiable();
             var policy = new BotPolicy<int>(config => config
                 .Configure(botconfig => botconfig
                     .CircuitBreaker(conf => conf
-                    .WithStateStore(mockStore.Object),
+                    .WithStateHandler(mockStore.Object)
+                    .DurationOfOpen(TimeSpan.FromMilliseconds(200)),
                         defConfig => defConfig
                             .FailureThresholdBeforeOpen(2)
-                            .SuccessThresholdInHalfOpen(2)
-                            .DurationOfOpen(TimeSpan.FromMilliseconds(200)))));
+                            .SuccessThresholdInHalfOpen(2))));
             var counter = 0;
             policy.Execute((ex, t) => counter++, CancellationToken.None);
 
@@ -49,8 +49,8 @@ namespace Trybot.Tests.CircuitBreakerTests
         [TestMethod]
         public async Task CircuitBreakerTests_Ok_Async()
         {
-            var policy = this.CreatePolicy(this.CreateConfiguration<int>(),
-                this.CreateStrategyConfiguration(2, 2, TimeSpan.FromMilliseconds(200)));
+            var policy = this.CreatePolicy(this.CreateConfiguration<int>(TimeSpan.FromMilliseconds(200)),
+                this.CreateStrategyConfiguration(2, 2));
             var counter = 0;
             await policy.ExecuteAsync((ex, t) => counter++, CancellationToken.None);
 
@@ -60,8 +60,8 @@ namespace Trybot.Tests.CircuitBreakerTests
         [TestMethod]
         public async Task CircuitBreakerTests_Ok_Async_Task()
         {
-            var policy = this.CreatePolicy(this.CreateConfiguration<int>(),
-                this.CreateStrategyConfiguration(2, 2, TimeSpan.FromMilliseconds(200)));
+            var policy = this.CreatePolicy(this.CreateConfiguration<int>(TimeSpan.FromMilliseconds(200)),
+                this.CreateStrategyConfiguration(2, 2));
             var counter = 0;
             await policy.ExecuteAsync((ex, t) =>
             {
@@ -78,7 +78,7 @@ namespace Trybot.Tests.CircuitBreakerTests
             var state = State.Closed;
             var successResult = 5;
 
-            var policy = this.CreatePolicy(this.CreateConfiguration<int>()
+            var policy = this.CreatePolicy(this.CreateConfiguration<int>(TimeSpan.FromMilliseconds(200))
                 .BrakeWhenResultIs(r => r != successResult)
                 .OnClosed(() => state = State.Closed)
                 .OnHalfOpen(() => state = State.HalfOpen)
@@ -86,7 +86,7 @@ namespace Trybot.Tests.CircuitBreakerTests
                 {
                     state = State.Open;
                     Assert.AreEqual(TimeSpan.FromMilliseconds(200), ts);
-                }), this.CreateStrategyConfiguration(2, 2, TimeSpan.FromMilliseconds(200)));
+                }), this.CreateStrategyConfiguration(2, 2));
             var counter = 0;
 
             // brake the circuit
@@ -130,7 +130,7 @@ namespace Trybot.Tests.CircuitBreakerTests
             var state = State.Closed;
             var successResult = 5;
 
-            var policy = this.CreatePolicy(this.CreateConfiguration<int>()
+            var policy = this.CreatePolicy(this.CreateConfiguration<int>(TimeSpan.FromMilliseconds(200))
                 .BrakeWhenResultIs(r => r != successResult)
                 .OnClosed(() => state = State.Closed)
                 .OnHalfOpen(() => state = State.HalfOpen)
@@ -138,7 +138,7 @@ namespace Trybot.Tests.CircuitBreakerTests
                 {
                     state = State.Open;
                     Assert.AreEqual(TimeSpan.FromMilliseconds(200), ts);
-                }), this.CreateStrategyConfiguration(2, 2, TimeSpan.FromMilliseconds(200)));
+                }), this.CreateStrategyConfiguration(2, 2));
             var counter = 0;
 
             // brake the circuit
@@ -181,14 +181,14 @@ namespace Trybot.Tests.CircuitBreakerTests
         {
             var state = State.Closed;
 
-            var policy = this.CreatePolicy(this.CreateConfiguration<int>()
+            var policy = this.CreatePolicy(this.CreateConfiguration<int>(TimeSpan.FromMilliseconds(200))
                 .OnClosed(() => state = State.Closed)
                 .OnHalfOpen(() => state = State.HalfOpen)
                 .OnOpen(ts =>
                 {
                     state = State.Open;
                     Assert.AreEqual(TimeSpan.FromMilliseconds(200), ts);
-                }), this.CreateStrategyConfiguration(2, 2, TimeSpan.FromMilliseconds(200)));
+                }), this.CreateStrategyConfiguration(2, 2));
             var counter = 0;
 
             // brake the circuit
@@ -246,14 +246,14 @@ namespace Trybot.Tests.CircuitBreakerTests
         {
             var state = State.Closed;
 
-            var policy = this.CreatePolicy(this.CreateConfiguration<int>()
+            var policy = this.CreatePolicy(this.CreateConfiguration<int>(TimeSpan.FromMilliseconds(200))
                 .OnClosed(() => state = State.Closed)
                 .OnHalfOpen(() => state = State.HalfOpen)
                 .OnOpen(ts =>
                 {
                     state = State.Open;
                     Assert.AreEqual(TimeSpan.FromMilliseconds(200), ts);
-                }), this.CreateStrategyConfiguration(2, 2, TimeSpan.FromMilliseconds(200)));
+                }), this.CreateStrategyConfiguration(2, 2));
             var counter = 0;
 
             // brake the circuit
