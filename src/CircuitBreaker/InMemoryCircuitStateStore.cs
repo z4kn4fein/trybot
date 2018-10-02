@@ -8,11 +8,6 @@ namespace Trybot.CircuitBreaker
     {
         private CircuitState storedState = CircuitState.Closed;
 
-        public CircuitState Get() => this.storedState;
-
-        public void Set(CircuitState state) =>
-            Swap.SwapValue(ref this.storedState, state);
-
         public CircuitState Read() => this.storedState;
 
         public void Update(CircuitState state) =>
