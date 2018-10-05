@@ -9,7 +9,7 @@ namespace Trybot.CircuitBreaker
     {
         /// <summary>
         /// Sets the delegate which will be used to determine whether the given operation should be
-        /// marked as failed by the <see cref="ICircuitBreakerStrategy" /> or not when a specific exception occurs.
+        /// marked as failed by the <see cref="CircuitBreakerStrategy" /> or not when a specific exception occurs.
         /// </summary>
         /// <param name="exceptionPolicy">The determination delegate.</param>
         /// <returns>Itself because of the fluent api.</returns>
@@ -63,7 +63,7 @@ namespace Trybot.CircuitBreaker
     {
         /// <summary>
         /// Sets the delegate which will be used to determine whether the given operation should be
-        /// marked as failed by the <see cref="ICircuitBreakerStrategy" /> or not based on its return value.
+        /// marked as failed by the <see cref="CircuitBreakerStrategy" /> or not based on its return value.
         /// </summary>
         /// <param name="resultPolicy">The determination delegate.</param>
         /// <returns>Itself because of the fluent api.</returns>

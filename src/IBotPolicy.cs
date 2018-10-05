@@ -8,7 +8,7 @@ namespace Trybot
     /// <summary>
     /// Represents a bot policy which can be configured with several <see cref="Bot"/> implementations.
     /// </summary>
-    public interface IBotPolicy
+    public interface IBotPolicy : IBotPolicyConfigurator
     {
         /// <summary>
         /// Executes a given operation synchronously.

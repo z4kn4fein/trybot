@@ -1,234 +1,119 @@
-﻿//using Microsoft.VisualStudio.TestTools.UnitTesting;
-//using Moq;
-//using System;
-//using System.Threading;
-//using Trybot.CircuitBreaker;
-//using Trybot.CircuitBreaker.Exceptions;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Threading;
+using Trybot.CircuitBreaker;
 
-//namespace Trybot.Tests.CircuitBreakerTests
-//{
-//    [TestClass]
-//    public class CustomCircuitBreakerTests
-//    {
-//        [TestMethod]
-//        public void CustomCircuitBreakerTests_Closed_Open_HalfOpen_Then_Closed()
-//        {
-//            var state = State.Closed;
+namespace Trybot.Tests.CircuitBreakerTests
+{
+    [TestClass]
+    public class CustomCircuitBreakerTests
+    {
+        private class CustomStrategy : CircuitBreakerStrategy
+        {
+            public CustomStrategy(CircuitBreakerConfigurationBase configuration) : base(configuration)
+            { }
 
-//            Mock<CircuitBreakerStrategy> mockStrategy = null;
-//            ICircuitBreakerStateSwitcher switcher = null;
-//            var policy = new BotPolicy(config => config
-//                .Configure(botConfig => botConfig
-//                    .CustomCircuitBreaker(sw =>
-//                    {
-//                        switcher = sw;
-//                        mockStrategy = new Mock<CircuitBreakerStrategy>(switcher);
-//                        return mockStrategy.Object;
-//                    }, cbConfig => cbConfig.BrakeWhenExceptionOccurs(ex => true)
-//                        .OnClosed(() => state = State.Closed)
-//                        .OnHalfOpen(() => state = State.HalfOpen)
-//                        .OnOpen(ts => state = State.Open))));
+            protected override bool OperationFailedInClosed() => true;
 
-//            mockStrategy.Setup(s => s.OperationFailedInClosed()).Callback(() => switcher.Open(TimeSpan.FromSeconds(.2))).Verifiable();
+            protected override bool OperationFailedInHalfOpen() => true;
 
-//            Assert.ThrowsException<InvalidOperationException>(() =>
-//                policy.Execute((ctx, t) => throw new InvalidOperationException(), CancellationToken.None));
+            protected override bool OperationSucceededInHalfOpen() => true;
 
-//            Assert.AreEqual(State.Open, state);
+            protected override void Reset() { }
+        }
 
-//            Thread.Sleep(TimeSpan.FromSeconds(.2));
+        [TestMethod]
+        public void CustomCircuitBreakerTests_Closed_Open_HalfOpen_Then_Closed()
+        {
+            var state = State.Closed;
+            var policy = new BotPolicy(config => config
+                .Configure(botConfig => botConfig
+                    .CustomCircuitBreaker(cbConfig => new CustomStrategy(cbConfig),
+                        cbConfig => cbConfig.BrakeWhenExceptionOccurs(ex => true)
+                        .OnClosed(() => state = State.Closed)
+                        .OnHalfOpen(() => state = State.HalfOpen)
+                        .OnOpen(ts => state = State.Open))));
 
-//            mockStrategy.Setup(s => s.OperationSucceededInHalfOpen()).Callback(() => switcher.Close()).Verifiable();
+            Assert.ThrowsException<InvalidOperationException>(() =>
+                policy.Execute((ctx, t) => throw new InvalidOperationException(), CancellationToken.None));
 
-//            policy.Execute((ctx, t) => Assert.AreEqual(State.HalfOpen, state), CancellationToken.None);
+            Assert.AreEqual(State.Open, state);
 
-//            Assert.AreEqual(State.Closed, state);
-//        }
+            policy.Execute((ctx, t) => Assert.AreEqual(State.HalfOpen, state), CancellationToken.None);
 
-//        [TestMethod]
-//        public void CustomCircuitBreakerTests_Closed_Open_HalfOpen_Then_Closed_WithConfig()
-//        {
-//            var state = State.Closed;
+            Assert.AreEqual(State.Closed, state);
+        }
 
-//            Mock<CircuitBreakerStrategy> mockStrategy = null;
-//            ICircuitBreakerStateSwitcher switcher = null;
-//            var policy = new BotPolicy(config => config
-//                .Configure(botConfig => botConfig
-//                    .CustomCircuitBreaker(sw =>
-//                    {
-//                        switcher = sw;
-//                        mockStrategy = new Mock<CircuitBreakerStrategy>(switcher);
-//                        return mockStrategy.Object;
-//                    }, new CircuitBreakerConfiguration().BrakeWhenExceptionOccurs(ex => true)
-//                        .OnClosed(() => state = State.Closed)
-//                        .OnHalfOpen(() => state = State.HalfOpen)
-//                        .OnOpen(ts => state = State.Open))));
+        [TestMethod]
+        public void CustomCircuitBreakerTests_Closed_Open_HalfOpen_Then_Closed_WithConfig()
+        {
+            var state = State.Closed;
+            var policy = new BotPolicy(config => config
+                .Configure(botConfig => botConfig
+                    .CustomCircuitBreaker(cbConfig => new CustomStrategy(cbConfig),
+                        new CircuitBreakerConfiguration().BrakeWhenExceptionOccurs(ex => true)
+                            .OnClosed(() => state = State.Closed)
+                            .OnHalfOpen(() => state = State.HalfOpen)
+                            .OnOpen(ts => state = State.Open))));
 
-//            mockStrategy.Setup(s => s.OperationFailedInClosed()).Callback(() => switcher.Open(TimeSpan.FromSeconds(.2))).Verifiable();
+            Assert.ThrowsException<InvalidOperationException>(() =>
+                policy.Execute((ctx, t) => throw new InvalidOperationException(), CancellationToken.None));
 
-//            Assert.ThrowsException<InvalidOperationException>(() =>
-//                policy.Execute((ctx, t) => throw new InvalidOperationException(), CancellationToken.None));
+            Assert.AreEqual(State.Open, state);
 
-//            Assert.AreEqual(State.Open, state);
+            policy.Execute((ctx, t) => Assert.AreEqual(State.HalfOpen, state), CancellationToken.None);
 
-//            Thread.Sleep(TimeSpan.FromSeconds(.2));
+            Assert.AreEqual(State.Closed, state);
+        }
 
-//            mockStrategy.Setup(s => s.OperationSucceededInHalfOpen()).Callback(() => switcher.Close()).Verifiable();
+        [TestMethod]
+        public void CustomCircuitBreakerTests_Result_Closed_Open_HalfOpen_Then_Closed()
+        {
+            var state = State.Closed;
+            var policy = new BotPolicy<int>(config => config
+                .Configure(botConfig => botConfig
+                    .CustomCircuitBreaker(cbConfig => new CustomStrategy(cbConfig),
+                        cbConfig => cbConfig.BrakeWhenResultIs(r => r != 5)
+                            .OnClosed(() => state = State.Closed)
+                            .OnHalfOpen(() => state = State.HalfOpen)
+                            .OnOpen(ts => state = State.Open))));
 
-//            policy.Execute((ctx, t) => Assert.AreEqual(State.HalfOpen, state), CancellationToken.None);
+            policy.Execute((ctx, t) => 6, CancellationToken.None);
 
-//            Assert.AreEqual(State.Closed, state);
-//        }
+            Assert.AreEqual(State.Open, state);
 
-//        [TestMethod]
-//        public void CustomCircuitBreakerTests_Closed_Open_HalfOpen_Then_Open()
-//        {
-//            var state = State.Closed;
+            policy.Execute((ctx, t) =>
+            {
+                Assert.AreEqual(State.HalfOpen, state);
+                return 5;
+            }, CancellationToken.None);
 
-//            Mock<CircuitBreakerStrategy> mockStrategy = null;
-//            ICircuitBreakerStateSwitcher switcher = null;
-//            var policy = new BotPolicy(config => config
-//                .Configure(botConfig => botConfig
-//                    .CustomCircuitBreaker(sw =>
-//                    {
-//                        switcher = sw;
-//                        mockStrategy = new Mock<CircuitBreakerStrategy>(switcher);
-//                        return mockStrategy.Object;
-//                    }, cbConfig => cbConfig.BrakeWhenExceptionOccurs(ex => true)
-//                        .OnClosed(() => state = State.Closed)
-//                        .OnHalfOpen(() => state = State.HalfOpen)
-//                        .OnOpen(ts => state = State.Open))));
+            Assert.AreEqual(State.Closed, state);
+        }
 
-//            mockStrategy.Setup(s => s.OperationFailedInClosed()).Callback(() => switcher.Open(TimeSpan.FromSeconds(.2))).Verifiable();
+        [TestMethod]
+        public void CustomCircuitBreakerTests_Result_Closed_Open_HalfOpen_Then_Closed_WithConfig()
+        {
+            var state = State.Closed;
+            var policy = new BotPolicy<int>(config => config
+                .Configure(botConfig => botConfig
+                    .CustomCircuitBreaker(cbConfig => new CustomStrategy(cbConfig),
+                        new CircuitBreakerConfiguration<int>().BrakeWhenResultIs(r => r != 5)
+                            .OnClosed(() => state = State.Closed)
+                            .OnHalfOpen(() => state = State.HalfOpen)
+                            .OnOpen(ts => state = State.Open))));
 
-//            Assert.ThrowsException<InvalidOperationException>(() =>
-//                policy.Execute((ctx, t) => throw new InvalidOperationException(), CancellationToken.None));
+            policy.Execute((ctx, t) => 6, CancellationToken.None);
 
-//            Assert.AreEqual(State.Open, state);
+            Assert.AreEqual(State.Open, state);
 
-//            Assert.ThrowsException<CircuitOpenException>(() =>
-//                policy.Execute((ctx, t) => { }, CancellationToken.None));
+            policy.Execute((ctx, t) =>
+            {
+                Assert.AreEqual(State.HalfOpen, state);
+                return 5;
+            }, CancellationToken.None);
 
-//            Thread.Sleep(TimeSpan.FromSeconds(.2));
-
-//            mockStrategy.Setup(s => s.OperationFailedInHalfOpen()).Callback(() => switcher.Open(TimeSpan.FromSeconds(.2))).Verifiable();
-
-//            Assert.ThrowsException<InvalidOperationException>(() =>
-//                policy.Execute((ctx, t) => throw new InvalidOperationException(), CancellationToken.None));
-
-//            Assert.AreEqual(State.Open, state);
-//        }
-
-//        [TestMethod]
-//        public void CustomCircuitBreakerTests_Result_Closed_Open_HalfOpen_Then_Closed()
-//        {
-//            var state = State.Closed;
-
-//            Mock<CircuitBreakerStrategy> mockStrategy = null;
-//            ICircuitBreakerStateSwitcher switcher = null;
-//            var policy = new BotPolicy<int>(config => config
-//                .Configure(botConfig => botConfig
-//                    .CustomCircuitBreaker(sw =>
-//                    {
-//                        switcher = sw;
-//                        mockStrategy = new Mock<CircuitBreakerStrategy>(switcher);
-//                        return mockStrategy.Object;
-//                    }, cbConfig => cbConfig.BrakeWhenResultIs(r => r != 5)
-//                        .OnClosed(() => state = State.Closed)
-//                        .OnHalfOpen(() => state = State.HalfOpen)
-//                        .OnOpen(ts => state = State.Open))));
-
-//            mockStrategy.Setup(s => s.OperationFailedInClosed()).Callback(() => switcher.Open(TimeSpan.FromSeconds(.2))).Verifiable();
-
-//            policy.Execute((ctx, t) => 6, CancellationToken.None);
-
-//            Assert.AreEqual(State.Open, state);
-
-//            Thread.Sleep(TimeSpan.FromSeconds(.2));
-
-//            mockStrategy.Setup(s => s.OperationSucceededInHalfOpen()).Callback(() => switcher.Close()).Verifiable();
-
-//            policy.Execute((ctx, t) =>
-//            {
-//                Assert.AreEqual(State.HalfOpen, state);
-//                return 5;
-//            }, CancellationToken.None);
-
-//            Assert.AreEqual(State.Closed, state);
-//        }
-
-//        [TestMethod]
-//        public void CustomCircuitBreakerTests_Result_Closed_Open_HalfOpen_Then_Closed_WithConfig()
-//        {
-//            var state = State.Closed;
-
-//            Mock<CircuitBreakerStrategy> mockStrategy = null;
-//            ICircuitBreakerStateSwitcher switcher = null;
-//            var policy = new BotPolicy<int>(config => config
-//                .Configure(botConfig => botConfig
-//                    .CustomCircuitBreaker(sw =>
-//                    {
-//                        switcher = sw;
-//                        mockStrategy = new Mock<CircuitBreakerStrategy>(switcher);
-//                        return mockStrategy.Object;
-//                    }, new CircuitBreakerConfiguration<int>()
-//                        .BrakeWhenResultIs(r => r != 5)
-//                        .OnClosed(() => state = State.Closed)
-//                        .OnHalfOpen(() => state = State.HalfOpen)
-//                        .OnOpen(ts => state = State.Open))));
-
-//            mockStrategy.Setup(s => s.OperationFailedInClosed()).Callback(() => switcher.Open(TimeSpan.FromSeconds(.2))).Verifiable();
-
-//            policy.Execute((ctx, t) => 6, CancellationToken.None);
-
-//            Assert.AreEqual(State.Open, state);
-
-//            Thread.Sleep(TimeSpan.FromSeconds(.2));
-
-//            mockStrategy.Setup(s => s.OperationSucceededInHalfOpen()).Callback(() => switcher.Close()).Verifiable();
-
-//            policy.Execute((ctx, t) =>
-//            {
-//                Assert.AreEqual(State.HalfOpen, state);
-//                return 5;
-//            }, CancellationToken.None);
-
-//            Assert.AreEqual(State.Closed, state);
-//        }
-
-//        [TestMethod]
-//        public void CustomCircuitBreakerTests_Result_Closed_Open_HalfOpen_Then_Open()
-//        {
-//            var state = State.Closed;
-
-//            Mock<CircuitBreakerStrategy> mockStrategy = null;
-//            ICircuitBreakerStateSwitcher switcher = null;
-//            var policy = new BotPolicy<int>(config => config
-//                .Configure(botConfig => botConfig
-//                    .CustomCircuitBreaker(sw =>
-//                    {
-//                        switcher = sw;
-//                        mockStrategy = new Mock<CircuitBreakerStrategy>(switcher);
-//                        return mockStrategy.Object;
-//                    }, cbConfig => cbConfig
-//                        .BrakeWhenResultIs(r => r != 5)
-//                        .OnClosed(() => state = State.Closed)
-//                        .OnHalfOpen(() => state = State.HalfOpen)
-//                        .OnOpen(ts => state = State.Open))));
-
-//            mockStrategy.Setup(s => s.OperationFailedInClosed()).Callback(() => switcher.Open(TimeSpan.FromSeconds(.2))).Verifiable();
-
-//            policy.Execute((ctx, t) => 6, CancellationToken.None);
-
-//            Assert.AreEqual(State.Open, state);
-
-//            Thread.Sleep(TimeSpan.FromSeconds(.2));
-
-//            mockStrategy.Setup(s => s.OperationFailedInHalfOpen()).Callback(() => switcher.Open(TimeSpan.FromSeconds(.2))).Verifiable();
-
-//            policy.Execute((ctx, t) => 6, CancellationToken.None);
-
-//            Assert.AreEqual(State.Open, state);
-//        }
-//    }
-//}
+            Assert.AreEqual(State.Closed, state);
+        }
+    }
+}

@@ -24,7 +24,6 @@ namespace Trybot.CircuitBreaker
 
             this.Reset();
             return true;
-
         }
 
         protected override bool OperationFailedInHalfOpen() => true;

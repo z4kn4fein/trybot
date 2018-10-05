@@ -15,7 +15,7 @@
         <RepositoryUrl>https://github.com/z4kn4fein/trybot</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageTags>Trybot retry timeout fallback circuitbreaker</PackageTags>
-        <Description>Trybot is a lock-free (but thread-safe) transient fault handling framework including such bots as Retry, Timeout, Fallback and Circuit Breaker.</Description>
+        <Description>Trybot is a transient fault handling framework including such bots as Retry, Timeout, Fallback and Circuit Breaker.</Description>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <SignAssembly>true</SignAssembly>

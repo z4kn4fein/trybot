@@ -9,24 +9,25 @@ namespace Trybot.CircuitBreaker
     /// <summary>
     /// Represents an abstract circuit breaker strategy.
     /// </summary>
-    public abstract class CircuitBreakerStrategy : ICircuitBreakerStrategy
+    public abstract class CircuitBreakerStrategy
     {
         private readonly ICircuitStateHandler stateHandler;
         private readonly CircuitBreakerConfigurationBase configuration;
-        private DateTimeOffset openStateEndTime;
+        private long openStateEndTimeTicks;
+
+        private const long DefaultOpenEndTimeTicks = 0;
 
         /// <summary>
-        /// 
+        /// Constructs a <see cref="CircuitBreakerStrategy"/> implementation.
         /// </summary>
-        /// <param name="configuration"></param>
+        /// <param name="configuration">The circuit breaker configuration.</param>
         protected CircuitBreakerStrategy(CircuitBreakerConfigurationBase configuration)
         {
             this.stateHandler = configuration.StateHandler;
             this.configuration = configuration;
         }
 
-        /// <inheritdoc />
-        public bool PreCheckCircuitState()
+        internal bool PreCheckCircuitState()
         {
             var state = this.stateHandler.Read();
             if (state == CircuitState.Closed)
@@ -35,16 +36,13 @@ namespace Trybot.CircuitBreaker
             if (state == CircuitState.HalfOpen)
                 return true;
 
-            var openDuration = this.openStateEndTime - DateTimeOffset.UtcNow;
-            if (openDuration > TimeSpan.Zero)
-                throw new CircuitOpenException(Constants.CircuitOpenExceptionMessage, openDuration);
+            this.HandleOpenState();
 
             this.HalfOpen();
             return true;
         }
 
-        /// <inheritdoc />
-        public async Task<bool> PreCheckCircuitStateAsync(CancellationToken token, bool continueOnCapturedContext)
+        internal async Task<bool> PreCheckCircuitStateAsync(CancellationToken token, bool continueOnCapturedContext)
         {
             var state = await this.stateHandler.ReadAsync(token, continueOnCapturedContext)
                 .ConfigureAwait(continueOnCapturedContext);
@@ -55,9 +53,7 @@ namespace Trybot.CircuitBreaker
             if (state == CircuitState.HalfOpen)
                 return true;
 
-            var openDuration = this.openStateEndTime - DateTimeOffset.UtcNow;
-            if (openDuration > TimeSpan.Zero)
-                throw new CircuitOpenException(Constants.CircuitOpenExceptionMessage, openDuration);
+            this.HandleOpenState();
 
             await this.HalfOpenAsync(token, continueOnCapturedContext)
                 .ConfigureAwait(continueOnCapturedContext);
@@ -65,8 +61,7 @@ namespace Trybot.CircuitBreaker
             return true;
         }
 
-        /// <inheritdoc />
-        public void OperationSucceeded()
+        internal void OperationSucceeded()
         {
             var state = this.stateHandler.Read();
             if (state == CircuitState.Closed)
@@ -76,8 +71,7 @@ namespace Trybot.CircuitBreaker
                 this.Close();
         }
 
-        /// <inheritdoc />
-        public async Task OperationSucceededAsync(CancellationToken token, bool continueOnCapturedContext)
+        internal async Task OperationSucceededAsync(CancellationToken token, bool continueOnCapturedContext)
         {
             var state = await this.stateHandler.ReadAsync(token, continueOnCapturedContext)
                 .ConfigureAwait(continueOnCapturedContext);
@@ -89,8 +83,7 @@ namespace Trybot.CircuitBreaker
                      .ConfigureAwait(continueOnCapturedContext);
         }
 
-        /// <inheritdoc />
-        public void OperationFailed()
+        internal void OperationFailed()
         {
             var state = this.stateHandler.Read();
             if (state == CircuitState.Closed && this.OperationFailedInClosed() ||
@@ -98,8 +91,7 @@ namespace Trybot.CircuitBreaker
                 this.Open();
         }
 
-        /// <inheritdoc />
-        public async Task OperationFailedAsync(CancellationToken token, bool continueOnCapturedContext)
+        internal async Task OperationFailedAsync(CancellationToken token, bool continueOnCapturedContext)
         {
             var state = await this.stateHandler.ReadAsync(token, continueOnCapturedContext)
                 .ConfigureAwait(continueOnCapturedContext);
@@ -172,18 +164,35 @@ namespace Trybot.CircuitBreaker
             this.OnHalfOpen();
         }
 
-        private void OnClose() =>
+        private void OnClose()
+        {
+            this.openStateEndTimeTicks = DefaultOpenEndTimeTicks;
             this.configuration.ClosedStateHandler?.Invoke();
+        }
 
         private void OnOpen()
         {
-            this.openStateEndTime = DateTimeOffset.UtcNow.Add(this.configuration.OpenStateDuration);
+            this.openStateEndTimeTicks = DateTimeOffset.UtcNow.Add(this.configuration.OpenStateDuration).Ticks;
             this.configuration.OpenStateHandler?.Invoke(this.configuration.OpenStateDuration);
         }
 
         private void OnHalfOpen()
         {
+            this.openStateEndTimeTicks = DefaultOpenEndTimeTicks;
             this.configuration.HalfOpenStateHandler?.Invoke();
+        }
+
+        private void HandleOpenState()
+        {
+            // when the state handler indicates an open state but we did not recieved 
+            // a local open request we should set the the open duration here
+            if (Interlocked.CompareExchange(ref this.openStateEndTimeTicks,
+                DateTimeOffset.UtcNow.Add(this.configuration.OpenStateDuration).Ticks, DefaultOpenEndTimeTicks) == 0)
+                this.configuration.OpenStateHandler?.Invoke(this.configuration.OpenStateDuration);
+
+            var remainingOpenDuration = this.openStateEndTimeTicks - DateTimeOffset.UtcNow.Ticks;
+            if (remainingOpenDuration > 0)
+                throw new CircuitOpenException(Constants.CircuitOpenExceptionMessage, TimeSpan.FromTicks(remainingOpenDuration));
         }
     }
 }

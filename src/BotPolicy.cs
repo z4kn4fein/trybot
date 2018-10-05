@@ -94,7 +94,7 @@ namespace Trybot
     ///     });
     /// </code>
     /// </example>
-    public class BotPolicy : BotPolicyBase<Bot>, IBotPolicy, IBotPolicyConfigurator
+    public class BotPolicy : BotPolicyBase<Bot>, IBotPolicy
     {
         /// <summary>
         /// Constructs a <see cref="BotPolicy"/>.
