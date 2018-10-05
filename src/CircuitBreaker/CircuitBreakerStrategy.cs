@@ -172,8 +172,9 @@ namespace Trybot.CircuitBreaker
 
         private void OnOpen()
         {
-            this.openStateEndTimeTicks = DateTimeOffset.UtcNow.Add(this.configuration.OpenStateDuration).Ticks;
-            this.configuration.OpenStateHandler?.Invoke(this.configuration.OpenStateDuration);
+            if (Interlocked.CompareExchange(ref this.openStateEndTimeTicks,
+                DateTimeOffset.UtcNow.Ticks + this.configuration.OpenStateDuration.Ticks, DefaultOpenEndTimeTicks) == 0)
+                this.configuration.OpenStateHandler?.Invoke(this.configuration.OpenStateDuration);
         }
 
         private void OnHalfOpen()
@@ -187,7 +188,7 @@ namespace Trybot.CircuitBreaker
             // when the state handler indicates an open state but we did not recieved 
             // a local open request we should set the the open duration here
             if (Interlocked.CompareExchange(ref this.openStateEndTimeTicks,
-                DateTimeOffset.UtcNow.Add(this.configuration.OpenStateDuration).Ticks, DefaultOpenEndTimeTicks) == 0)
+                DateTimeOffset.UtcNow.Ticks + this.configuration.OpenStateDuration.Ticks, DefaultOpenEndTimeTicks) == 0)
                 this.configuration.OpenStateHandler?.Invoke(this.configuration.OpenStateDuration);
 
             var remainingOpenDuration = this.openStateEndTimeTicks - DateTimeOffset.UtcNow.Ticks;
