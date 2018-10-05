@@ -253,7 +253,7 @@ namespace Trybot.Tests.CircuitBreakerTests
                          {
                              counter++;
                              Assert.AreEqual(State.HalfOpen, state);
-                             Task.Delay(TimeSpan.FromMilliseconds(300), t).Wait(t);
+                             Task.Delay(TimeSpan.FromMilliseconds(500), t).Wait(t);
                          }, CancellationToken.None);
 
                      }
@@ -323,7 +323,7 @@ namespace Trybot.Tests.CircuitBreakerTests
                         {
                             counter++;
                             Assert.AreEqual(State.HalfOpen, state);
-                            await Task.Delay(TimeSpan.FromMilliseconds(300), t);
+                            await Task.Delay(TimeSpan.FromMilliseconds(500), t);
                         }, CancellationToken.None);
 
                     }
