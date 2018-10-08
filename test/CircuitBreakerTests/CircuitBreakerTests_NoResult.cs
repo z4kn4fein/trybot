@@ -217,6 +217,7 @@ namespace Trybot.Tests.CircuitBreakerTests
         }
 
         [TestMethod]
+        [Ignore] // This test is very undeterministic, used only for local testing
         public void CircuitBreakerTests_Brake_Then_Only_Allow_One_Execution_On_HalfOpen()
         {
             var state = State.Closed;
@@ -245,29 +246,23 @@ namespace Trybot.Tests.CircuitBreakerTests
             Thread.Sleep(openException.RemainingOpenTime.Add(TimeSpan.FromMilliseconds(10)));
 
             // simulate fast parallel calls, the faster one will win and attempts to close the circuit, the other one will be rejected
-            var tasks = new List<Task>();
-            for (var i = 0; i < 2; i++)
-            {
-                tasks.Add(Task.Factory.StartNew(() =>
-                {
-                    try
-                    {
-                        policy.Execute((ctx, t) =>
-                        {
-                            counter++;
-                            Assert.AreEqual(State.HalfOpen, state);
-                            Task.Delay(TimeSpan.FromMilliseconds(300), t).Wait(t);
-                        }, CancellationToken.None);
+            Parallel.For(0, 2, i =>
+                 {
+                     try
+                     {
+                         policy.Execute((ctx, t) =>
+                         {
+                             counter++;
+                             Assert.AreEqual(State.HalfOpen, state);
+                             Task.Delay(TimeSpan.FromMilliseconds(300), t).Wait(t);
+                         }, CancellationToken.None);
 
-                    }
-                    catch (Exception e)
-                    {
-                        Assert.IsInstanceOfType(e, typeof(HalfOpenExecutionLimitExceededException));
-                    }
-                }));
-            }
-
-            Task.WhenAll(tasks).Wait();
+                     }
+                     catch (Exception e)
+                     {
+                         Assert.IsInstanceOfType(e, typeof(HalfOpenExecutionLimitExceededException));
+                     }
+                 });
 
             Assert.AreEqual(State.HalfOpen, state);
 
@@ -286,6 +281,7 @@ namespace Trybot.Tests.CircuitBreakerTests
         }
 
         [TestMethod]
+        [Ignore] // This test is very undeterministic, used only for local testing
         public async Task CircuitBreakerTests_Brake_Then_Only_Allow_One_Execution_On_HalfOpen_Async()
         {
             var state = State.Closed;
@@ -321,7 +317,7 @@ namespace Trybot.Tests.CircuitBreakerTests
             var tasks = new List<Task>();
             for (var i = 0; i < 2; i++)
             {
-                tasks.Add(Task.Factory.StartNew(async () =>
+                tasks.Add(Task.Run(async () =>
                 {
                     try
                     {
