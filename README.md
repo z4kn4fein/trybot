@@ -405,7 +405,7 @@ They are for differenct use cases:
     ```c#
     class CustomBot : Bot
     {
-        internal CustomBot(Bot innerBot) // the inner bot is the next bot in the cain
+        internal CustomBot(Bot innerBot) // the inner bot is the next bot in the chain
             : base(innerBot)
         { }
 
@@ -426,7 +426,7 @@ They are for differenct use cases:
     ```c#
     class CustomBot<TResult> : Bot<TResult>
     {
-        internal CustomBot(Bot<TResult> innerBot) // the inner bot is the next bot in the cain
+        internal CustomBot(Bot<TResult> innerBot) // the inner bot is the next bot in the chain
             : base(innerBot)
         { }
 
@@ -448,7 +448,7 @@ They are for differenct use cases:
     class CustomBot : ConfigurableBot<CustomConfiguration>
     {
         internal CustomBot(Bot innerBot, CustomConfiguration configuration) 
-            : base(innerBot, configuration) // the inner bot is the next bot in the cain
+            : base(innerBot, configuration) // the inner bot is the next bot in the chain
         { }
 
         public override void Execute(IBotOperation operation, ExecutionContext context, CancellationToken token)
@@ -469,7 +469,7 @@ They are for differenct use cases:
     class CustomBot<TResult, CustomConfiguration> : ConfigurableBot<CustomConfiguration, TResult>
     {
         internal CustomBot(Bot<TResult> innerBot, CustomConfiguration configuration) 
-            : base(innerBot, configuration) // the inner bot is the next bot in the cain
+            : base(innerBot, configuration) // the inner bot is the next bot in the chain
         { }
 
         public override TResult Execute(IBotOperation<TResult> operation, ExecutionContext context, CancellationToken token)
