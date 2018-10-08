@@ -405,30 +405,42 @@ They are for differenct use cases:
     ```c#
     class CustomBot : Bot
     {
-        internal CustomBot(Bot innerBot) 
+        internal CustomBot(Bot innerBot) // the inner bot is the next bot in the cain
             : base(innerBot)
         { }
 
         public override void Execute(IBotOperation operation, ExecutionContext context, CancellationToken token)
-        { }
+        { 
+            // here you can use your custom handling logic on the inner bots call:
+            // base.InnerBot.Execute(operation, context, token);
+        }
 
         public override Task ExecuteAsync(IAsyncBotOperation operation, ExecutionContext context, CancellationToken token)
-        { }
+        { 
+            // here you can use your custom handling logic on the inner bots call:
+            // base.InnerBot.ExecuteAsync(operation, context, token);
+        }
     }
     ```
 - **`Bot<TResult>`**: Inheriting from this allows you to create a bot **without configuration** which can handle operations **with return value**.
     ```c#
     class CustomBot<TResult> : Bot<TResult>
     {
-        internal CustomBot(Bot<TResult> innerBot) 
+        internal CustomBot(Bot<TResult> innerBot) // the inner bot is the next bot in the cain
             : base(innerBot)
         { }
 
         public override TResult Execute(IBotOperation<TResult> operation, ExecutionContext context, CancellationToken token)
-        { }
+        { 
+            // here you can use your custom handling logic on the inner bots call:
+            // return base.InnerBot.Execute(operation, context, token);
+        }
 
         public override Task<TResult> ExecuteAsync(IAsyncBotOperation<TResult> operation, ExecutionContext context, CancellationToken token)
-        { }
+        { 
+            // here you can use your custom handling logic on the inner bots call:
+            // return base.InnerBot.ExecuteAsync(operation, context, token);
+        }
     }
     ```
 - **`ConfigurableBot`**: Inheriting from this allows you to create a bot **with configuration** which can handle operations **without return value**.
@@ -436,14 +448,20 @@ They are for differenct use cases:
     class CustomBot : ConfigurableBot<CustomConfiguration>
     {
         internal CustomBot(Bot innerBot, CustomConfiguration configuration) 
-            : base(innerBot, configuration)
+            : base(innerBot, configuration) // the inner bot is the next bot in the cain
         { }
 
         public override void Execute(IBotOperation operation, ExecutionContext context, CancellationToken token)
-        { }
+        { 
+            // here you can use your custom handling logic on the inner bots call:
+            // base.InnerBot.Execute(operation, context, token);
+        }
 
         public override Task ExecuteAsync(IAsyncBotOperation operation, ExecutionContext context, CancellationToken token)
-        { }
+        { 
+            // here you can use your custom handling logic on the inner bots call:
+            // base.InnerBot.ExecuteAsync(operation, context, token);
+        }
     }
     ```
 - **`ConfigurableBot<TResult>`**: Inheriting from this allows you to create a bot **with configuration** which can handle operations **with return value**.
@@ -451,14 +469,20 @@ They are for differenct use cases:
     class CustomBot<TResult, CustomConfiguration> : ConfigurableBot<CustomConfiguration, TResult>
     {
         internal CustomBot(Bot<TResult> innerBot, CustomConfiguration configuration) 
-            : base(innerBot, configuration)
+            : base(innerBot, configuration) // the inner bot is the next bot in the cain
         { }
 
         public override TResult Execute(IBotOperation<TResult> operation, ExecutionContext context, CancellationToken token)
-        { }
+        { 
+            // here you can use your custom handling logic on the inner bots call:
+            // return base.InnerBot.Execute(operation, context, token);
+        }
 
         public override Task<TResult> ExecuteAsync(IAsyncBotOperation<TResult> operation, ExecutionContext context, CancellationToken token)
-        { }
+        { 
+            // here you can use your custom handling logic on the inner bots call:
+            // return base.InnerBot.ExecuteAsync(operation, context, token);
+        }
     }
     ```
 
@@ -500,5 +524,4 @@ policy.Configure(policyConfig => policyConfig
         .After(TimeSpan.FromSeconds(120))));
 ```
 
-
-the handling order of the given operation would be the same as the configuration order.
+The handling order of the given operation would be the same as the configuration order. So from the top to the bottom, which means in the example above the circuit breaker will try to execute the given operation first, then if it fails the retry bot will re-execute it until the timeout is not firing a cancellation.
