@@ -64,7 +64,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="CbViewModel.cs" />
-    <Compile Include="DistributedCircuitBreakerHandler.cs" />
+    <Compile Include="DistributedCircuitStateHandler.cs" />
     <Compile Include="MainViewModel.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
