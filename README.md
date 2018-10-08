@@ -214,6 +214,7 @@ Implements the Circuit Breaker pattern described [here](https://docs.microsoft.c
                     // before turning into Closed.
                     .SuccessThresholdInHalfOpen(2)));
     ```
+
 ### Custom implementation
 
 The functionalities of the Circuit Breaker bot can be extended with custom `CircuitBreakerStrategy` implementations. With this you can get more control over the internal functioning of the Circuit Breaker by determining when should it trip between the Circuit States. All you need to do is only inherit from the `CircuitBreakerStrategy` abstract class. 
@@ -296,6 +297,10 @@ policy.Configure(policyConfig => policyConfig
 
 - Only for policies **with** a return value
     - `.BrakeWhenResultIs(Func<TResult, bool>)` - Sets the delegate which will be used to determine whether the given operation should be marked as failed by the `CircuitBreakerStrategy` or not based on its return value.
+
+> When an operation execution attempt is made when the Circuit Breaker is in Open state, it throws a `CircuitOpenException` exception.
+
+> When there is more than one operation executing during the HalfOpen state, the second operation would be interrupted with a `HalfOpenExecutionLimitExceededException` exception.
 
 ### Circuit state handler
 
