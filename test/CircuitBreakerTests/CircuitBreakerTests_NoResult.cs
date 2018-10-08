@@ -245,23 +245,29 @@ namespace Trybot.Tests.CircuitBreakerTests
             Thread.Sleep(openException.RemainingOpenTime.Add(TimeSpan.FromMilliseconds(10)));
 
             // simulate fast parallel calls, the faster one will win and attempts to close the circuit, the other one will be rejected
-            Parallel.For(0, 2, i =>
-                 {
-                     try
-                     {
-                         policy.Execute((ctx, t) =>
-                         {
-                             counter++;
-                             Assert.AreEqual(State.HalfOpen, state);
-                             Task.Delay(TimeSpan.FromMilliseconds(300), t).Wait(t);
-                         }, CancellationToken.None);
+            var tasks = new List<Task>();
+            for (var i = 0; i < 2; i++)
+            {
+                tasks.Add(Task.Factory.StartNew(() =>
+                {
+                    try
+                    {
+                        policy.Execute((ctx, t) =>
+                        {
+                            counter++;
+                            Assert.AreEqual(State.HalfOpen, state);
+                            Task.Delay(TimeSpan.FromMilliseconds(300), t).Wait(t);
+                        }, CancellationToken.None);
 
-                     }
-                     catch (Exception e)
-                     {
-                         Assert.IsInstanceOfType(e, typeof(HalfOpenExecutionLimitExceededException));
-                     }
-                 });
+                    }
+                    catch (Exception e)
+                    {
+                        Assert.IsInstanceOfType(e, typeof(HalfOpenExecutionLimitExceededException));
+                    }
+                }));
+            }
+
+            Task.WhenAll(tasks).Wait();
 
             Assert.AreEqual(State.HalfOpen, state);
 
@@ -315,21 +321,21 @@ namespace Trybot.Tests.CircuitBreakerTests
             var tasks = new List<Task>();
             for (var i = 0; i < 2; i++)
             {
-                tasks.Add(Task.Run(() =>
+                tasks.Add(Task.Factory.StartNew(async () =>
                 {
                     try
                     {
-                        policy.ExecuteAsync(async (ctx, t) =>
+                        await policy.ExecuteAsync(async (ctx, t) =>
                         {
                             counter++;
                             Assert.AreEqual(State.HalfOpen, state);
                             await Task.Delay(TimeSpan.FromMilliseconds(300), t);
-                        }, CancellationToken.None).Wait();
+                        }, CancellationToken.None);
 
                     }
-                    catch (AggregateException e)
+                    catch (Exception e)
                     {
-                        Assert.IsInstanceOfType(e.InnerException, typeof(HalfOpenExecutionLimitExceededException));
+                        Assert.IsInstanceOfType(e, typeof(HalfOpenExecutionLimitExceededException));
                     }
                 }));
             }
