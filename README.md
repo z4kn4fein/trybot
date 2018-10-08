@@ -92,7 +92,7 @@ var policy = new BotPolicy();
 // Or with a return value
 var policy = new BotPolicy<HttpResponseMessage>();
 
-// Configure the policy to retry failed operations
+// Configure the policy to use timeout on operations
 policy.Configure(policyConfig => policyConfig
     .Timeout(timeoutConfig => timeoutConfig
         // Set after how much time should be the given operation cancelled.
@@ -120,7 +120,7 @@ Handles faults by executing an alternative operation when the original one is fa
     // Create a new bot policy
     var policy = new BotPolicy();
 
-    // Configure the policy to retry failed operations
+    // Configure the policy to use fallback
     policy.Configure(policyConfig => policyConfig
         .Fallback(fallbackConfig => fallbackConfig
             // Set a delegate which will be used to determine whether the given fallback 
@@ -134,7 +134,7 @@ Handles faults by executing an alternative operation when the original one is fa
     // Create a new bot policy
     var policy = new BotPolicy<HttpResponseMessage>();
 
-    // Configure the policy to retry failed operations
+    // Configure the policy to use fallback
     policy.Configure(policyConfig => policyConfig
         .Fallback(fallbackConfig => fallbackConfig
             // Set a delegate which will be used to determine whether the given fallback 
@@ -164,7 +164,180 @@ Prevents the continuous re-execution of a failing operation by blocking the traf
 
 ### Default implementation
 
+Implements the Circuit Breaker pattern described [here](https://docs.microsoft.com/en-us/azure/architecture/patterns/circuit-breaker). It can be used by configuring the `Botpolicy` like this:
 
+- For operations **without** a return value
+    ```c#
+    // Create a new bot policy
+    var policy = new BotPolicy();
+
+    // Configure the policy to use the default circuit breaker
+    policy.Configure(policyConfig => policyConfig
+        .CircuitBreaker(circuitBreakerConfig => circuitBreakerConfig
+            // Sets the amount of time of how long the circuit breaker should 
+            // remain in the Open state before turning into HalfOpen.
+            .DurationOfOpen(TimeSpan.FromSeconds(15))
+            // Sets the delegate which will be used to determine whether the 
+            // given operation should be marked as failed when a specific exception occurs.
+            .BrakeWhenExceptionOccurs(exception => exception is HttpRequestException),
+                // Configure the default circuit breaker strategy
+                strategyConfig => strategyConfig
+                    // Sets the maximum number of failed operations before 
+                    // the circuit breaker turns into the Open state.
+                    .FailureThresholdBeforeOpen(5)
+                    // Sets the minimum number of succeeded operations should 
+                    // be reached when the circuit breaker is in HalfOpen state 
+                    // before turning into Closed.
+                    .SuccessThresholdInHalfOpen(2)));
+    ```
+- For operations **with** a return value
+    ```c#
+    // Create a new bot policy
+    var policy = new BotPolicy<HttpResponseMessage>();
+
+    // Configure the policy to use the default circuit breaker
+    policy.Configure(policyConfig => policyConfig
+        .CircuitBreaker(circuitBreakerConfig => circuitBreakerConfig
+            // Sets the amount of time of how long the circuit breaker should 
+            // remain in the Open state before turning into HalfOpen.
+            .DurationOfOpen(TimeSpan.FromSeconds(15))
+            // Sets the delegate which will be used to determine whether the 
+            // given operation should be marked as failed based on its return value.
+            .BrakeWhenResultIs(result => !result.IsSucceeded),
+                // Configure the default circuit breaker strategy
+                strategyConfig => strategyConfig
+                    // Sets the maximum number of failed operations before 
+                    // the circuit breaker turns into the Open state.
+                    .FailureThresholdBeforeOpen(5)
+                    // Sets the minimum number of succeeded operations should 
+                    // be reached when the circuit breaker is in HalfOpen state 
+                    // before turning into Closed.
+                    .SuccessThresholdInHalfOpen(2)));
+    ```
+### Custom implementation
+
+The functionalities of the Circuit Breaker bot can be extended with custom `CircuitBreakerStrategy` implementations. With this you can get more control over the internal functioning of the Circuit Breaker by determining when should it trip between the Circuit States. All you need to do is only inherit from the `CircuitBreakerStrategy` abstract class. 
+ ```c#
+class CustomCircuitBreakerStrategy : CircuitBreakerStrategy
+{
+    public DefaultCircuitBreakerStrategy(CircuitBreakerConfigurationBase config)
+        :base(config)
+    {}
+
+    protected override bool OperationFailedInClosed()
+    {
+        // Called when the underlying operation is failed within the Closed circuit state.
+        // e.g. You can count here how many execution failed in the Closed state.
+        // Should return true if the circuit should open, otherwise false.
+    }
+
+    protected override bool OperationFailedInHalfOpen()
+    {
+        // Called when the underlying operation is failed within 
+        // the HalfOpen circuit state. 
+        
+        // You can decide what should happen when an operation fails in
+        // the HalfOpen state, remain in HalfOpen or open the breaker again.
+
+        // Should return true if the circuit should move back to open 
+        // state from half open, otherwise false.
+    }
+
+    protected override bool OperationSucceededInHalfOpen()
+    {
+        // Called when the underlying operation is succeeded within 
+        // the HalfOpen circuit state. 
+        
+        // You can decide what should happen when an operation succeeds in
+        // the HalfOpen state, close the breaker or remain in half open for a while.
+
+        // Should return true if the circuit should be closed, otherwise false.
+    }
+
+    protected override void Reset()
+    {
+        // Called when the underlying operation is succeeded within the Closed circuit state.
+    }
+}
+```
+Then you can use your custom strategy by configuring the `Botpolicy` like this:
+```c#
+policy.Configure(policyConfig => policyConfig
+    .CustomCircuitBreaker(circuitBreakerConfig => 
+        // Construct your custom implementation
+        new CustomCircuitBreakerStrategy(circuitBreakerConfig),
+            // Configure the circuit breaker bot
+            circuitBreakerConfig => circuitBreakerConfig
+            // Sets the amount of time of how long the circuit breaker should 
+            // remain in the Open state before turning into HalfOpen.
+            .DurationOfOpen(TimeSpan.FromSeconds(15))
+            // Sets the delegate which will be used to determine whether the 
+            // given operation should be marked as failed based on its return value.
+            .BrakeWhenResultIs(result => !result.IsSucceeded),
+                // Configure the default circuit breaker strategy
+                strategyConfig => strategyConfig
+                    // Sets the maximum number of failed operations before 
+                    // the circuit breaker turns into the Open state.
+                    .FailureThresholdBeforeOpen(5)
+                    // Sets the minimum number of succeeded operations should 
+                    // be reached when the circuit breaker is in HalfOpen state 
+                    // before turning into Closed.
+                    .SuccessThresholdInHalfOpen(2)));
+```
+
+### Available configuration options
+- Same for policies **with or without** a return value
+    - `.BrakeWhenExceptionOccurs(Func<Exception, bool>)` - Sets the delegate which will be used to determine whether the given operation should be marked as failed by the `CircuitBreakerStrategy` or not when a specific exception occurs.
+    - `.DurationOfOpen(TimeSpan openStateDuration)` - Sets the amount of time of how long the circuit breaker should remain in the Open state before turning into HalfOpen.
+    - `.WithStateHandler(ICircuitStateHandler stateHandler)` - Sets a the underlying [circuit state handler](#circuit-state-handler) implementation.
+    - `.OnOpen(Action<TimeSpan> openHandler)` - Sets the delegate which will be invoked when the circuit breaker trips to the open state.
+    - `.OnClosed(Action closedHandler)` - Sets the delegate which will be invoked when the circuit breaker trips to the closed state.
+    - `.OnHalfOpen(Action halfOpenHandler)` - Sets the delegate which will be invoked when the circuit breaker trips to the half open state.
+
+- Only for policies **with** a return value
+    - `.BrakeWhenResultIs(Func<TResult, bool>)` - Sets the delegate which will be used to determine whether the given operation should be marked as failed by the `CircuitBreakerStrategy` or not based on its return value.
+
+### Circuit state handler
+
+The circuit state handler is an other abstraction which allows the customization of the internal behavior of the Circuit Breaker.  Usually it can be used to store the actual Circuit State, however there are other use cases where it could be very useful to customize the handling of that state. As an example you can check a [DistributedCircuitStateHandler](https://github.com/z4kn4fein/trybot/tree/master/sandbox/trybot.distributedcb) implementation used to simulate a case where the Circuit State is shared between several Circuit Breakers using a distributed cache for example.
+
+
+If you'd like to create a custom state handler you have to implement the `ICircuitStateHandler` interface:
+```c#
+public class DistributedCircuitStateHandler : ICircuitStateHandler
+    {
+        public CircuitState Read()
+        {
+            // Reads the current circuit state.
+            // you can check here several conditions before determining
+            // the the state you'd like return with.
+        }
+
+        public void Update(CircuitState state)
+        {
+            // Updates the actual state, it's called when the CircuitBreakerStrategy
+            // chooses to trip to another state.
+        }
+
+        public Task<CircuitState> ReadAsync(CancellationToken token, bool continueOnCapturedContext)
+        {
+            // Reads the current circuit state asynchronously.            
+        }
+
+        public Task UpdateAsync(CircuitState state, CancellationToken token, bool continueOnCapturedContext)
+        {
+             // Updates the actual state asynchronously
+        }
+    }
+```
+
+Then you can set your custom implementation like this:
+
+```c#
+policy.Configure(policyConfig => policyConfig
+    .CircuitBreaker(circuitBreakerConfig => circuitBreakerConfig
+        .WithStateHandler(new DistributedCircuitStateHandler()), /* strategy config */));
+```
 
 ## Execution of the configured policy
     
@@ -194,4 +367,82 @@ Prevents the continuous re-execution of a failing operation by blocking the traf
 
     // Or with lambda parameters
     await policy.ExecuteAsync((context, cancellationToken) => DoSomeAsyncOperation());
+    ```
+
+## Custom Bots
+
+If you are facing a use case which is not covered by the built-in bots in Trybot, you have the option to make your own bot. All you have to do is to inherit from one of the `Bot`, `Bot<TResult>`, `ConfigurableBot`, `ConfigurableBot<TResult>` abstract classes.
+
+They are for differenct use cases:
+- **`Bot`**: Inheriting from this allows you to create a bot **without configuration** which can handle operations **without return value**.
+    ```c#
+    class CustomBot : Bot
+    {
+        internal CustomBot(Bot innerBot) 
+            : base(innerBot)
+        { }
+
+        public override void Execute(IBotOperation operation, ExecutionContext context, CancellationToken token)
+        { }
+
+        public override Task ExecuteAsync(IAsyncBotOperation operation, ExecutionContext context, CancellationToken token)
+        { }
+    }
+    ```
+- **`Bot<TResult>`**: Inheriting from this allows you to create a bot **without configuration** which can handle operations **with return value**.
+    ```c#
+    class CustomBot<TResult> : Bot<TResult>
+    {
+        internal CustomBot(Bot<TResult> innerBot) 
+            : base(innerBot)
+        { }
+
+        public override TResult Execute(IBotOperation<TResult> operation, ExecutionContext context, CancellationToken token)
+        { }
+
+        public override Task<TResult> ExecuteAsync(IAsyncBotOperation<TResult> operation, ExecutionContext context, CancellationToken token)
+        { }
+    }
+    ```
+- **`ConfigurableBot`**: Inheriting from this allows you to create a bot **with configuration** which can handle operations **without return value**.
+    ```c#
+    class CustomBot : ConfigurableBot<CustomConfiguration>
+    {
+        internal CustomBot(Bot innerBot, CustomConfiguration configuration) 
+            : base(innerBot, configuration)
+        { }
+
+        public override void Execute(IBotOperation operation, ExecutionContext context, CancellationToken token)
+        { }
+
+        public override Task ExecuteAsync(IAsyncBotOperation operation, ExecutionContext context, CancellationToken token)
+        { }
+    }
+    ```
+- **`ConfigurableBot<TResult>`**: Inheriting from this allows you to create a bot **with configuration** which can handle operations **with return value**.
+    ```c#
+    class CustomBot<TResult, CustomConfiguration> : ConfigurableBot<CustomConfiguration, TResult>
+    {
+        internal CustomBot(Bot<TResult> innerBot, CustomConfiguration configuration) 
+            : base(innerBot, configuration)
+        { }
+
+        public override TResult Execute(IBotOperation<TResult> operation, ExecutionContext context, CancellationToken token)
+        { }
+
+        public override Task<TResult> ExecuteAsync(IAsyncBotOperation<TResult> operation, ExecutionContext context, CancellationToken token)
+        { }
+    }
+    ```
+
+Then you can register your custom bot into a `BotPolicy` like this:
+- In case of a simple bot
+    ```c#
+    policy.Configure(policyConfig => policyConfig
+        .AddBot(innerBot => new CustomBot(innerBot));
+    ```
+- In case of a bot with configuration
+    ```c#
+    policy.Configure(policyConfig => policyConfig
+        .AddBot((innerBot, config) => new CustomBot(innerBot, config), new CustomConfiguration());
     ```

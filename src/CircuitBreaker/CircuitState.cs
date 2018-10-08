@@ -8,18 +8,26 @@
         /// <summary>
         /// The closed state.
         /// </summary>
-        public static readonly CircuitState Closed = new CircuitState();
+        public static readonly CircuitState Closed = new CircuitState("Closed");
 
         /// <summary>
         /// The half open state.
         /// </summary>
-        public static readonly CircuitState HalfOpen = new CircuitState();
+        public static readonly CircuitState HalfOpen = new CircuitState("HalfOpen");
 
         /// <summary>
         /// The open state.
         /// </summary>
-        public static readonly CircuitState Open = new CircuitState();
+        public static readonly CircuitState Open = new CircuitState("Open");
 
-        private CircuitState() { }
+        /// <summary>
+        /// The name of the state.
+        /// </summary>
+        public string Name { get; }
+
+        private CircuitState(string name)
+        {
+            this.Name = name;
+        }
     }
 }

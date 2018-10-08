@@ -40,7 +40,7 @@ namespace Trybot.CircuitBreaker
         TConfiguration OnClosed(Action closedHandler);
 
         /// <summary>
-        /// Sets the delegate which will be invoked when the circuit breaker trips to the closed state.
+        /// Sets the delegate which will be invoked when the circuit breaker trips to the half open state.
         /// </summary>
         /// <param name="halfOpenHandler">The action to be invoked.</param>
         /// <returns>Itself because of the fluent api.</returns>
