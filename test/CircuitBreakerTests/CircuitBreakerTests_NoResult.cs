@@ -253,7 +253,7 @@ namespace Trybot.Tests.CircuitBreakerTests
                          {
                              counter++;
                              Assert.AreEqual(State.HalfOpen, state);
-                             Task.Delay(TimeSpan.FromSeconds(1), t).Wait(t);
+                             Task.Delay(TimeSpan.FromMilliseconds(300), t).Wait(t);
                          }, CancellationToken.None);
 
                      }
@@ -315,21 +315,21 @@ namespace Trybot.Tests.CircuitBreakerTests
             var tasks = new List<Task>();
             for (var i = 0; i < 2; i++)
             {
-                tasks.Add(Task.Run(async () =>
+                tasks.Add(Task.Run(() =>
                 {
                     try
                     {
-                        await policy.ExecuteAsync(async (ctx, t) =>
+                        policy.ExecuteAsync(async (ctx, t) =>
                         {
                             counter++;
                             Assert.AreEqual(State.HalfOpen, state);
-                            await Task.Delay(TimeSpan.FromSeconds(1), t);
-                        }, CancellationToken.None);
+                            await Task.Delay(TimeSpan.FromMilliseconds(300), t);
+                        }, CancellationToken.None).Wait();
 
                     }
-                    catch (Exception e)
+                    catch (AggregateException e)
                     {
-                        Assert.IsInstanceOfType(e, typeof(HalfOpenExecutionLimitExceededException));
+                        Assert.IsInstanceOfType(e.InnerException, typeof(HalfOpenExecutionLimitExceededException));
                     }
                 }));
             }
