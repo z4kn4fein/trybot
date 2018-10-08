@@ -90,8 +90,9 @@ namespace Trybot.Tests.CircuitBreakerTests
             var counter = 0;
 
             // brake the circuit
-            for (var i = 0; i < 2; i++)
-                policy.Execute((ctx, t) => successResult + 1, CancellationToken.None);
+            policy.Execute((ctx, t) => successResult + 1, CancellationToken.None);
+            Assert.ThrowsException<Exception>(() =>
+                policy.Execute((ctx, t) => throw new Exception(), CancellationToken.None));
 
             Assert.AreEqual(State.Open, state);
 
@@ -142,8 +143,13 @@ namespace Trybot.Tests.CircuitBreakerTests
             var counter = 0;
 
             // brake the circuit
-            for (var i = 0; i < 2; i++)
-                await policy.ExecuteAsync((ctx, t) => Task.FromResult(successResult + 1), CancellationToken.None);
+            await policy.ExecuteAsync((ctx, t) => Task.FromResult(successResult + 1), CancellationToken.None);
+            await Assert.ThrowsExceptionAsync<NullReferenceException>(async() => 
+                await policy.ExecuteAsync((ctx, t) => {
+                        object o = null;
+                        o.GetHashCode();
+                        return Task.FromResult(0);
+                    }, CancellationToken.None));
 
             Assert.AreEqual(State.Open, state);
 

@@ -21,7 +21,7 @@ install:
     dotnet tool install -g InheritDocTool
 
 before_build:
-- ps: . .\patch-version.ps1 "src\trybot.csproj" $env:build_version $env:build_version
+- ps: . .\patch-version.ps1 "src\trybot.csproj" $env:build_version $env:appveyor_build_version
 
 build_script:
 - msbuild /t:Restore /p:Configuration=%configuration% trybot.sln
