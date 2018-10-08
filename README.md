@@ -296,19 +296,7 @@ policy.Configure(policyConfig => policyConfig
 
             // Sets the delegate which will be used to determine whether the 
             // given operation should be marked as failed based on its return value.
-            .BrakeWhenResultIs(result => !result.IsSucceeded),
-
-                // Configure the default circuit breaker strategy
-                strategyConfig => strategyConfig
-
-                    // Sets the maximum number of failed operations before 
-                    // the circuit breaker turns into the Open state.
-                    .FailureThresholdBeforeOpen(5)
-
-                    // Sets the minimum number of succeeded operations should 
-                    // be reached when the circuit breaker is in HalfOpen state 
-                    // before turning into Closed.
-                    .SuccessThresholdInHalfOpen(2)));
+            .BrakeWhenResultIs(result => !result.IsSucceeded)));
 ```
 
 ### Available configuration options
@@ -510,6 +498,7 @@ policy.Configure(policyConfig => policyConfig
             strategyConfig => strategyConfig
                 .FailureThresholdBeforeOpen(5)
                 .SuccessThresholdInHalfOpen(2))
+
     .Retry(retryConfig => retryConfig
         .WithMaxAttemptCount(5)
         .WhenExceptionOccurs(exception => exception is HttpRequestException)
@@ -520,8 +509,11 @@ policy.Configure(policyConfig => policyConfig
 
             return TimeSpan.FromSeconds(Math.Pow(2, attempt);
         })))
+
     .Timeout(timeoutConfig => timeoutConfig
         .After(TimeSpan.FromSeconds(120))));
 ```
 
-The handling order of the given operation would be the same as the configuration order. So from the top to the bottom, which means in the example above the circuit breaker will try to execute the given operation first, then if it fails the retry bot will re-execute it until the timeout is not firing a cancellation.
+The handling order of the given operation would be the same as the configuration order. 
+
+So from the top to the bottom, which means in the example above the circuit breaker will try to execute the given operation first, then if it fails the retry bot will re-execute it until the timeout is not firing a cancellation.
