@@ -388,7 +388,7 @@ policy.Configure(policyConfig => policyConfig
 
 If you are facing a use case which is not covered by the built-in bots in Trybot, you have the option to make your own bot. All you have to do is to inherit from one of the `Bot`, `Bot<TResult>`, `ConfigurableBot`, `ConfigurableBot<TResult>` abstract classes.
 
-They are for differenct use cases:
+They are for different cases:
 - **`Bot`**: Inheriting from this allows you to create a bot **without configuration** which can handle operations **without return value**.
     ```c#
     class CustomBot : Bot
