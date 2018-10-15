@@ -27,6 +27,9 @@
         <DebugType>portable</DebugType>
         <LangVersion>latest</LangVersion>
         <PackageReleaseNotes>feature: new fluent api, introduced a new core framework based on nested bots</PackageReleaseNotes>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     </PropertyGroup>
     <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.0'">
         <AssemblyTitle>Trybot .NET Standard 1.0</AssemblyTitle>
@@ -50,5 +53,8 @@
       <EmbeddedResource Remove="trybot\**" />
       <None Remove="trybot.tests\**" />
       <None Remove="trybot\**" />
+    </ItemGroup>
+    <ItemGroup>
+      <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" PrivateAssets="All"/>
     </ItemGroup>
 </Project>

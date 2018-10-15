@@ -34,7 +34,7 @@ namespace Trybot
     /// Represents a bot policy which can be configured with several <see cref="Bot{TResult}"/> implementations.
     /// </summary>
     /// <typeparam name="TResult">The result type of the operation passed to the bot policy.</typeparam>
-    public interface IBotPolicy<TResult>
+    public interface IBotPolicy<TResult> : IBotPolicyConfigurator<TResult>
     {
         /// <summary>
         /// Executes a given operation synchronously.
