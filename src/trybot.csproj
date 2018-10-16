@@ -1,60 +1,65 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <TargetFrameworks>net45;netstandard1.0;netstandard2.0;portable-net45+win8+wpa81+wp8</TargetFrameworks>
-        <AssemblyName>Trybot</AssemblyName>
-        <AssemblyTitle>Trybot</AssemblyTitle>
-        <RootNamespace>Trybot</RootNamespace>
-        <PackageId>Trybot</PackageId>
-        <Authors>Peter Csajtai</Authors>
-        <Company>Peter Csajtai</Company>
-        <Product>Trybot</Product>
-        <Copyright>Copyright © Peter Csajtai 2017</Copyright>
-        <PackageLicenseUrl>https://raw.githubusercontent.com/z4kn4fein/trybot/master/LICENSE</PackageLicenseUrl>
-        <PackageProjectUrl>https://github.com/z4kn4fein/trybot</PackageProjectUrl>
-        <PackageIconUrl>https://goo.gl/I3hRfL</PackageIconUrl>
-        <RepositoryUrl>https://github.com/z4kn4fein/trybot</RepositoryUrl>
-        <RepositoryType>git</RepositoryType>
-        <PackageTags>Trybot retry timeout fallback circuitbreaker</PackageTags>
-        <Description>Trybot is a transient fault handling framework including such bots as Retry, Timeout, Fallback and Circuit Breaker.</Description>
-        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <SignAssembly>true</SignAssembly>
-        <AssemblyOriginatorKeyFile>..\sn.snk</AssemblyOriginatorKeyFile>
-        <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
-        <Version>1.0.0</Version>
-        <PackageVersion>1.0.0</PackageVersion>
-        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-        <DebugType>portable</DebugType>
-        <LangVersion>latest</LangVersion>
-        <PackageReleaseNotes>feature: new fluent api, introduced a new core framework based on nested bots</PackageReleaseNotes>
-        <PublishRepositoryUrl>true</PublishRepositoryUrl>
-        <EmbedUntrackedSources>true</EmbedUntrackedSources>
-        <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.0'">
-        <AssemblyTitle>Trybot .NET Standard 1.0</AssemblyTitle>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-        <AssemblyTitle>Trybot .NET Standard 2.0</AssemblyTitle>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(TargetFramework)' == 'portable-net45+win8+wpa81+wp8' And '$(MSBuildRuntimeType)' == 'Full'">
-        <AssemblyTitle>Trybot Portable</AssemblyTitle>
-        <IncludeProjectPriFile>false</IncludeProjectPriFile>
-        <TargetFrameworkIdentifier>.NETPortable</TargetFrameworkIdentifier>
-        <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-        <TargetFrameworkProfile>Profile259</TargetFrameworkProfile>
-        <NugetTargetMoniker>.NETPortable,Version=v0.0,Profile=Profile259</NugetTargetMoniker>
-        <LanguageTargets>$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets</LanguageTargets>
-    </PropertyGroup>
-    <ItemGroup>
-      <Compile Remove="trybot.tests\**" />
-      <Compile Remove="trybot\**" />
-      <EmbeddedResource Remove="trybot.tests\**" />
-      <EmbeddedResource Remove="trybot\**" />
-      <None Remove="trybot.tests\**" />
-      <None Remove="trybot\**" />
-    </ItemGroup>
-    <ItemGroup>
-      <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" PrivateAssets="All"/>
-    </ItemGroup>
+  <PropertyGroup>
+    <TargetFrameworks>net45;netstandard1.0;netstandard2.0;portable-net45+win8+wpa81+wp8</TargetFrameworks>
+    <AssemblyName>Trybot</AssemblyName>
+    <AssemblyTitle>Trybot</AssemblyTitle>
+    <RootNamespace>Trybot</RootNamespace>
+    <PackageId>Trybot</PackageId>
+    <Authors>Peter Csajtai</Authors>
+    <Company>Peter Csajtai</Company>
+    <Product>Trybot</Product>
+    <Copyright>Copyright © Peter Csajtai 2017</Copyright>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/z4kn4fein/trybot/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/z4kn4fein/trybot</PackageProjectUrl>
+    <PackageIconUrl>https://goo.gl/I3hRfL</PackageIconUrl>
+    <RepositoryUrl>https://github.com/z4kn4fein/trybot</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>Trybot retry timeout fallback circuitbreaker</PackageTags>
+    <Description>Trybot is a transient fault handling framework including such bots as Retry, Timeout, Fallback and Circuit Breaker.</Description>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\sn.snk</AssemblyOriginatorKeyFile>
+    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
+    <Version>1.0.0</Version>
+    <PackageVersion>1.0.0</PackageVersion>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <DebugType>portable</DebugType>
+    <LangVersion>latest</LangVersion>
+    <PackageReleaseNotes>feature: new fluent api, introduced a new core framework based on nested bots</PackageReleaseNotes>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.0'">
+    <AssemblyTitle>Trybot .NET Standard 1.0</AssemblyTitle>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <AssemblyTitle>Trybot .NET Standard 2.0</AssemblyTitle>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'portable-net45+win8+wpa81+wp8' And '$(MSBuildRuntimeType)' == 'Full'">
+    <AssemblyTitle>Trybot Portable</AssemblyTitle>
+    <IncludeProjectPriFile>false</IncludeProjectPriFile>
+    <TargetFrameworkIdentifier>.NETPortable</TargetFrameworkIdentifier>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Profile259</TargetFrameworkProfile>
+    <NugetTargetMoniker>.NETPortable,Version=v0.0,Profile=Profile259</NugetTargetMoniker>
+    <LanguageTargets>$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets</LanguageTargets>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="trybot.tests\**" />
+    <Compile Remove="trybot\**" />
+    <EmbeddedResource Remove="trybot.tests\**" />
+    <EmbeddedResource Remove="trybot\**" />
+    <None Remove="trybot.tests\**" />
+    <None Remove="trybot\**" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" PrivateAssets="All"/>
+  </ItemGroup>
 </Project>
