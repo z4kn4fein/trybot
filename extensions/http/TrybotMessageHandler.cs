@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Trybot.Utils;
 
 namespace Trybot.Extensions.Http
 {
@@ -9,10 +10,19 @@ namespace Trybot.Extensions.Http
     {
         protected readonly IBotPolicy<HttpResponseMessage> BotPolicy;
 
-        public TrybotMessageHandler(Action<IBotPolicyBuilder<HttpResponseMessage>> configuratorAction)
+        public TrybotMessageHandler(Action<IBotPolicyBuilder<HttpResponseMessage>> policyBuilder)
         {
+            Shield.EnsureNotNull(policyBuilder, nameof(policyBuilder));
+
             this.BotPolicy = new BotPolicy<HttpResponseMessage>();
-            this.BotPolicy.Configure(configuratorAction);
+            this.BotPolicy.Configure(policyBuilder);
+        }
+
+        public TrybotMessageHandler(IBotPolicy<HttpResponseMessage> botPolicy)
+        {
+            Shield.EnsureNotNull(botPolicy, nameof(botPolicy));
+
+            this.BotPolicy = botPolicy;
         }
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)

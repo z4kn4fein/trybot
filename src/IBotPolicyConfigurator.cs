@@ -27,9 +27,9 @@ namespace Trybot
         /// <summary>
         /// Used to set up an <see cref="IBotPolicy{TResult}"/> with the given <see cref="IBotPolicyBuilder{TResult}"/>.
         /// </summary>
-        /// <param name="policyConfigurator">The configurator action.</param>
+        /// <param name="policyBuilder">The policy builder.</param>
         /// <returns>The implementation of this interface.</returns>
-        IBotPolicyConfigurator<TResult> Configure(Action<IBotPolicyBuilder<TResult>> policyConfigurator);
+        IBotPolicyConfigurator<TResult> Configure(Action<IBotPolicyBuilder<TResult>> policyBuilder);
     }
 
     /// <inheritdoc />
@@ -41,8 +41,8 @@ namespace Trybot
         /// <summary>
         /// Used to set up an <see cref="IBotPolicy"/> with the given <see cref="IBotPolicyBuilder"/>.
         /// </summary>
-        /// <param name="policyConfigurator">The configurator action.</param>
+        /// <param name="policyBuilder">The policy builder.</param>
         /// <returns>The implementation of this interface.</returns>
-        IBotPolicyConfigurator Configure(Action<IBotPolicyBuilder> policyConfigurator);
+        IBotPolicyConfigurator Configure(Action<IBotPolicyBuilder> policyBuilder);
     }
 }

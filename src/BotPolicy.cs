@@ -45,14 +45,14 @@ namespace Trybot
         }
 
         /// <inheritdoc />
-        public IBotPolicyConfigurator<TResult> Configure(Action<IBotPolicyBuilder<TResult>> configuratorAction)
+        public IBotPolicyConfigurator<TResult> Configure(Action<IBotPolicyBuilder<TResult>> policyBuilder)
         {
-            Shield.EnsureNotNull(configuratorAction, nameof(configuratorAction));
+            Shield.EnsureNotNull(policyBuilder, nameof(policyBuilder));
 
-            var configurator = new BotPolicyBuilder<TResult>();
-            configuratorAction(configurator);
+            var builder = new BotPolicyBuilder<TResult>();
+            policyBuilder(builder);
 
-            base.Bot = configurator.Bot;
+            base.Bot = builder.Bot;
 
             return this;
         }
@@ -114,12 +114,12 @@ namespace Trybot
         }
 
         /// <inheritdoc />
-        public IBotPolicyConfigurator Configure(Action<IBotPolicyBuilder> configuratorAction)
+        public IBotPolicyConfigurator Configure(Action<IBotPolicyBuilder> policyBuilder)
         {
-            var configurator = new BotPolicyBuilder();
-            configuratorAction(configurator);
+            var builder = new BotPolicyBuilder();
+            policyBuilder(builder);
 
-            base.Bot = configurator.Bot;
+            base.Bot = builder.Bot;
 
             return this;
         }
