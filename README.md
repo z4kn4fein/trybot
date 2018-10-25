@@ -1,4 +1,4 @@
-# trybot [![Appveyor build status](https://img.shields.io/appveyor/ci/pcsajtai/trybot/master.svg?label=appveyor)](https://ci.appveyor.com/project/pcsajtai/trybot/branch/master) [![Travis CI build status](https://img.shields.io/travis/z4kn4fein/trybot/master.svg?label=travis-ci)](https://travis-ci.org/z4kn4fein/trybot) [![Tests](https://img.shields.io/appveyor/tests/pcsajtai/trybot-1453m/master.svg)](https://ci.appveyor.com/project/pcsajtai/trybot-1453m/build/tests) [![Coverage Status](https://img.shields.io/codecov/c/github/z4kn4fein/trybot.svg)](https://codecov.io/gh/z4kn4fein/trybot) [![Join the chat at https://gitter.im/z4kn4fein/stashbox](https://img.shields.io/gitter/room/z4kn4fein/trybot.svg)](https://gitter.im/z4kn4fein/trybot?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Slack](https://img.shields.io/badge/chat-on%20slack-orange.svg?style=flat)](https://pcsajtai-dev-slack-in.herokuapp.com/)
+# trybot [![Appveyor build status](https://img.shields.io/appveyor/ci/pcsajtai/trybot/master.svg?label=appveyor)](https://ci.appveyor.com/project/pcsajtai/trybot/branch/master) [![Travis CI build status](https://img.shields.io/travis/z4kn4fein/trybot/master.svg?label=travis-ci)](https://travis-ci.org/z4kn4fein/trybot) [![Tests](https://img.shields.io/appveyor/tests/pcsajtai/trybot-1453m/master.svg)](https://ci.appveyor.com/project/pcsajtai/trybot-1453m/build/tests) [![coverage](https://codecov.io/gh/z4kn4fein/trybot/branch/master/graph/badge.svg)](https://codecov.io/gh/z4kn4fein/trybot) [![Join the chat at https://gitter.im/z4kn4fein/stashbox](https://img.shields.io/gitter/room/z4kn4fein/trybot.svg)](https://gitter.im/z4kn4fein/trybot?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Slack](https://img.shields.io/badge/chat-on%20slack-orange.svg?style=flat)](https://pcsajtai-dev-slack-in.herokuapp.com/)
 
 Trybot is a transient fault handling framework including such built-in bots as [Retry](#retry), [Timeout](#timeout), [Fallback](#fallback) and [Circuit Breaker](#circuit-breaker). The framework is extendable with [custom, user-defined](#custom-bots) bots as well.
 
@@ -388,7 +388,7 @@ policy.Configure(policyConfig => policyConfig
 
 If you are facing a use case which is not covered by the built-in bots in Trybot, you have the option to make your own bot. All you have to do is to inherit from one of the `Bot`, `Bot<TResult>`, `ConfigurableBot`, `ConfigurableBot<TResult>` abstract classes.
 
-They are for differenct use cases:
+They are for different cases:
 - **`Bot`**: Inheriting from this allows you to create a bot **without configuration** which can handle operations **without return value**.
     ```c#
     class CustomBot : Bot
@@ -514,6 +514,4 @@ policy.Configure(policyConfig => policyConfig
         .After(TimeSpan.FromSeconds(120))));
 ```
 
-The handling order of the given operation would be the same as the configuration order. 
-
-So from the top to the bottom, which means in the example above the circuit breaker will try to execute the given operation first, then if it fails the retry bot will re-execute it until the timeout is not firing a cancellation.
+The handling order of the given operation would be the same as the configuration order. So from the top to the bottom, which means in the example above the circuit breaker will try to execute the given operation first, then if it fails the retry bot will re-execute it until the timeout is not firing a cancellation.

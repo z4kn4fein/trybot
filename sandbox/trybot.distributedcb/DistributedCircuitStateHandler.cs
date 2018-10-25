@@ -43,7 +43,7 @@ namespace Trybot.DistributedCB
             if (this.localCircuitState != CircuitState.Closed)
                 return this.localCircuitState;
 
-            // when we are within the healing state we are skipping
+            // when we are in the healing state we are skipping
             // the distributed state check
             if (this.healEndTimeTicks - DateTimeOffset.UtcNow.Ticks > 0)
                 return this.localCircuitState;
@@ -80,8 +80,8 @@ namespace Trybot.DistributedCB
         private CircuitState CheckDistributedState()
         {
             var count = (double)this.distributedStates.Count;
-            var closedCount = (double)this.distributedStates.Count(s => s.Value == CircuitState.Open);
-            var percentage = closedCount / count;
+            var openCount = (double)this.distributedStates.Count(s => s.Value == CircuitState.Open);
+            var percentage = openCount / count;
             if (percentage > this.openStatePercentageIndicator)
             {
                 this.internalState = InternalState.DistributedOpen;
