@@ -515,3 +515,6 @@ policy.Configure(policyConfig => policyConfig
 ```
 
 The handling order of the given operation would be the same as the configuration order. So from the top to the bottom, which means in the example above the circuit breaker will try to execute the given operation first, then if it fails the retry bot will re-execute it until the timeout is not firing a cancellation.
+
+## Extensions
+- ASP.NET Core - [Trybot.Extensions.Http](https://github.com/z4kn4fein/trybot-extensions-http)
