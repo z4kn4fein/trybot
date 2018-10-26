@@ -26,7 +26,7 @@
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <DebugType>portable</DebugType>
     <LangVersion>latest</LangVersion>
-    <PackageReleaseNotes>fixed: added missing configurator interface to the IBotPolicy.</PackageReleaseNotes>
+    <PackageReleaseNotes>fixed: OnRetry callbacks executed multiple times needlessly.</PackageReleaseNotes>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.0'">
     <AssemblyTitle>Trybot .NET Standard 1.0</AssemblyTitle>

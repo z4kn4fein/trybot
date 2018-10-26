@@ -147,7 +147,6 @@ namespace Trybot.Retry
 
         internal async Task RaiseRetryEventAsync(TResult result, Exception exception, AttemptContext context, CancellationToken token)
         {
-            base.RaiseRetryEvent(exception, context);
             await base.RaiseRetryEventAsync(exception, context, token)
                 .ConfigureAwait(context.ExecutionContext.BotPolicyConfiguration.ContinueOnCapturedContext);
 
