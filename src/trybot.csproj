@@ -26,7 +26,7 @@
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <DebugType>portable</DebugType>
     <LangVersion>latest</LangVersion>
-    <PackageReleaseNotes>feature: new fluent api, introduced a new core framework based on nested bots</PackageReleaseNotes>
+    <PackageReleaseNotes>fixed: added missing configurator interface to the IBotPolicy.</PackageReleaseNotes>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.0'">
     <AssemblyTitle>Trybot .NET Standard 1.0</AssemblyTitle>
