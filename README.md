@@ -51,6 +51,7 @@ policy.Configure(policyConfig => policyConfig
     .Timeout(timeoutConfig => timeoutConfig
         .After(TimeSpan.FromSeconds(120))));
 ```
+> The handling order of the given operation would be the same as the configuration order from the top to the bottom. That means in the example above that the circuit breaker will try to execute the given operation first, then if it fails the retry bot will start to re-execute it until the timeout bot is not signaling a cancellation.
 
 Then you can execute the configured policy:
 
