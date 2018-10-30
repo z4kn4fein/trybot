@@ -91,4 +91,5 @@ Then you can execute the configured policy:
   - [Distributed Circuit Breaker simulation](https://github.com/z4kn4fein/trybot/tree/master/sandbox/trybot.distributedcb)
 
 ## Documentation
+- [Wiki](https://github.com/z4kn4fein/trybot/wiki)
 - [Resiliency patterns](https://docs.microsoft.com/en-us/azure/architecture/patterns/category/resiliency)
