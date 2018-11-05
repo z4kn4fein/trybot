@@ -26,7 +26,10 @@
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <DebugType>portable</DebugType>
     <LangVersion>latest</LangVersion>
-    <PackageReleaseNotes>fixed: OnRetry callbacks executed multiple times needlessly.</PackageReleaseNotes>
+    <PackageReleaseNotes>
+      removed: old funcionality.
+      added: rate limit support.
+    </PackageReleaseNotes>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.0'">
     <AssemblyTitle>Trybot .NET Standard 1.0</AssemblyTitle>
@@ -60,6 +63,6 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" PrivateAssets="All" />
   </ItemGroup>
 </Project>
