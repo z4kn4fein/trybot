@@ -11,10 +11,13 @@ namespace Trybot.RateLimiter
         private readonly TData data;
         private readonly SlidingStore<TData> rest;
 
+        public int Count { get; }
+
         public SlidingStore(TData data, SlidingStore<TData> rest)
         {
             this.data = data;
             this.rest = rest;
+            this.Count = rest.Count + 1;
         }
 
         public SlidingStore<TData> Put(TData data) => new SlidingStore<TData>(data, this);
@@ -27,7 +30,7 @@ namespace Trybot.RateLimiter
             if (this == Empty || !predicate(this.data))
                 return Empty;
 
-            return new SlidingStore<TData>(this.data,  this.rest.RebuildUntilInternal(predicate));
+            return new SlidingStore<TData>(this.data, this.rest.RebuildUntilInternal(predicate));
         }
 
         public IEnumerator<TData> GetEnumerator()
