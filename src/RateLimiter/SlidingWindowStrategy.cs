@@ -16,14 +16,11 @@ namespace Trybot.RateLimiter
         {
             Swap.SwapValue(ref this.timeHistory, (store, count) =>
             {
-                var rebuilt = store.RebuildUntil(time => time >= DateTimeOffset.UtcNow.Add(-base.Interval));
-                if (rebuilt.Count >= count)
-                    return rebuilt;
-
-                return rebuilt.Put(DateTimeOffset.UtcNow);
+                var rebuilt = store.RebuildUntil(time => time >= DateTimeOffset.UtcNow);
+                return rebuilt.Count >= count ? rebuilt : rebuilt.Put(DateTimeOffset.UtcNow.Add(base.Interval));
             }, base.MaxOperationCount);
 
-            return this.timeHistory.Count >= MaxOperationCount;
+            return this.timeHistory.Count > MaxOperationCount;
         }
     }
 }

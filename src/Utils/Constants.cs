@@ -4,7 +4,9 @@ namespace Trybot.Utils
 {
     internal static class Constants
     {
-        public const string MaxRetryExceptionMessage = "Maximum number of retry attempts reached.";
+        public const string MaxRetryExceptionMessage = "The maximum number of retry attempts reached.";
+
+        public const string RateLimitExceededExceptionMessage = "The maximum number of allowed operations within the given time interval reached.";
 
         public const string TimeoutExceptionMessage = "The operation cancelled by TimeoutBot.";
 

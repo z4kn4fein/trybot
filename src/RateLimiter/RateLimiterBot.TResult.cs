@@ -6,24 +6,24 @@ using Trybot.Utils;
 
 namespace Trybot.RateLimiter
 {
-    internal class RateLimiterBot : ConfigurableBot<RateLimiterConfiguration>
+    internal class RateLimiterBot<TResult> : ConfigurableBot<RateLimiterConfiguration, TResult>
     {
         private readonly RateLimiterStrategy strategy;
 
-        public RateLimiterBot(Bot innerBot, RateLimiterConfiguration configuration) : base(innerBot, configuration)
+        public RateLimiterBot(Bot<TResult> innerBot, RateLimiterConfiguration configuration) : base(innerBot, configuration)
         {
             this.strategy = configuration.StrategyFactory(configuration.MaxOperationCount, configuration.Interval);
         }
 
-        public override void Execute(IBotOperation operation, ExecutionContext context, CancellationToken token)
+        public override TResult Execute(IBotOperation<TResult> operation, ExecutionContext context, CancellationToken token)
         {
-            if(this.strategy.ShouldLimit())
+            if (this.strategy.ShouldLimit())
                 throw new RateLimitExceededException(Constants.RateLimitExceededExceptionMessage);
 
-            base.InnerBot.Execute(operation, context, token);
+            return base.InnerBot.Execute(operation, context, token);
         }
 
-        public override Task ExecuteAsync(IAsyncBotOperation operation, ExecutionContext context, CancellationToken token)
+        public override Task<TResult> ExecuteAsync(IAsyncBotOperation<TResult> operation, ExecutionContext context, CancellationToken token)
         {
             if (this.strategy.ShouldLimit())
                 throw new RateLimitExceededException(Constants.RateLimitExceededExceptionMessage);
