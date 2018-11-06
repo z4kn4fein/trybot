@@ -144,12 +144,13 @@ namespace Trybot.Tests.CircuitBreakerTests
 
             // brake the circuit
             await policy.ExecuteAsync((ctx, t) => Task.FromResult(successResult + 1), CancellationToken.None);
-            await Assert.ThrowsExceptionAsync<NullReferenceException>(async() => 
-                await policy.ExecuteAsync((ctx, t) => {
-                        object o = null;
-                        o.GetHashCode();
-                        return Task.FromResult(0);
-                    }, CancellationToken.None));
+            await Assert.ThrowsExceptionAsync<NullReferenceException>(async () =>
+                await policy.ExecuteAsync((ctx, t) =>
+                {
+                    object o = null;
+                    o.GetHashCode();
+                    return Task.FromResult(0);
+                }, CancellationToken.None));
 
             Assert.AreEqual(State.Open, state);
 

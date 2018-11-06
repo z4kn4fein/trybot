@@ -39,8 +39,8 @@ namespace Trybot.CircuitBreaker
 
         protected override void Reset()
         {
-            this.currentSuccededOperationCount = 0;
-            this.currentFailedOperationCount = 0;
+            Interlocked.Exchange(ref this.currentSuccededOperationCount, 0);
+            Interlocked.Exchange(ref this.currentFailedOperationCount, 0);
         }
     }
 }

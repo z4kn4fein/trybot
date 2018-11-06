@@ -8,6 +8,20 @@ namespace Trybot.RateLimiter
     public abstract class RateLimiterStrategy
     {
         /// <summary>
+        /// Using this as the parameter of the <see cref="RateLimiterConfiguration.UseStrategy"/> 
+        /// method indicates that a fixed time window rate limiter strategy should be used to 
+        /// determine an operation is allowed to execute or not.
+        /// </summary>
+        public static readonly Func<int, TimeSpan, RateLimiterStrategy> FixedWindow = (count, interval) => new FixedWindowStrategy(count, interval);
+
+        /// <summary>
+        /// Using this as the parameter of the <see cref="RateLimiterConfiguration.UseStrategy"/> 
+        /// method indicates that a sliding time window rate limiter strategy should be used to 
+        /// determine an operation is allowed to execute or not.
+        /// </summary>
+        public static readonly Func<int, TimeSpan, RateLimiterStrategy> SlidingWindow = (count, interval) => new FixedWindowStrategy(count, interval);
+
+        /// <summary>
         /// The maximum count of the allowed operations within the given interval.
         /// </summary>
         protected int MaxOperationCount { get; }

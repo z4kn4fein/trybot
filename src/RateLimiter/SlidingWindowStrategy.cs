@@ -5,11 +5,11 @@ namespace Trybot.RateLimiter
 {
     internal class SlidingWindowStrategy : RateLimiterStrategy
     {
-        private SlidingStore<DateTimeOffset> timeHistory;
+        private ReconstructableImmutableStore<DateTimeOffset> timeHistory;
 
         public SlidingWindowStrategy(int maxOperationCount, TimeSpan interval) : base(maxOperationCount, interval)
         {
-            this.timeHistory = SlidingStore<DateTimeOffset>.Empty;
+            this.timeHistory = ReconstructableImmutableStore<DateTimeOffset>.Empty;
         }
 
         public override bool ShouldLimit()

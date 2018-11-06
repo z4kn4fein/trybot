@@ -11,14 +11,14 @@ namespace Trybot.CircuitBreaker
         public CircuitState Read() => this.storedState;
 
         public void Update(CircuitState state) =>
-            Swap.SwapValue(ref this.storedState, state);
+            Interlocked.Exchange(ref this.storedState, state);
 
         public Task<CircuitState> ReadAsync(CancellationToken token, bool continueOnCapturedContext) =>
             Task.FromResult(this.storedState);
 
         public Task UpdateAsync(CircuitState state, CancellationToken token, bool continueOnCapturedContext)
         {
-            Swap.SwapValue(ref this.storedState, state);
+            Interlocked.Exchange(ref this.storedState, state);
             return Constants.CompletedTask;
         }
     }
