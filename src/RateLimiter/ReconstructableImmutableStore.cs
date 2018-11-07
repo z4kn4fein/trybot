@@ -1,21 +1,22 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 
 namespace Trybot.RateLimiter
 {
-    internal class ReconstructableImmutableStore<TData> : IEnumerable<TData>
+    internal class ReconstructableImmutableStore<TData>
     {
-        public static ReconstructableImmutableStore<TData> Empty = new ReconstructableImmutableStore<TData>(default, null);
+        public static ReconstructableImmutableStore<TData> Empty = new ReconstructableImmutableStore<TData>();
 
-        private readonly TData data;
         private readonly ReconstructableImmutableStore<TData> rest;
 
         public int Count { get; }
 
+        public TData Data { get; }
+
+        private ReconstructableImmutableStore() { }
+
         public ReconstructableImmutableStore(TData data, ReconstructableImmutableStore<TData> rest)
         {
-            this.data = data;
+            this.Data = data;
             this.rest = rest;
             this.Count = rest.Count + 1;
         }
@@ -27,21 +28,10 @@ namespace Trybot.RateLimiter
 
         private ReconstructableImmutableStore<TData> RebuildUntilInternal(Func<TData, bool> predicate)
         {
-            if (this == Empty || !predicate(this.data))
+            if (this == Empty || !predicate(this.Data))
                 return Empty;
 
-            return new ReconstructableImmutableStore<TData>(this.data, this.rest.RebuildUntilInternal(predicate));
-        }
-
-        public IEnumerator<TData> GetEnumerator()
-        {
-            for (var current = this; current != Empty; current = current.rest)
-                yield return current.data;
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return this.GetEnumerator();
+            return new ReconstructableImmutableStore<TData>(this.Data, this.rest.RebuildUntilInternal(predicate));
         }
     }
 }

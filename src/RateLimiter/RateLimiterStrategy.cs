@@ -19,7 +19,7 @@ namespace Trybot.RateLimiter
         /// method indicates that a sliding time window rate limiter strategy should be used to 
         /// determine an operation is allowed to execute or not.
         /// </summary>
-        public static readonly Func<int, TimeSpan, RateLimiterStrategy> SlidingWindow = (count, interval) => new FixedWindowStrategy(count, interval);
+        public static readonly Func<int, TimeSpan, RateLimiterStrategy> SlidingWindow = (count, interval) => new SlidingWindowStrategy(count, interval);
 
         /// <summary>
         /// The maximum count of the allowed operations within the given interval.

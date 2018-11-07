@@ -14,13 +14,14 @@ namespace Trybot.RateLimiter
 
         public override bool ShouldLimit()
         {
+            var lastTime = this.timeHistory.Data;
             Swap.SwapValue(ref this.timeHistory, (store, count) =>
             {
                 var rebuilt = store.RebuildUntil(time => time >= DateTimeOffset.UtcNow);
                 return rebuilt.Count >= count ? rebuilt : rebuilt.Put(DateTimeOffset.UtcNow.Add(base.Interval));
             }, base.MaxOperationCount);
 
-            return this.timeHistory.Count > MaxOperationCount;
+            return this.timeHistory.Data == lastTime;
         }
     }
 }
