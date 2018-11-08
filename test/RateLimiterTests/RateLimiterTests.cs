@@ -86,7 +86,7 @@ namespace Trybot.Tests.RateLimiterTests
             policy.Execute(() => { });
             var exception = Assert.ThrowsException<RateLimitExceededException>(() => policy.Execute(() => { }));
             Assert.IsTrue(exception.RetryAfter > TimeSpan.Zero);
-            Thread.Sleep(exception.RetryAfter);
+            Thread.Sleep(exception.RetryAfter.Add(TimeSpan.FromMilliseconds(10)));
             policy.Execute(() => { });
         }
 
@@ -99,7 +99,7 @@ namespace Trybot.Tests.RateLimiterTests
             policy.Execute(() => { });
             var exception = Assert.ThrowsException<RateLimitExceededException>(() => policy.Execute(() => { }));
             Assert.IsTrue(exception.RetryAfter > TimeSpan.Zero);
-            Thread.Sleep(exception.RetryAfter);
+            Thread.Sleep(exception.RetryAfter.Add(TimeSpan.FromMilliseconds(10)));
             policy.Execute(() => { });
         }
 
