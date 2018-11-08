@@ -21,7 +21,7 @@ namespace Trybot.RateLimiter
         private FixedTimeWindow Refresh(FixedTimeWindow previous) =>
             previous.ExpirationTime < DateTimeOffset.UtcNow
                 ? FixedTimeWindow.New(DateTimeOffset.UtcNow.Add(base.Interval), 1)
-                : previous.OperationCount >= base.MaxOperationCount
+                : previous.OperationCount > base.MaxOperationCount
                     ? previous
                     : FixedTimeWindow.New(previous.ExpirationTime, previous.OperationCount + 1);
 
