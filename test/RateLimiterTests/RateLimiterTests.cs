@@ -80,7 +80,9 @@ namespace Trybot.Tests.RateLimiterTests
         [TestMethod]
         public void RateLimit_Sliding_Reject()
         {
-            var policy = this.CreatePolicyWithRateLimit(this.CreateConfiguration(2, TimeSpan.FromSeconds(2)));
+            var policy = new BotPolicy(config => config
+                .Configure(botconfig => botconfig
+                    .RateLimit(c => c.MaxAmountOfAllowedOperations(2).WithinTimeInterval(TimeSpan.FromSeconds(2)))));
 
             policy.Execute(() => { });
             policy.Execute(() => { });
@@ -88,6 +90,47 @@ namespace Trybot.Tests.RateLimiterTests
             Assert.IsTrue(exception.RetryAfter > TimeSpan.Zero);
             Thread.Sleep(exception.RetryAfter.Add(TimeSpan.FromMilliseconds(10)));
             policy.Execute(() => { });
+        }
+
+        [TestMethod]
+        public async Task RateLimit_Reject_Async()
+        {
+            var policy = this.CreatePolicyWithRateLimit(this.CreateConfiguration(2, TimeSpan.FromSeconds(2)));
+
+            await policy.ExecuteAsync(() => { });
+            await policy.ExecuteAsync(() => { });
+            var exception = await Assert.ThrowsExceptionAsync<RateLimitExceededException>(() => policy.ExecuteAsync(() => { }));
+            Assert.IsTrue(exception.RetryAfter > TimeSpan.Zero);
+            Thread.Sleep(exception.RetryAfter.Add(TimeSpan.FromMilliseconds(10)));
+            policy.Execute(() => { });
+        }
+
+        [TestMethod]
+        public void RateLimit_Reject_Result()
+        {
+            var policy = new BotPolicy<int>(config => config
+                .Configure(botconfig => botconfig
+                    .RateLimit(c => c.MaxAmountOfAllowedOperations(2).WithinTimeInterval(TimeSpan.FromSeconds(2)))));
+
+            policy.Execute(() => 5);
+            policy.Execute(() => 5);
+            var exception = Assert.ThrowsException<RateLimitExceededException>(() => policy.Execute(() => 5));
+            Assert.IsTrue(exception.RetryAfter > TimeSpan.Zero);
+            Thread.Sleep(exception.RetryAfter.Add(TimeSpan.FromMilliseconds(10)));
+            policy.Execute(() => 5);
+        }
+
+        [TestMethod]
+        public async Task RateLimit_Reject_Result_Async()
+        {
+            var policy = this.CreatePolicyWithResultWithRateLimit<int>(this.CreateConfiguration(2, TimeSpan.FromSeconds(2)));
+
+            await policy.ExecuteAsync(() => 5);
+            await policy.ExecuteAsync(() => 5);
+            var exception = await Assert.ThrowsExceptionAsync<RateLimitExceededException>(() => policy.ExecuteAsync(() => 5));
+            Assert.IsTrue(exception.RetryAfter > TimeSpan.Zero);
+            Thread.Sleep(exception.RetryAfter.Add(TimeSpan.FromMilliseconds(10)));
+            policy.Execute(() => 5);
         }
 
         [TestMethod]
