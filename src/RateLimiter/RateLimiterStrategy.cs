@@ -45,7 +45,8 @@ namespace Trybot.RateLimiter
         /// <summary>
         /// Determines whether the current operation should be rejected by the rate limirer strategy or not.
         /// </summary>
+        /// <param name="retryAfter">The time after the caller should retry the given operation.</param>
         /// <returns>True if the current operation should be rejected, otherwise false.</returns>
-        public abstract bool ShouldLimit();
+        public abstract bool ShouldLimit(out TimeSpan retryAfter);
     }
 }

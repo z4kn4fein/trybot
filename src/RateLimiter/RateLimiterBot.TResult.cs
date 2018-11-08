@@ -17,16 +17,16 @@ namespace Trybot.RateLimiter
 
         public override TResult Execute(IBotOperation<TResult> operation, ExecutionContext context, CancellationToken token)
         {
-            if (this.strategy.ShouldLimit())
-                throw new RateLimitExceededException(Constants.RateLimitExceededExceptionMessage);
+            if (this.strategy.ShouldLimit(out var retryAfter))
+                throw new RateLimitExceededException(Constants.RateLimitExceededExceptionMessage, retryAfter);
 
             return base.InnerBot.Execute(operation, context, token);
         }
 
         public override Task<TResult> ExecuteAsync(IAsyncBotOperation<TResult> operation, ExecutionContext context, CancellationToken token)
         {
-            if (this.strategy.ShouldLimit())
-                throw new RateLimitExceededException(Constants.RateLimitExceededExceptionMessage);
+            if (this.strategy.ShouldLimit(out var retryAfter))
+                throw new RateLimitExceededException(Constants.RateLimitExceededExceptionMessage, retryAfter);
 
             return base.InnerBot.ExecuteAsync(operation, context, token);
         }

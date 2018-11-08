@@ -8,20 +8,34 @@ namespace Trybot.RateLimiter
 
         private readonly ReconstructableImmutableStore<TData> rest;
 
+        public ReconstructableImmutableStore<TData> Last { get; }
+
         public int Count { get; }
 
         public TData Data { get; }
 
         private ReconstructableImmutableStore() { }
 
-        public ReconstructableImmutableStore(TData data, ReconstructableImmutableStore<TData> rest)
+        private ReconstructableImmutableStore(TData data, ReconstructableImmutableStore<TData> last, ReconstructableImmutableStore<TData> rest)
+            : this(data, rest)
+        {
+            this.Last = last;
+        }
+
+        private ReconstructableImmutableStore(TData data, ReconstructableImmutableStore<TData> rest)
         {
             this.Data = data;
+            this.Last = this;
             this.rest = rest;
             this.Count = rest.Count + 1;
         }
 
-        public ReconstructableImmutableStore<TData> Put(TData data) => new ReconstructableImmutableStore<TData>(data, this);
+        public ReconstructableImmutableStore<TData> Put(TData data)
+        {
+            return this == Empty
+                ? new ReconstructableImmutableStore<TData>(data, this)
+                : new ReconstructableImmutableStore<TData>(data, this.Last, this);
+        }
 
         public ReconstructableImmutableStore<TData> RebuildUntil(Func<TData, bool> predicate) =>
             this.RebuildUntilInternal(predicate);
@@ -31,7 +45,10 @@ namespace Trybot.RateLimiter
             if (this == Empty || !predicate(this.Data))
                 return Empty;
 
-            return new ReconstructableImmutableStore<TData>(this.Data, this.rest.RebuildUntilInternal(predicate));
+            var next = this.rest.RebuildUntilInternal(predicate);
+            return next == Empty
+                ? new ReconstructableImmutableStore<TData>(this.Data, this, next)
+                : new ReconstructableImmutableStore<TData>(this.Data, next.Last, next);
         }
     }
 }

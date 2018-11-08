@@ -12,16 +12,20 @@ namespace Trybot.RateLimiter
             this.timeHistory = ReconstructableImmutableStore<DateTimeOffset>.Empty;
         }
 
-        public override bool ShouldLimit()
+        public override bool ShouldLimit(out TimeSpan retryAfter)
         {
-            var lastTime = this.timeHistory.Data;
-            Swap.SwapValue(ref this.timeHistory, (store, count) =>
-            {
-                var rebuilt = store.RebuildUntil(time => time >= DateTimeOffset.UtcNow);
-                return rebuilt.Count >= count ? rebuilt : rebuilt.Put(DateTimeOffset.UtcNow.Add(base.Interval));
-            }, base.MaxOperationCount);
+            var result = Swap.SwapValue(ref this.timeHistory, store => this.Refresh(store));
 
-            return this.timeHistory.Data == lastTime;
+            retryAfter = this.timeHistory.Last.Data - DateTimeOffset.UtcNow;
+            return result;
+        }
+
+        private Tuple<ReconstructableImmutableStore<DateTimeOffset>, bool> Refresh(ReconstructableImmutableStore<DateTimeOffset> previous)
+        {
+            var rebuilt = previous.RebuildUntil(time => time >= DateTimeOffset.UtcNow);
+            return rebuilt.Count >= base.MaxOperationCount
+                ? Tuple.Create(rebuilt, true)
+                : Tuple.Create(rebuilt.Put(DateTimeOffset.UtcNow.Add(base.Interval)), false);
         }
     }
 }

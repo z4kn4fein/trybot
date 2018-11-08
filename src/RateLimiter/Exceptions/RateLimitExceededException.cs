@@ -8,9 +8,15 @@ namespace Trybot.RateLimiter.Exceptions
     /// </summary>
     public class RateLimitExceededException : Exception
     {
+        /// <summary>
+        /// The time after the caller should retry the given operation.
+        /// </summary>
+        public TimeSpan RetryAfter { get; }
+
         /// <inheritdoc />
-        public RateLimitExceededException(string message) : base(message)
+        public RateLimitExceededException(string message, TimeSpan retryAfter) : base(string.Format(message, retryAfter))
         {
+            this.RetryAfter = retryAfter;
         }
     }
 }

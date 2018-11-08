@@ -10,16 +10,20 @@ namespace Trybot.RateLimiter
         public FixedWindowStrategy(int maxOperationCount, TimeSpan interval) : base(maxOperationCount, interval)
         { }
 
-        public override bool ShouldLimit()
+        public override bool ShouldLimit(out TimeSpan retryAfter)
         {
-            Swap.SwapValue(ref this.window, (w, count) =>
-                w.ExpirationTime < DateTimeOffset.UtcNow
-                    ? FixedTimeWindow.New(DateTimeOffset.UtcNow, 1)
-                    : FixedTimeWindow.New(w.ExpirationTime, w.OperationCount + 1),
-            base.Interval);
+            Swap.SwapValue(ref this.window, this.Refresh);
 
+            retryAfter = this.window.ExpirationTime - DateTimeOffset.UtcNow;
             return this.window.OperationCount > base.MaxOperationCount;
         }
+
+        private FixedTimeWindow Refresh(FixedTimeWindow previous) =>
+            previous.ExpirationTime < DateTimeOffset.UtcNow
+                ? FixedTimeWindow.New(DateTimeOffset.UtcNow.Add(base.Interval), 1)
+                : previous.OperationCount >= base.MaxOperationCount
+                    ? previous
+                    : FixedTimeWindow.New(previous.ExpirationTime, previous.OperationCount + 1);
 
         private class FixedTimeWindow
         {

@@ -6,7 +6,7 @@ namespace Trybot.Utils
     {
         public const string MaxRetryExceptionMessage = "The maximum number of retry attempts reached.";
 
-        public const string RateLimitExceededExceptionMessage = "The maximum number of allowed operations within the given time interval reached.";
+        public const string RateLimitExceededExceptionMessage = "The maximum number of allowed operations within the given time interval reached. Retry after: {0}";
 
         public const string TimeoutExceptionMessage = "The operation cancelled by TimeoutBot.";
 
