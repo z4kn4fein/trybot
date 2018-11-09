@@ -8,11 +8,11 @@ namespace Trybot.RateLimiter
 {
     internal class RateLimiterBot : ConfigurableBot<RateLimiterConfiguration>
     {
-        private readonly RateLimiterStrategy strategy;
+        private readonly IRateLimiterStrategy strategy;
 
         public RateLimiterBot(Bot innerBot, RateLimiterConfiguration configuration) : base(innerBot, configuration)
         {
-            this.strategy = configuration.StrategyFactory(configuration.MaxOperationCount, configuration.Interval);
+            this.strategy = configuration.Strategy;
         }
 
         public override void Execute(IBotOperation operation, ExecutionContext context, CancellationToken token)

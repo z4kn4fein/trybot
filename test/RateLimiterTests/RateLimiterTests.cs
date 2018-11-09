@@ -22,8 +22,11 @@ namespace Trybot.Tests.RateLimiterTests
 
         private RateLimiterConfiguration CreateConfiguration(int count, TimeSpan interval) =>
             new RateLimiterConfiguration()
-                .MaxAmountOfAllowedOperations(count)
-                .WithinTimeInterval(interval);
+                .SlidingWindow(count, interval);
+
+        private RateLimiterConfiguration CreateFixedWindowConfiguration(int count, TimeSpan interval) =>
+            new RateLimiterConfiguration()
+                .FixedWindow(count, interval);
 
         [TestMethod]
         public void RateLimit_Sliding_Ok()
@@ -63,7 +66,7 @@ namespace Trybot.Tests.RateLimiterTests
         public void RateLimit_Fixed_Ok()
         {
             var called = false;
-            var policy = this.CreatePolicyWithRateLimit(this.CreateConfiguration(5, TimeSpan.FromSeconds(10)).UseStrategy(RateLimiterStrategy.FixedWindow));
+            var policy = this.CreatePolicyWithRateLimit(this.CreateFixedWindowConfiguration(5, TimeSpan.FromSeconds(10)));
             policy.Execute(() => { called = true; });
             Assert.IsTrue(called);
         }
@@ -72,7 +75,7 @@ namespace Trybot.Tests.RateLimiterTests
         public async Task RateLimit_Fixed_Async_Ok()
         {
             var called = false;
-            var policy = this.CreatePolicyWithRateLimit(this.CreateConfiguration(5, TimeSpan.FromSeconds(10)).UseStrategy(RateLimiterStrategy.FixedWindow));
+            var policy = this.CreatePolicyWithRateLimit(this.CreateFixedWindowConfiguration(5, TimeSpan.FromSeconds(10)));
             await policy.ExecuteAsync(() => { called = true; });
             Assert.IsTrue(called);
         }
@@ -82,7 +85,7 @@ namespace Trybot.Tests.RateLimiterTests
         {
             var policy = new BotPolicy(config => config
                 .Configure(botconfig => botconfig
-                    .RateLimit(c => c.MaxAmountOfAllowedOperations(2).WithinTimeInterval(TimeSpan.FromSeconds(2)))));
+                    .RateLimit(c => c.SlidingWindow(2, TimeSpan.FromSeconds(2)))));
 
             policy.Execute(() => { });
             policy.Execute(() => { });
@@ -110,7 +113,7 @@ namespace Trybot.Tests.RateLimiterTests
         {
             var policy = new BotPolicy<int>(config => config
                 .Configure(botconfig => botconfig
-                    .RateLimit(c => c.MaxAmountOfAllowedOperations(2).WithinTimeInterval(TimeSpan.FromSeconds(2)))));
+                    .RateLimit(c => c.SlidingWindow(2, TimeSpan.FromSeconds(2)))));
 
             policy.Execute(() => 5);
             policy.Execute(() => 5);
@@ -136,7 +139,7 @@ namespace Trybot.Tests.RateLimiterTests
         [TestMethod]
         public void RateLimit_Fixed_Reject()
         {
-            var policy = this.CreatePolicyWithRateLimit(this.CreateConfiguration(2, TimeSpan.FromSeconds(2)).UseStrategy(RateLimiterStrategy.FixedWindow));
+            var policy = this.CreatePolicyWithRateLimit(this.CreateFixedWindowConfiguration(2, TimeSpan.FromSeconds(2)));
 
             policy.Execute(() => { });
             policy.Execute(() => { });
@@ -168,7 +171,7 @@ namespace Trybot.Tests.RateLimiterTests
         [TestMethod]
         public void RateLimit_FixedWindow_Reject_Allow_Again()
         {
-            var policy = this.CreatePolicyWithRateLimit(this.CreateConfiguration(5, TimeSpan.FromSeconds(5)).UseStrategy(RateLimiterStrategy.FixedWindow));
+            var policy = this.CreatePolicyWithRateLimit(this.CreateFixedWindowConfiguration(5, TimeSpan.FromSeconds(5)));
 
             policy.Execute(() => { });
             Thread.Sleep(4000);

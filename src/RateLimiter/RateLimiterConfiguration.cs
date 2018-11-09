@@ -8,49 +8,50 @@ namespace Trybot.RateLimiter
     /// </summary>
     public class RateLimiterConfiguration
     {
-        internal int MaxOperationCount { get; private set; }
-
-        internal TimeSpan Interval { get; private set; }
-
-        internal Func<int, TimeSpan, RateLimiterStrategy> StrategyFactory { get; private set; } = RateLimiterStrategy.SlidingWindow;
+        internal IRateLimiterStrategy Strategy { get; private set; }
 
         /// <summary>
-        /// Sets the maximum allowed operation count within the given time interval.
+        /// Sets a custom rate limiter strategy used to determine a given operation should be rejected or not.
         /// </summary>
-        /// <param name="maxOperationCount">The maximum allowed operation count.</param>
+        /// <param name="strategy">The rate limiter strategy.</param>
         /// <returns>The configuration.</returns>
-        public RateLimiterConfiguration MaxAmountOfAllowedOperations(int maxOperationCount)
+        public RateLimiterConfiguration UseStrategy(IRateLimiterStrategy strategy)
         {
-            Shield.EnsureTrue(maxOperationCount > 0, $"{nameof(maxOperationCount)} must be greater than zero!");
+            Shield.EnsureNotNull(strategy, nameof(strategy));
 
-            this.MaxOperationCount = maxOperationCount;
+            this.Strategy = strategy;
             return this;
         }
 
         /// <summary>
-        /// Sets the time interval within only the given maximum amount of operations set by the <see cref="MaxAmountOfAllowedOperations"/> allowed.
+        /// Sets the underlying strategy to fixed time window rate limiter used to 
+        /// determine an operation is allowed to execute or not.
         /// </summary>
-        /// <param name="interval">The time interval.</param>
-        /// <returns>The configuration.</returns>
-        public RateLimiterConfiguration WithinTimeInterval(TimeSpan interval)
+        /// <param name="maxAmountOfAllowedOperations">The maximum allowed operation count within the given time interval.</param>
+        /// <param name="withinTimeInterval">The time interval within only the given maximum amount of operations set by the <paramref name="maxAmountOfAllowedOperations"/> allowed.</param>
+        /// <returns></returns>
+        public RateLimiterConfiguration FixedWindow(int maxAmountOfAllowedOperations, TimeSpan withinTimeInterval)
         {
-            Shield.EnsureTrue(interval > TimeSpan.Zero, $"{nameof(interval)} must be grater than zero!");
+            Shield.EnsureTrue(maxAmountOfAllowedOperations > 0, $"{nameof(maxAmountOfAllowedOperations)} must be greater than zero!");
+            Shield.EnsureTrue(withinTimeInterval > TimeSpan.Zero, $"{nameof(withinTimeInterval)} must be grater than zero!");
 
-            this.Interval = interval;
+            this.Strategy = new FixedWindowStrategy(maxAmountOfAllowedOperations, withinTimeInterval);
             return this;
         }
 
         /// <summary>
-        /// Sets a custom factory delegate which produces a rate limiter strategy 
-        /// used to determine a given operation should be rejected or not.
+        /// Sets the underlying strategy to sliding window rate limiter used to 
+        /// determine an operation is allowed to execute or not.
         /// </summary>
-        /// <param name="strategyFactory">The factory delegate.</param>
-        /// <returns>The configuration.</returns>
-        public RateLimiterConfiguration UseStrategy(Func<int, TimeSpan, RateLimiterStrategy> strategyFactory)
+        /// <param name="maxAmountOfAllowedOperations">The maximum allowed operation count within the given time interval.</param>
+        /// <param name="withinTimeInterval">The time interval within only the given maximum amount of operations set by the <paramref name="maxAmountOfAllowedOperations"/> allowed.</param>
+        /// <returns></returns>
+        public RateLimiterConfiguration SlidingWindow(int maxAmountOfAllowedOperations, TimeSpan withinTimeInterval)
         {
-            Shield.EnsureNotNull(strategyFactory, nameof(strategyFactory));
+            Shield.EnsureTrue(maxAmountOfAllowedOperations > 0, $"{nameof(maxAmountOfAllowedOperations)} must be greater than zero!");
+            Shield.EnsureTrue(withinTimeInterval > TimeSpan.Zero, $"{nameof(withinTimeInterval)} must be grater than zero!");
 
-            this.StrategyFactory = strategyFactory;
+            this.Strategy = new SlidingWindowStrategy(maxAmountOfAllowedOperations, withinTimeInterval);
             return this;
         }
     }

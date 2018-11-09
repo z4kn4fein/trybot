@@ -3,16 +3,20 @@ using Trybot.Utils;
 
 namespace Trybot.RateLimiter
 {
-    internal class SlidingWindowStrategy : RateLimiterStrategy
+    internal class SlidingWindowStrategy : IRateLimiterStrategy
     {
+        private readonly int maxOperationCount;
+        private readonly TimeSpan interval;
         private ReconstructableImmutableStore<DateTimeOffset> timeHistory;
 
-        public SlidingWindowStrategy(int maxOperationCount, TimeSpan interval) : base(maxOperationCount, interval)
+        public SlidingWindowStrategy(int maxOperationCount, TimeSpan interval)
         {
+            this.maxOperationCount = maxOperationCount;
+            this.interval = interval;
             this.timeHistory = ReconstructableImmutableStore<DateTimeOffset>.Empty;
         }
 
-        public override bool ShouldLimit(out TimeSpan retryAfter)
+        public bool ShouldLimit(out TimeSpan retryAfter)
         {
             var result = Swap.SwapValue(ref this.timeHistory, store => this.Refresh(store));
 
@@ -23,9 +27,9 @@ namespace Trybot.RateLimiter
         private Tuple<ReconstructableImmutableStore<DateTimeOffset>, bool> Refresh(ReconstructableImmutableStore<DateTimeOffset> previous)
         {
             var rebuilt = previous.RebuildUntil(time => time >= DateTimeOffset.UtcNow);
-            return rebuilt.Count >= base.MaxOperationCount
+            return rebuilt.Count >= this.maxOperationCount
                 ? Tuple.Create(rebuilt, true)
-                : Tuple.Create(rebuilt.Put(DateTimeOffset.UtcNow.Add(base.Interval)), false);
+                : Tuple.Create(rebuilt.Put(DateTimeOffset.UtcNow.Add(this.interval)), false);
         }
     }
 }

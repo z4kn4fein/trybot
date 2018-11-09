@@ -3,25 +3,30 @@ using Trybot.Utils;
 
 namespace Trybot.RateLimiter
 {
-    internal class FixedWindowStrategy : RateLimiterStrategy
+    internal class FixedWindowStrategy : IRateLimiterStrategy
     {
+        private readonly int maxOperationCount;
+        private readonly TimeSpan interval;
         private FixedTimeWindow window = FixedTimeWindow.New(DateTimeOffset.MinValue, 0);
 
-        public FixedWindowStrategy(int maxOperationCount, TimeSpan interval) : base(maxOperationCount, interval)
-        { }
+        public FixedWindowStrategy(int maxOperationCount, TimeSpan interval)
+        {
+            this.maxOperationCount = maxOperationCount;
+            this.interval = interval;
+        }
 
-        public override bool ShouldLimit(out TimeSpan retryAfter)
+        public bool ShouldLimit(out TimeSpan retryAfter)
         {
             Swap.SwapValue(ref this.window, this.Refresh);
 
             retryAfter = this.window.ExpirationTime - DateTimeOffset.UtcNow;
-            return this.window.OperationCount > base.MaxOperationCount;
+            return this.window.OperationCount > this.maxOperationCount;
         }
 
         private FixedTimeWindow Refresh(FixedTimeWindow previous) =>
             previous.ExpirationTime < DateTimeOffset.UtcNow
-                ? FixedTimeWindow.New(DateTimeOffset.UtcNow.Add(base.Interval), 1)
-                : previous.OperationCount > base.MaxOperationCount
+                ? FixedTimeWindow.New(DateTimeOffset.UtcNow.Add(this.interval), 1)
+                : previous.OperationCount > this.maxOperationCount
                     ? previous
                     : FixedTimeWindow.New(previous.ExpirationTime, previous.OperationCount + 1);
 
