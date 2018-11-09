@@ -1,6 +1,6 @@
 # trybot [![Appveyor build status](https://img.shields.io/appveyor/ci/pcsajtai/trybot/master.svg?label=appveyor)](https://ci.appveyor.com/project/pcsajtai/trybot/branch/master) [![Travis CI build status](https://img.shields.io/travis/z4kn4fein/trybot/master.svg?label=travis-ci)](https://travis-ci.org/z4kn4fein/trybot) [![Tests](https://img.shields.io/appveyor/tests/pcsajtai/trybot-1453m/master.svg)](https://ci.appveyor.com/project/pcsajtai/trybot-1453m/build/tests) [![coverage](https://codecov.io/gh/z4kn4fein/trybot/branch/master/graph/badge.svg)](https://codecov.io/gh/z4kn4fein/trybot) [![Sourcelink](https://img.shields.io/badge/sourcelink-enabled-brightgreen.svg)](https://github.com/dotnet/sourcelink)
 
-Trybot is a transient fault handling framework including such resiliency solutions as **Retry**, **Timeout**, **Fallback** and **Circuit Breaker**. The framework is extendable with **custom, user-defined** bots as well. [![Join the chat at https://gitter.im/z4kn4fein/stashbox](https://img.shields.io/gitter/room/z4kn4fein/trybot.svg)](https://gitter.im/z4kn4fein/trybot?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Slack](https://img.shields.io/badge/chat-on%20slack-orange.svg?style=flat)](https://pcsajtai-dev-slack-in.herokuapp.com/)
+Trybot is a transient fault handling framework including such resiliency solutions as **Retry**, **Timeout**, **Fallback**, **Rate limit** and **Circuit Breaker**. The framework is extendable with **custom, user-defined** bots as well. [![Join the chat at https://gitter.im/z4kn4fein/stashbox](https://img.shields.io/gitter/room/z4kn4fein/trybot.svg)](https://gitter.im/z4kn4fein/trybot?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Slack](https://img.shields.io/badge/chat-on%20slack-orange.svg?style=flat)](https://pcsajtai-dev-slack-in.herokuapp.com/)
 
 Github (stable) | NuGet (stable) | MyGet (pre-release) 
 --- | --- | ---
@@ -23,6 +23,8 @@ Github (stable) | NuGet (stable) | MyGet (pre-release)
 - **[Fallback](https://github.com/z4kn4fein/trybot/wiki/Fallback)** - Handles faults by executing an alternative operation when the original one is failing, also provides the ability to produce an alternative result value when the original operation is not able to do it.
 
 - **[Circuit breaker](https://github.com/z4kn4fein/trybot/wiki/Circuit-breaker)** - Prevents the continuous re-execution of a failing operation by blocking the traffic for a configured amount of time, when the number of failures exceed a given threshold. This usually could give some break to the remote resource to heal itself properly.
+
+- **[Rate limit](https://github.com/z4kn4fein/trybot/wiki/Rate-limit)** - Controls the rate of the operations by specifying a maximum amount of executions within a given time window.
 
 ## Usage
 
