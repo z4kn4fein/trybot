@@ -30,7 +30,7 @@ namespace Trybot.Tests.RetryTests
             Assert.AreEqual(5, result);
             Assert.AreEqual(1, counter);
         }
-
+        
         [TestMethod]
         public void RetryTests_Action_Ok_Config()
         {
@@ -60,6 +60,29 @@ namespace Trybot.Tests.RetryTests
             Assert.AreEqual(exception, retryException.InnerException);
             Assert.AreEqual(0, result);
             Assert.AreEqual(2, counter);
+        }
+
+        [TestMethod]
+        public void RetryTests_Action_Fail_Then_Success()
+        {
+            var onSucceeded = false;
+            var onRetry = false;
+            var policy = this.CreatePolicyWithRetry(this.CreateConfiguration<int>(2).OnRetry((ex, ctx) => onRetry = true).OnRetrySucceeded(ctx => onSucceeded = true));
+            var counter = 0;
+            var result = policy.Execute((ctx, t) =>
+            {
+                if (counter < 1)
+                {
+                    counter++;
+                    throw new Exception();
+                }
+
+                return 5;
+            });
+
+            Assert.IsTrue(onRetry);
+            Assert.IsTrue(onSucceeded);
+            Assert.AreEqual(5, result);
         }
 
         [TestMethod]

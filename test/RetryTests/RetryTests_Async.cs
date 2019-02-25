@@ -73,6 +73,34 @@ namespace Trybot.Tests.RetryTests
         }
 
         [TestMethod]
+        public async Task RetryTests_Action_Fail_Then_Success()
+        {
+            var onSucceeded = false;
+            var onRetryAsync = false;
+            var onSucceededAsync = false;
+            var policy = this.CreatePolicyWithRetry(this.CreateConfiguration<int>(2)
+                .OnRetryAsync((r, ex, ctx, t) => { onRetryAsync = true; return Task.FromResult(0); })
+                .OnRetrySucceeded(ctx => onSucceeded = true)
+                .OnRetrySucceededAsync((ctx, t) => { onSucceededAsync = true; return Task.FromResult(0); }));
+            var counter = 0;
+            var result = await policy.ExecuteAsync((ctx, t) =>
+            {
+                if (counter < 1)
+                {
+                    counter++;
+                    throw new Exception();
+                }
+
+                return Task.FromResult(5);
+            }, CancellationToken.None);
+            
+            Assert.IsTrue(onSucceeded);
+            Assert.IsTrue(onRetryAsync);
+            Assert.IsTrue(onSucceededAsync);
+            Assert.AreEqual(5, result);
+        }
+
+        [TestMethod]
         public async Task RetryTests_Func_Task_With_Counter_Fail()
         {
             var onRetry = 0;
