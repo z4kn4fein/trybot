@@ -65,6 +65,20 @@ namespace Trybot.Retry
             this.AsyncRetrySucceededHandler = onRetrySucceededFunc;
             return this;
         }
+
+        /// <inheritdoc />
+        public RetryConfiguration OnRetryLimitReached(Action<Exception, ExecutionContext> onRetryLimitReached)
+        {
+            this.RetryLimitReachedHandler = onRetryLimitReached;
+            return this;
+        }
+
+        /// <inheritdoc />
+        public RetryConfiguration OnRetryLimitReachedAsync(Func<Exception, ExecutionContext, CancellationToken, Task> onRetryLimitReached)
+        {
+            this.AsyncRetryLimitReachedHandler = onRetryLimitReached;
+            return this;
+        }
     }
 
     /// <summary>
@@ -174,6 +188,20 @@ namespace Trybot.Retry
         public RetryConfiguration<TResult> OnRetrySucceededAsync(Func<TResult, AttemptContext, CancellationToken, Task> onRetryFunc)
         {
             this.asyncRetrySucceededHandlerWithResult = onRetryFunc;
+            return this;
+        }
+
+        /// <inheritdoc />
+        public RetryConfiguration<TResult> OnRetryLimitReached(Action<Exception, ExecutionContext> onRetryLimitReached)
+        {
+            this.RetryLimitReachedHandler = onRetryLimitReached;
+            return this;
+        }
+
+        /// <inheritdoc />
+        public RetryConfiguration<TResult> OnRetryLimitReachedAsync(Func<Exception, ExecutionContext, CancellationToken, Task> onRetryLimitReached)
+        {
+            this.AsyncRetryLimitReachedHandler = onRetryLimitReached;
             return this;
         }
 

@@ -57,6 +57,14 @@ namespace Trybot.Retry
         TConfiguration OnRetrySucceeded(Action<AttemptContext> onRetrySucceededAction);
 
         /// <summary>
+        /// Sets the delegate which will be invoked when the given maximum retry count reached.
+        /// </summary>
+        /// <param name="onRetryLimitReached">The action.</param>
+        /// <returns>Itself because of the fluent api.</returns>
+        /// <example><code>config.OnRetryLimitReached((exception, ctx) => Console.WriteLine(exception.Message))</code></example>
+        TConfiguration OnRetryLimitReached(Action<Exception, ExecutionContext> onRetryLimitReached);
+
+        /// <summary>
         /// Sets the delegate which will be invoked asynchronously when the given operation is being re-executed.
         /// </summary>
         /// <param name="onRetryFunc">The asynchronous action to be invoked on a re-execution.</param>
@@ -69,8 +77,16 @@ namespace Trybot.Retry
         /// </summary>
         /// <param name="onRetrySucceededFunc">The asynchronous action.</param>
         /// <returns>Itself because of the fluent api.</returns>
-        /// <example><code>config.OnRetryAsync(async (exception, attemptContext, token) => await LogAsync($"Retry succeeded after {attemptContext.CurrentAttempt} re-execution.", token))</code></example>
+        /// <example><code>config.OnRetrySucceededAsync(async (attemptContext, token) => await LogAsync($"Retry succeeded after {attemptContext.CurrentAttempt} re-execution.", token))</code></example>
         TConfiguration OnRetrySucceededAsync(Func<AttemptContext, CancellationToken, Task> onRetrySucceededFunc);
+
+        /// <summary>
+        /// Sets the delegate which will be invoked asynchronously when the given maximum retry count reached.
+        /// </summary>
+        /// <param name="onRetryLimitReached"></param>
+        /// <returns>Itself because of the fluent api.</returns>
+        /// <example><code>config.OnRetryLimitReachedAsync(async (exception, ctx, token) => await LogAsync(exception.Message), token)</code></example>
+        TConfiguration OnRetryLimitReachedAsync(Func<Exception, ExecutionContext, CancellationToken, Task> onRetryLimitReached);
     }
 
     /// <inheritdoc />
@@ -109,7 +125,7 @@ namespace Trybot.Retry
         /// </summary>
         /// <param name="onRetrySucceededAction">The action.</param>
         /// <returns>Itself because of the fluent api.</returns>
-        /// <example><code>config.OnRetry((exception, result, attemptContext) => Console.WriteLine($"Retry succeeded after {attemptContext.CurrentAttempt} re-execution."))</code></example>
+        /// <example><code>config.OnRetrySucceeded((result, attemptContext) => Console.WriteLine($"Retry succeeded after {attemptContext.CurrentAttempt} re-execution."))</code></example>
         TConfiguration OnRetrySucceeded(Action<TResult, AttemptContext> onRetrySucceededAction);
 
         /// <summary>
@@ -125,7 +141,7 @@ namespace Trybot.Retry
         /// </summary>
         /// <param name="onRetryFunc">The asynchronous action.</param>
         /// <returns>Itself because of the fluent api.</returns>
-        /// <example><code>config.OnRetryAsync(async (exception, attemptContext, token) => await LogAsync($"Retry succeeded after {attemptContext.CurrentAttempt} re-execution.", token))</code></example>
+        /// <example><code>config.OnRetrySucceededAsync(async (result, attemptContext, token) => await LogAsync($"Retry succeeded after {attemptContext.CurrentAttempt} re-execution.", token))</code></example>
         TConfiguration OnRetrySucceededAsync(Func<TResult, AttemptContext, CancellationToken, Task> onRetryFunc);
     }
 }

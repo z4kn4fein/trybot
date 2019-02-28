@@ -25,7 +25,7 @@ namespace Trybot.Tests.RetryTests
         {
             var onSucceeded = false;
             var policy = this.CreatePolicyWithRetry(this.CreateConfiguration<int>(2)
-                .OnRetrySucceeded(ctx => onSucceeded = true));
+                .OnRetrySucceededAsync((r, ctx, t) => { onSucceeded = true; return Task.FromResult(0); }));
             var counter = 0;
             var result = await policy.ExecuteAsync((ctx, t) => { counter++; return 5; }, CancellationToken.None);
 
@@ -84,7 +84,7 @@ namespace Trybot.Tests.RetryTests
             var policy = this.CreatePolicyWithRetry(this.CreateConfiguration<int>(2)
                 .OnRetryAsync((r, ex, ctx, t) => { onRetryAsync = true; return Task.FromResult(0); })
                 .OnRetrySucceeded(ctx => onSucceeded = true)
-                .OnRetrySucceededAsync((ctx, t) => { onSucceededAsync = true; return Task.FromResult(0); }));
+                .OnRetrySucceededAsync((r, ctx, t) => { onSucceededAsync = true; return Task.FromResult(0); }));
             var counter = 0;
             var result = await policy.ExecuteAsync((ctx, t) =>
             {
@@ -162,7 +162,11 @@ namespace Trybot.Tests.RetryTests
         [TestMethod]
         public async Task RetryTests_Func_Fail()
         {
-            var policy = this.CreatePolicyWithRetry(this.CreateConfiguration<int>(2));
+            var limitReached = false;
+            var limitReachedAsync = false;
+            var policy = this.CreatePolicyWithRetry(this.CreateConfiguration<int>(2)
+                .OnRetryLimitReached((ex, ctx) => limitReached = true)
+                .OnRetryLimitReachedAsync((ex, ctx, token) => { limitReachedAsync = true; return Task.FromResult(0); }));
             var counter = 0;
             var result = 0;
 
@@ -176,6 +180,8 @@ namespace Trybot.Tests.RetryTests
 
             Assert.AreEqual(0, result);
             Assert.AreEqual(2, counter);
+            Assert.IsTrue(limitReached);
+            Assert.IsTrue(limitReachedAsync);
         }
 
         [TestMethod]

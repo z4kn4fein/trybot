@@ -25,7 +25,7 @@ namespace Trybot.Tests.RetryTests
         {
             var onSucceeded = false;
             var policy = this.CreatePolicyWithRetry(this.CreateConfiguration<int>(2)
-                .OnRetrySucceeded(ctx => onSucceeded = true));
+                .OnRetrySucceeded((r, ctx) => onSucceeded = true));
             var counter = 0;
             var result = policy.Execute((ctx, t) => { counter++; return 5; }, CancellationToken.None);
 
@@ -50,7 +50,9 @@ namespace Trybot.Tests.RetryTests
         [TestMethod]
         public void RetryTests_Action_Fail()
         {
-            var policy = this.CreatePolicyWithRetry(this.CreateConfiguration<int>(2));
+            var limitReached = false;
+            var policy = this.CreatePolicyWithRetry(this.CreateConfiguration<int>(2)
+                .OnRetryLimitReached((ex, ctx) => limitReached = true));
             var counter = 0;
             var result = 0;
             var exception = new Exception();
@@ -63,6 +65,7 @@ namespace Trybot.Tests.RetryTests
             Assert.AreEqual(exception, retryException.InnerException);
             Assert.AreEqual(0, result);
             Assert.AreEqual(2, counter);
+            Assert.IsTrue(limitReached);
         }
 
         [TestMethod]
