@@ -23,12 +23,15 @@ namespace Trybot.Tests.RetryTests
         [TestMethod]
         public async Task RetryTests_Func_Ok()
         {
-            var policy = this.CreatePolicyWithRetry(this.CreateConfiguration<int>(2));
+            var onSucceeded = false;
+            var policy = this.CreatePolicyWithRetry(this.CreateConfiguration<int>(2)
+                .OnRetrySucceeded(ctx => onSucceeded = true));
             var counter = 0;
             var result = await policy.ExecuteAsync((ctx, t) => { counter++; return 5; }, CancellationToken.None);
 
             Assert.AreEqual(5, result);
             Assert.AreEqual(1, counter);
+            Assert.IsFalse(onSucceeded);
         }
 
         [TestMethod]
@@ -93,7 +96,7 @@ namespace Trybot.Tests.RetryTests
 
                 return Task.FromResult(5);
             }, CancellationToken.None);
-            
+
             Assert.IsTrue(onSucceeded);
             Assert.IsTrue(onRetryAsync);
             Assert.IsTrue(onSucceededAsync);

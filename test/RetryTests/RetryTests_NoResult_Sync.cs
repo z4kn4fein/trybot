@@ -23,11 +23,14 @@ namespace Trybot.Tests.RetryTests
         [TestMethod]
         public void RetryTests_Action_Ok()
         {
-            var policy = this.CreatePolicyWithRetry(this.CreateConfiguration(2));
+            var onSucceeded = false;
+            var policy = this.CreatePolicyWithRetry(this.CreateConfiguration(2)
+                .OnRetrySucceeded(ctx => onSucceeded = true));
             var counter = 0;
             policy.Execute((ctx, t) => { counter++; }, CancellationToken.None);
 
             Assert.AreEqual(1, counter);
+            Assert.IsFalse(onSucceeded);
         }
 
         [TestMethod]

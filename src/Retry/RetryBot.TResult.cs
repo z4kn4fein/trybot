@@ -24,7 +24,9 @@ namespace Trybot.Retry
 
                 if (tryResult.IsSucceeded)
                 {
-                    base.Configuration.RaiseRetrySucceededEvent(tryResult.OperationResult, AttemptContext.New(currentAttempt, TimeSpan.Zero, context));
+                    if (currentAttempt > 1)
+                        base.Configuration.RaiseRetrySucceededEvent(tryResult.OperationResult, AttemptContext.New(currentAttempt, TimeSpan.Zero, context));
+
                     return tryResult.OperationResult;
                 }
 
@@ -54,8 +56,10 @@ namespace Trybot.Retry
 
                 if (tryResult.IsSucceeded)
                 {
-                    await base.Configuration.RaiseRetrySucceededEventAsync(tryResult.OperationResult, AttemptContext.New(currentAttempt, TimeSpan.Zero, context), token)
-                        .ConfigureAwait(context.BotPolicyConfiguration.ContinueOnCapturedContext);
+                    if (currentAttempt > 1)
+                        await base.Configuration.RaiseRetrySucceededEventAsync(tryResult.OperationResult, AttemptContext.New(currentAttempt, TimeSpan.Zero, context), token)
+                            .ConfigureAwait(context.BotPolicyConfiguration.ContinueOnCapturedContext);
+
                     return tryResult.OperationResult;
                 }
 
