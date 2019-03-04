@@ -23,7 +23,12 @@ namespace Trybot.Retry
                 tryResult = this.Try(operation, context, token);
 
                 if (tryResult.IsSucceeded)
+                {
+                    if (currentAttempt > 1)
+                        base.Configuration.RaiseRetrySucceededEvent(AttemptContext.New(currentAttempt, TimeSpan.Zero, context));
+
                     return;
+                }
 
                 if (RetryBotUtils.HasMaxAttemptsReached(base.Configuration, currentAttempt)) break;
 
@@ -36,6 +41,7 @@ namespace Trybot.Retry
 
             token.ThrowIfCancellationRequested();
 
+            base.Configuration.RaiseRetryLimitReachedEvent(tryResult.Exception, context);
             throw new MaxRetryAttemptsReachedException(Constants.MaxRetryExceptionMessage, tryResult.Exception, null);
         }
 
@@ -50,7 +56,13 @@ namespace Trybot.Retry
                     .ConfigureAwait(context.BotPolicyConfiguration.ContinueOnCapturedContext);
 
                 if (tryResult.IsSucceeded)
+                {
+                    if (currentAttempt > 1)
+                        await base.Configuration.RaiseRetryEventSucceededAsync(AttemptContext.New(currentAttempt, TimeSpan.Zero, context), token)
+                            .ConfigureAwait(context.BotPolicyConfiguration.ContinueOnCapturedContext);
+
                     return;
+                }
 
                 if (RetryBotUtils.HasMaxAttemptsReached(base.Configuration, currentAttempt)) break;
 
@@ -64,6 +76,9 @@ namespace Trybot.Retry
             }
 
             token.ThrowIfCancellationRequested();
+
+            await base.Configuration.RaiseAsyncRetryLimitReachedEvent(tryResult.Exception, context, token)
+                .ConfigureAwait(context.BotPolicyConfiguration.ContinueOnCapturedContext);
 
             throw new MaxRetryAttemptsReachedException(Constants.MaxRetryExceptionMessage, tryResult.Exception, null);
         }

@@ -23,11 +23,14 @@ namespace Trybot.Tests.RetryTests
         [TestMethod]
         public void RetryTests_Action_Ok()
         {
-            var policy = this.CreatePolicyWithRetry(this.CreateConfiguration(2));
+            var onSucceeded = false;
+            var policy = this.CreatePolicyWithRetry(this.CreateConfiguration(2)
+                .OnRetrySucceeded(ctx => onSucceeded = true));
             var counter = 0;
             policy.Execute((ctx, t) => { counter++; }, CancellationToken.None);
 
             Assert.AreEqual(1, counter);
+            Assert.IsFalse(onSucceeded);
         }
 
         [TestMethod]
@@ -71,6 +74,29 @@ namespace Trybot.Tests.RetryTests
                     throw new Exception();
                 }, CancellationToken.None));
             Assert.AreEqual(2, counter);
+        }
+
+        [TestMethod]
+        public void RetryTests_Action_Fail_Then_Success()
+        {
+            var onRetry = false;
+            var onRetrySucceeded = false;
+            var policy = this.CreatePolicyWithRetry(this.CreateConfiguration(2)
+                .OnRetry((ex, ctx) => onRetry = true)
+                .OnRetrySucceeded(ctx => onRetrySucceeded = true));
+            var counter = 0;
+
+            policy.Execute((ctx, t) =>
+            {
+                if (counter < 1)
+                {
+                    counter++;
+                    throw new Exception();
+                }
+            }, CancellationToken.None);
+
+            Assert.IsTrue(onRetry);
+            Assert.IsTrue(onRetrySucceeded);
         }
 
         [TestMethod]

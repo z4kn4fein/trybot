@@ -23,12 +23,15 @@ namespace Trybot.Tests.RetryTests
         [TestMethod]
         public void RetryTests_Action_Ok()
         {
-            var policy = this.CreatePolicyWithRetry(this.CreateConfiguration<int>(2));
+            var onSucceeded = false;
+            var policy = this.CreatePolicyWithRetry(this.CreateConfiguration<int>(2)
+                .OnRetrySucceeded((r, ctx) => onSucceeded = true));
             var counter = 0;
             var result = policy.Execute((ctx, t) => { counter++; return 5; }, CancellationToken.None);
 
             Assert.AreEqual(5, result);
             Assert.AreEqual(1, counter);
+            Assert.IsFalse(onSucceeded);
         }
 
         [TestMethod]
@@ -47,7 +50,9 @@ namespace Trybot.Tests.RetryTests
         [TestMethod]
         public void RetryTests_Action_Fail()
         {
-            var policy = this.CreatePolicyWithRetry(this.CreateConfiguration<int>(2));
+            var limitReached = false;
+            var policy = this.CreatePolicyWithRetry(this.CreateConfiguration<int>(2)
+                .OnRetryLimitReached((ex, ctx) => limitReached = true));
             var counter = 0;
             var result = 0;
             var exception = new Exception();
@@ -60,6 +65,30 @@ namespace Trybot.Tests.RetryTests
             Assert.AreEqual(exception, retryException.InnerException);
             Assert.AreEqual(0, result);
             Assert.AreEqual(2, counter);
+            Assert.IsTrue(limitReached);
+        }
+
+        [TestMethod]
+        public void RetryTests_Action_Fail_Then_Success()
+        {
+            var onSucceeded = false;
+            var onRetry = false;
+            var policy = this.CreatePolicyWithRetry(this.CreateConfiguration<int>(2).OnRetry((ex, ctx) => onRetry = true).OnRetrySucceeded(ctx => onSucceeded = true));
+            var counter = 0;
+            var result = policy.Execute((ctx, t) =>
+            {
+                if (counter < 1)
+                {
+                    counter++;
+                    throw new Exception();
+                }
+
+                return 5;
+            });
+
+            Assert.IsTrue(onRetry);
+            Assert.IsTrue(onSucceeded);
+            Assert.AreEqual(5, result);
         }
 
         [TestMethod]

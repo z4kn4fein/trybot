@@ -12,9 +12,13 @@ namespace Trybot.Retry
     {
         internal int RetryCount { get; set; } = 1;
         internal Func<int, Exception, TimeSpan> RetryStrategy { get; set; } = (attempt, ex) => TimeSpan.Zero;
+        internal Action<AttemptContext> RetrySucceededHandler { get; set; }
+        internal Func<AttemptContext, CancellationToken, Task> AsyncRetrySucceededHandler { get; set; }
         internal Func<Exception, bool> RetryPolicy { get; set; }
         internal Action<Exception, AttemptContext> RetryHandler { get; set; }
         internal Func<Exception, AttemptContext, CancellationToken, Task> AsyncRetryHandler { get; set; }
+        internal Action<Exception, ExecutionContext> RetryLimitReachedHandler { get; set; }
+        internal Func<Exception, ExecutionContext, CancellationToken, Task> AsyncRetryLimitReachedHandler { get; set; }
 
         internal bool HandlesException(Exception exception) =>
             this.RetryPolicy?.Invoke(exception) ?? false;
@@ -25,6 +29,9 @@ namespace Trybot.Retry
         internal void RaiseRetryEvent(Exception exception, AttemptContext context) =>
             this.RetryHandler?.Invoke(exception, context);
 
+        internal void RaiseRetrySucceededEvent(AttemptContext context) =>
+            this.RetrySucceededHandler?.Invoke(context);
+
         internal async Task RaiseRetryEventAsync(Exception exception, AttemptContext context, CancellationToken token)
         {
             this.RetryHandler?.Invoke(exception, context);
@@ -33,6 +40,31 @@ namespace Trybot.Retry
                 return;
 
             await this.AsyncRetryHandler(exception, context, token).ConfigureAwait(context.ExecutionContext.BotPolicyConfiguration.ContinueOnCapturedContext);
+        }
+
+        internal async Task RaiseRetryEventSucceededAsync(AttemptContext context, CancellationToken token)
+        {
+            this.RetrySucceededHandler?.Invoke(context);
+
+            if (this.AsyncRetrySucceededHandler == null)
+                return;
+
+            await this.AsyncRetrySucceededHandler(context, token)
+                .ConfigureAwait(context.ExecutionContext.BotPolicyConfiguration.ContinueOnCapturedContext);
+        }
+
+        internal void RaiseRetryLimitReachedEvent(Exception exception, ExecutionContext context) =>
+            this.RetryLimitReachedHandler?.Invoke(exception, context);
+
+        internal async Task RaiseAsyncRetryLimitReachedEvent(Exception exception, ExecutionContext context, CancellationToken token)
+        {
+            this.RetryLimitReachedHandler?.Invoke(exception, context);
+
+            if (this.AsyncRetryLimitReachedHandler == null)
+                return;
+
+            await this.AsyncRetryLimitReachedHandler(exception, context, token)
+                .ConfigureAwait(context.BotPolicyConfiguration.ContinueOnCapturedContext);
         }
 
         internal TimeSpan CalculateNextDelay(int currentAttempt, Exception exception) =>
