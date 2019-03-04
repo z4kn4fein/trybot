@@ -27,8 +27,10 @@
     <DebugType>portable</DebugType>
     <LangVersion>latest</LangVersion>
     <PackageReleaseNotes>
-      removed: old funcionality.
-      added: rate limit support.
+      <![CDATA[
+- feature: #2 Feature Request: OnRetrySuccess
+- feature: #3 Feature Request: OnRetryLimitReached
+    ]]>
     </PackageReleaseNotes>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.0'">
