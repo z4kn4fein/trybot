@@ -7,15 +7,6 @@ Github (stable) | NuGet (stable) | MyGet (pre-release)
 --- | --- | ---
 [![Github release](https://img.shields.io/github/release/z4kn4fein/trybot.svg)](https://github.com/z4kn4fein/trybot/releases) | [![NuGet Version](https://buildstats.info/nuget/trybot)](https://www.nuget.org/packages/trybot/) | [![MyGet package](https://img.shields.io/myget/pcsajtai/v/trybot.svg?label=myget)](https://www.myget.org/feed/pcsajtai/package/nuget/trybot)
 
-## Supported platforms
-
- - .NET 4.5 and above
- - .NET Core
- - Mono
- - Universal Windows Platform
- - Xamarin (Android/iOS/Mac)
- - Unity
-
 ## Bots
 - **[Retry](https://github.com/z4kn4fein/trybot/wiki/Retry)** - Allows to configure auto re-execution of an operation based on exceptions it throws, or on its return value.
 
@@ -27,8 +18,16 @@ Github (stable) | NuGet (stable) | MyGet (pre-release)
 
 - **[Rate limit](https://github.com/z4kn4fein/trybot/wiki/Rate-limit)** - Controls the rate of the operations by specifying a maximum amount of executions within a given time window.
 
-## Usage
+## Supported platforms
 
+ - .NET 4.5 and above
+ - .NET Core
+ - Mono
+ - Universal Windows Platform
+ - Xamarin (Android/iOS/Mac)
+ - Unity
+
+## Usage
 During the configuration of a bot policy you can chain different bots to eachother.
 
 ```c#
@@ -82,7 +81,7 @@ Then you can execute the configured policy:
     // Or with lambda parameters
     policy.Execute((context, cancellationToken) => DoSomeOperation());
     ```
-    
+
 - Asynchronously:
 
     ```c#
