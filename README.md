@@ -23,7 +23,7 @@ Github (stable) | NuGet (stable) | MyGet (pre-release)
 
 - **[Fallback](https://github.com/z4kn4fein/trybot/wiki/Fallback)** - Handles faults by executing an alternative operation when the original one is failing, also provides the ability to produce an alternative result value when the original operation is not able to do it.
 
-- **[Circuit breaker](https://github.com/z4kn4fein/trybot/wiki/Circuit-breaker)** - Prevents the continuous re-execution of a failing operation by blocking the traffic for a configured amount of time, when the number of failures exceed a given threshold. This usually could give some break to the remote resource to heal itself properly.
+- **[Circuit breaker](https://github.com/z4kn4fein/trybot/wiki/Circuit-breaker)** - When the number of failures exceeds a given threshold, this bot prevents the continuous re-execution of the failing operation by blocking the traffic for a configured amount of time. This usually could give some break to the remote resource to heal itself properly.
 
 - **[Rate limit](https://github.com/z4kn4fein/trybot/wiki/Rate-limit)** - Controls the rate of the operations by specifying a maximum amount of executions within a given time window.
 
@@ -58,18 +58,23 @@ policy.Configure(policyConfig => policyConfig
 
 Then you can execute the configured policy:
 
-- With cancellation  
+- With cancellation:
+
     ```c#
     var tokenSource = new CancellationTokenSource();
     policy.Execute((context, cancellationToken) => DoSomeCancellableOperation(cancellationToken), tokenSource.Token);
     ```
-- With a custom correlation id  
+
+- With a custom correlation id:
+
     ```c#
     var correlationId = Guid.NewGuid();
     policy.Execute((context, cancellationToken) => DoSomeOperationWithCorrelationId(context.CorrelationId), correlationId);
     ```
     > Without setting a custom correlation id, the framework will always generate a unique one for every policy execution.
-- Synchronously  
+
+- Synchronously:
+
     ```c#
     // Without lambda parameters
     policy.Execute(() => DoSomeOperation());
@@ -77,7 +82,9 @@ Then you can execute the configured policy:
     // Or with lambda parameters
     policy.Execute((context, cancellationToken) => DoSomeOperation());
     ```
-- Asynchronously  
+    
+- Asynchronously:
+
     ```c#
     // Without lambda parameters
     await policy.ExecuteAsync(() => DoSomeAsyncOperation());
