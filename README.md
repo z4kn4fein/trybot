@@ -1,19 +1,20 @@
-# trybot [![Appveyor build status](https://img.shields.io/appveyor/ci/pcsajtai/trybot/master.svg?label=appveyor)](https://ci.appveyor.com/project/pcsajtai/trybot/branch/master) [![Travis CI build status](https://img.shields.io/travis/z4kn4fein/trybot/master.svg?label=travis-ci)](https://travis-ci.org/z4kn4fein/trybot) [![Tests](https://img.shields.io/appveyor/tests/pcsajtai/trybot-1453m/master.svg)](https://ci.appveyor.com/project/pcsajtai/trybot-1453m/build/tests) [![coverage](https://codecov.io/gh/z4kn4fein/trybot/branch/master/graph/badge.svg)](https://codecov.io/gh/z4kn4fein/trybot) [![Sourcelink](https://img.shields.io/badge/sourcelink-enabled-brightgreen.svg)](https://github.com/dotnet/sourcelink)
+# trybot 
+[![Appveyor build status](https://img.shields.io/appveyor/ci/pcsajtai/trybot/master.svg?label=appveyor)](https://ci.appveyor.com/project/pcsajtai/trybot/branch/master) [![Travis CI build status](https://img.shields.io/travis/z4kn4fein/trybot/master.svg?label=travis-ci)](https://travis-ci.org/z4kn4fein/trybot) [![Tests](https://img.shields.io/appveyor/tests/pcsajtai/trybot-1453m/master.svg)](https://ci.appveyor.com/project/pcsajtai/trybot-1453m/build/tests) [![coverage](https://codecov.io/gh/z4kn4fein/trybot/branch/master/graph/badge.svg)](https://codecov.io/gh/z4kn4fein/trybot) [![Sourcelink](https://img.shields.io/badge/sourcelink-enabled-brightgreen.svg)](https://github.com/dotnet/sourcelink)
 
-Trybot is a transient fault handling framework including such resiliency solutions as **Retry**, **Timeout**, **Fallback**, **Rate limit** and **Circuit Breaker**. The framework is extendable with **custom, user-defined** bots as well. [![Join the chat at https://gitter.im/z4kn4fein/stashbox](https://img.shields.io/gitter/room/z4kn4fein/trybot.svg)](https://gitter.im/z4kn4fein/trybot?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Slack](https://img.shields.io/badge/chat-on%20slack-orange.svg?style=flat)](https://pcsajtai-dev-slack-in.herokuapp.com/)
+Trybot is a transient fault handling framework including such resiliency solutions as **Retry**, **Timeout**, **Fallback**, **Rate limit** and **Circuit Breaker**. The framework is extendable with **custom, user-defined** bots.
 
-Github (stable) | NuGet (stable) | MyGet (pre-release) | Open Hub
+Github (stable) | NuGet (stable) | MyGet (pre-release)
 --- | --- | --- | ---
-[![Github release](https://img.shields.io/github/release/z4kn4fein/trybot.svg)](https://github.com/z4kn4fein/trybot/releases) | [![NuGet Version](https://buildstats.info/nuget/trybot)](https://www.nuget.org/packages/trybot/) | [![MyGet package](https://img.shields.io/myget/pcsajtai/v/trybot.svg?label=myget)](https://www.myget.org/feed/pcsajtai/package/nuget/trybot) | [![OpenHub](https://www.openhub.net/p/trybot/widgets/project_thin_badge?format=gif)](https://www.openhub.net/p/trybot)
+[![Github release](https://img.shields.io/github/release/z4kn4fein/trybot.svg)](https://github.com/z4kn4fein/trybot/releases) | [![NuGet Version](https://buildstats.info/nuget/trybot)](https://www.nuget.org/packages/trybot/) | [![MyGet package](https://img.shields.io/myget/pcsajtai/v/trybot.svg?label=myget)](https://www.myget.org/feed/pcsajtai/package/nuget/trybot)
 
 ## Supported platforms
 
  - .NET 4.5 and above
- - Windows 8/8.1/10
- - Windows Phone Silverlight 8/8.1
- - Windows Phone 8.1
- - Xamarin (Android/iOS/iOS Classic)
- - .NET Standard 1.0/2.0
+ - .NET Core
+ - Mono
+ - Universal Windows Platform
+ - Xamarin (Android/iOS/Mac)
+ - Unity
 
 ## Bots
 - **[Retry](https://github.com/z4kn4fein/trybot/wiki/Retry)** - Allows to configure auto re-execution of an operation based on exceptions it throws, or on its return value.
@@ -57,18 +58,18 @@ policy.Configure(policyConfig => policyConfig
 
 Then you can execute the configured policy:
 
-- With cancellation
+- With cancellation  
     ```c#
     var tokenSource = new CancellationTokenSource();
     policy.Execute((context, cancellationToken) => DoSomeCancellableOperation(cancellationToken), tokenSource.Token);
     ```
-- With a custom correlation id
+- With a custom correlation id  
     ```c#
     var correlationId = Guid.NewGuid();
     policy.Execute((context, cancellationToken) => DoSomeOperationWithCorrelationId(context.CorrelationId), correlationId);
     ```
     > Without setting a custom correlation id, the framework will always generate a unique one for every policy execution.
-- Synchronously
+- Synchronously  
     ```c#
     // Without lambda parameters
     policy.Execute(() => DoSomeOperation());
@@ -76,7 +77,7 @@ Then you can execute the configured policy:
     // Or with lambda parameters
     policy.Execute((context, cancellationToken) => DoSomeOperation());
     ```
-- Asynchronously
+- Asynchronously  
     ```c#
     // Without lambda parameters
     await policy.ExecuteAsync(() => DoSomeAsyncOperation());
@@ -86,6 +87,9 @@ Then you can execute the configured policy:
     ```
 
 > You can also create your custom bots as described [here](https://github.com/z4kn4fein/trybot/wiki/Custom-bots).
+
+## Community
+[![Join the chat at https://gitter.im/z4kn4fein/stashbox](https://img.shields.io/gitter/room/z4kn4fein/trybot.svg)](https://gitter.im/z4kn4fein/trybot?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Slack](https://img.shields.io/badge/chat-on%20slack-orange.svg?style=flat)](https://pcsajtai-dev-slack-in.herokuapp.com/) [![OpenHub](https://www.openhub.net/p/trybot/widgets/project_thin_badge?format=gif)](https://www.openhub.net/p/trybot)
 
 ## Extensions
 - ASP.NET Core 
