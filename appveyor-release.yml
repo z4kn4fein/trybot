@@ -3,17 +3,25 @@ deploy:
   api_key:
     secure: doqtwSE1NadH7pf4jqYifDu4tcXzsNiJtPWOccnbUrhSnIJX+5js7m8z+kV9LNJ2
 
+- provider: NuGet
+  server: https://nuget.pkg.github.com/z4kn4fein/index.json
+  artifact: /.nupkg/
+  skip_symbols: true
+  username: z4kn4fein
+  api_key:
+    secure: TaIug8cHioxT2qDznFpGtDinZiDi+20pEMQZUVAATWCvGLG9Y5LrjaxDUQtGyt38
+
 - provider: GitHub
   tag: $(build_version)
   release: Trybot v$(build_version)
   auth_token:
     secure: TaIug8cHioxT2qDznFpGtDinZiDi+20pEMQZUVAATWCvGLG9Y5LrjaxDUQtGyt38
-  artifact: /.*\.nupkg/
+  artifact: /.*\.nupkg|.*\.snupkg/
 
 environment:
   build_version: ''
 
-image: Visual Studio 2017
+image: Visual Studio 2019
   
 configuration: Release
 
@@ -28,7 +36,7 @@ before_build:
 
 build_script:
 - msbuild /t:Restore /p:Configuration=%CONFIGURATION% trybot.sln
-- msbuild /t:Build /p:Configuration=%CONFIGURATION% trybot.sln
+- msbuild /t:Build /p:Configuration=%CONFIGURATION% /p:ContinuousIntegrationBuild=true trybot.sln
 
 after_build:
 - inheritdoc -o
@@ -37,6 +45,8 @@ after_build:
 artifacts:
 - path: artifacts\Trybot.*.nupkg
   name: NuGet
+- path: artifacts\Trybot.*.snupkg
+  name: NuGet Symbol Packages
 
 notifications:
 - provider: Email

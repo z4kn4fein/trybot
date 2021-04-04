@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net45;netstandard1.0;netstandard2.0;portable-net45+win8+wpa81+wp8</TargetFrameworks>
+    <TargetFrameworks>net45;netstandard2.0</TargetFrameworks>
     <AssemblyName>Trybot</AssemblyName>
     <AssemblyTitle>Trybot</AssemblyTitle>
     <RootNamespace>Trybot</RootNamespace>
@@ -8,10 +8,10 @@
     <Authors>Peter Csajtai</Authors>
     <Company>Peter Csajtai</Company>
     <Product>Trybot</Product>
-    <Copyright>Copyright © Peter Csajtai 2017</Copyright>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/z4kn4fein/trybot/master/LICENSE</PackageLicenseUrl>
+    <Copyright>Copyright © Peter Csajtai 2021</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/z4kn4fein/trybot</PackageProjectUrl>
-    <PackageIconUrl>https://goo.gl/I3hRfL</PackageIconUrl>
+    <PackageIcon>icon.png</PackageIcon>
     <RepositoryUrl>https://github.com/z4kn4fein/trybot</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Trybot retry timeout fallback circuitbreaker</PackageTags>
@@ -26,45 +26,32 @@
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <DebugType>portable</DebugType>
     <LangVersion>latest</LangVersion>
-    <PackageReleaseNotes>
-      <![CDATA[
-- feature: #2 Feature Request: OnRetrySuccess
-- feature: #3 Feature Request: OnRetryLimitReached
-    ]]>
-    </PackageReleaseNotes>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.0'">
-    <AssemblyTitle>Trybot .NET Standard 1.0</AssemblyTitle>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PackageReleaseNotes>https://github.com/z4kn4fein/trybot/blob/master/CHANGELOG.md</PackageReleaseNotes>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <AssemblyTitle>Trybot .NET Standard 2.0</AssemblyTitle>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'portable-net45+win8+wpa81+wp8' And '$(MSBuildRuntimeType)' == 'Full'">
-    <AssemblyTitle>Trybot Portable</AssemblyTitle>
-    <IncludeProjectPriFile>false</IncludeProjectPriFile>
-    <TargetFrameworkIdentifier>.NETPortable</TargetFrameworkIdentifier>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Profile259</TargetFrameworkProfile>
-    <NugetTargetMoniker>.NETPortable,Version=v0.0,Profile=Profile259</NugetTargetMoniker>
-    <LanguageTargets>$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets</LanguageTargets>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
-  </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="trybot.tests\**" />
-    <Compile Remove="trybot\**" />
-    <EmbeddedResource Remove="trybot.tests\**" />
-    <EmbeddedResource Remove="trybot\**" />
-    <None Remove="trybot.tests\**" />
-    <None Remove="trybot\**" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" PrivateAssets="All" />
+  <ItemGroup>
+    <None Include="..\LICENSE" />
+    <None Include="..\assets\icon.png" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\.version" />
+    <None Include="..\appveyor.yml" />
+    <None Include="..\appveyor-release.yml" />
+    <None Include="..\.travis.yml" />
+    <None Include="..\coverage.ps1" />
+    <None Include="..\README.md" />
+    <None Include="..\CHANGELOG.md" />
   </ItemGroup>
 </Project>

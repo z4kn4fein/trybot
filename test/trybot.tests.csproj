@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net45;netcoreapp1.0;netcoreapp2.0</TargetFrameworks>
+    <TargetFrameworks>net45;netcoreapp3.1</TargetFrameworks>
     <AssemblyName>Trybot.Tests</AssemblyName>
     <RootNamespace>Trybot.Tests</RootNamespace>
     <SignAssembly>true</SignAssembly>
