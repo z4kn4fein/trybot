@@ -4,7 +4,7 @@
 Trybot is a transient fault handling framework including such resiliency solutions as **Retry**, **Timeout**, **Fallback**, **Rate limit**, and **Circuit Breaker**. The framework is extendable with **custom, user-defined** bots.
 
 Github (stable) | NuGet (stable) | Fuget (stable) | NuGet (pre-release)
---- | --- | ---
+--- | --- | --- | ---
 [![Github release](https://img.shields.io/github/release/z4kn4fein/trybot.svg)](https://github.com/z4kn4fein/trybot/releases) | [![NuGet Version](https://buildstats.info/nuget/trybot)](https://www.nuget.org/packages/trybot/) | [![Trybot on fuget.org](https://www.fuget.org/packages/Trybot/badge.svg)](https://www.fuget.org/packages/Trybot) | [![Nuget pre-release](https://img.shields.io/nuget/vpre/Trybot)](https://www.nuget.org/packages/Trybot/)
 
 ## Bots
